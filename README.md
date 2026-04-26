@@ -1,5 +1,5 @@
 <!-- TODO: プロジェクト名に変更してください -->
-# project-template
+# sns-battle
 
 Turborepo + pnpm monorepo を使用したフルスタックアプリケーションテンプレート
 

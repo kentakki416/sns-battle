@@ -1,0 +1,154 @@
+name: Terraform CI
+# TODO: 現在はdev環境のみ対象。環境が増えたらmatrix strategyで全環境(dev/stg/prd)に対して実行すること
+# 例:
+#   strategy:
+#     matrix:
+#       environment: [dev, prd]
+#   env:
+#     WORKING_DIR: infra/terraform/aws/env/${{ matrix.environment }}
+
+on:
+  pull_request:
+    paths:
+      - 'infra/terraform/**'
+      - '.github/workflows/terraform-ci.yml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'infra/terraform/**'
+      - '.github/workflows/terraform-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TERRAFORM_VERSION: '1.12'
+  TFLINT_VERSION: 'v0.55.1'
+  TRIVY_VERSION: '0.59.1'
+  WORKING_DIR: infra/terraform/aws/env/dev
+
+jobs:
+  fmt:
+    name: Terraform Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive -diff
+        working-directory: infra/terraform/aws
+
+  validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      # validate には init が必要だが、バックエンドへの接続は不要
+      - name: Terraform Init
+        run: terraform init -backend=false
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ${{ env.WORKING_DIR }}
+
+  tflint:
+    name: TFLint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # deep_check=true（.tflint.hcl）によるAWS APIへの問い合わせにクレデンシャルが必要
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: ${{ env.TFLINT_VERSION }}
+
+      - name: Init TFLint plugins
+        run: tflint --init --config="$(pwd)/.tflint.hcl"
+        working-directory: infra/terraform
+
+      - name: Run TFLint
+        run: tflint --config="$(pwd)/.tflint.hcl" --chdir=aws/env/dev --recursive
+        working-directory: infra/terraform
+
+  trivy:
+    name: Trivy Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: infra/terraform/aws/env/dev
+          trivy-config: infra/terraform/aws/env/dev/.trivy.yml
+          trivyignores: infra/terraform/aws/env/dev/.trivyignore
+
+
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [fmt, validate, tflint, trivy]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ env.WORKING_DIR }}
+
+      - name: Terraform Plan
+        run: terraform plan -no-color
+        working-directory: ${{ env.WORKING_DIR }}

@@ -1,0 +1,130 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Base Dark */
+  --color-dark-base: #000319;
+  --color-dark-surface: rgba(4, 7, 29, 1);
+  --color-dark-elevated: rgba(12, 14, 35, 1);
+  --color-dark-border: rgba(255, 255, 255, 0.1);
+
+  /* Primary: Purple */
+  --color-primary: #CBACF9;
+  --color-primary-hover: #b48ef5;
+  --color-primary-light: #E2CBFF;
+  --color-primary-bg: rgba(203, 172, 249, 0.06);
+  --color-primary-border: rgba(203, 172, 249, 0.3);
+  --color-primary-glow: rgba(203, 172, 249, 0.15);
+
+  /* Accent: Cyan */
+  --color-cyan: #0EA5E9;
+  --color-cyan-light: #67E8F9;
+  --color-cyan-glow: rgba(14, 165, 233, 0.15);
+
+  /* Accent: Pink */
+  --color-accent-pink: #EC4899;
+  --color-pink-light: #F9A8D4;
+  --color-pink-glow: rgba(236, 72, 153, 0.15);
+
+  /* Accent: Green */
+  --color-success: #22C55E;
+  --color-success-glow: rgba(34, 197, 94, 0.15);
+
+  /* Status */
+  --color-warning: #FBBF24;
+  --color-error: #EF4444;
+
+  /* Text */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #BEC1DD;
+  --color-text-muted: #C1C2D3;
+  --color-text-disabled: #636369;
+
+  /* Fonts */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-dark-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/**
+ * グリッドパターン背景
+ */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/**
+ * ドットパターン背景
+ */
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(203, 172, 249, 0.15) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/**
+ * グラスモーフィズムカード
+ */
+.glass-card {
+  background: linear-gradient(135deg, rgba(4, 7, 29, 0.8) 0%, rgba(12, 14, 35, 0.6) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/**
+ * グローイングボーダー
+ */
+.glow-border-purple {
+  box-shadow: 0 0 20px rgba(203, 172, 249, 0.1), inset 0 0 20px rgba(203, 172, 249, 0.05);
+}
+
+.glow-border-cyan {
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.1), inset 0 0 20px rgba(14, 165, 233, 0.05);
+}
+
+.glow-border-pink {
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.1), inset 0 0 20px rgba(236, 72, 153, 0.05);
+}
+
+/**
+ * カスタムスクロールバー
+ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/**
+ * シマーアニメーション
+ */
+@keyframes shimmer {
+  from { background-position: 0 0; }
+  to { background-position: -200% 0; }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
