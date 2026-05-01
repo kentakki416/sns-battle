@@ -83,6 +83,8 @@ jobs:
     name: TFLint
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # TODO: prd環境が増えたら、matrix strategy に従い、${{ matrix.environment }} に変更すること
+    environment: dev # GitHub Environments で AWS_ROLE_ARN を環境ごとに分離
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -110,8 +112,7 @@ jobs:
         run: tflint --init --config="$(pwd)/.tflint.hcl"
         working-directory: infra/terraform
 
-      # --chdir=aws/env/dev は dev 環境のみ対象のためハードコード
-      # 環境が増えたら冒頭 TODO の matrix strategy に従い、--chdir=aws/env/${{ matrix.environment }} に変更すること
+      # TODO: prd環境が増えたら、matrix strategy に従い、--chdir=aws/env/${{ matrix.environment }} に変更すること
       - name: Run TFLint
         run: tflint --config="$(pwd)/.tflint.hcl" --chdir=aws/env/dev --recursive
         working-directory: infra/terraform
@@ -125,7 +126,7 @@ jobs:
         uses: actions/checkout@v4
 
       # scan-ref / trivy-config / trivyignores のパスは dev 環境のみ対象のためハードコード
-      # 環境が増えたら冒頭 TODO の matrix strategy に従い、aws/env/${{ matrix.environment }} に変更すること
+      # TODO: prd環境が増えたら、matrix strategy に従い、aws/env/${{ matrix.environment }} に変更すること
       - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
@@ -141,6 +142,8 @@ jobs:
     timeout-minutes: 10
     needs: [fmt, validate, tflint, trivy]
     if: github.event_name == 'pull_request'
+    # TODO: prd環境が増えたら、matrix strategy に従い、${{ matrix.environment }} に変更すること
+    environment: dev # GitHub Environments で AWS_ROLE_ARN を環境ごとに分離
     steps:
       - name: Checkout
         uses: actions/checkout@v4
