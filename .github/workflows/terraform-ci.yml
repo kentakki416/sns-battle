@@ -112,9 +112,8 @@ jobs:
         run: tflint --init --config="$(pwd)/.tflint.hcl"
         working-directory: infra/terraform
 
-      # TODO: prd環境が増えたら、matrix strategy に従い、--chdir=aws/env/${{ matrix.environment }} に変更すること
       - name: Run TFLint
-        run: tflint --config="$(pwd)/.tflint.hcl" --chdir=aws/env/dev --recursive
+        run: tflint --config="$(pwd)/.tflint.hcl" --recursive
         working-directory: infra/terraform
 
   trivy:
