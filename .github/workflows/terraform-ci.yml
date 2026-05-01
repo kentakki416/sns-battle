@@ -72,7 +72,7 @@ jobs:
 
       # validate には init が必要だが、バックエンドへの接続は不要
       - name: Terraform Init
-        run: terraform init -backend=false
+        run: terraform init -input=false -backend=false -lockfile=readonly
         working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Validate
@@ -98,11 +98,20 @@ jobs:
         uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: ${{ env.TFLINT_VERSION }}
+          # GITHUB_TOKEN は GitHub Actions が自動で発行する組み込みトークン
+          # プラグイン取得時の GitHub API レート制限（匿名: 60req/h → 認証: 1000req/h）回避のため指定
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Init TFLint plugins
+        env:
+          # GITHUB_TOKEN は GitHub Actions が自動で発行する組み込みトークン
+          # tflint --init が内部で GitHub Releases API を叩くため、レート制限回避用に渡す
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: tflint --init --config="$(pwd)/.tflint.hcl"
         working-directory: infra/terraform
 
+      # --chdir=aws/env/dev は dev 環境のみ対象のためハードコード
+      # 環境が増えたら冒頭 TODO の matrix strategy に従い、--chdir=aws/env/${{ matrix.environment }} に変更すること
       - name: Run TFLint
         run: tflint --config="$(pwd)/.tflint.hcl" --chdir=aws/env/dev --recursive
         working-directory: infra/terraform
@@ -115,6 +124,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # scan-ref / trivy-config / trivyignores のパスは dev 環境のみ対象のためハードコード
+      # 環境が増えたら冒頭 TODO の matrix strategy に従い、aws/env/${{ matrix.environment }} に変更すること
       - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
@@ -146,9 +157,9 @@ jobs:
           aws-region: ap-northeast-1
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false -lockfile=readonly -lock-timeout=60s
         working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Plan
-        run: terraform plan -no-color
+        run: terraform plan -no-color -input=false -lock-timeout=60s
         working-directory: ${{ env.WORKING_DIR }}
