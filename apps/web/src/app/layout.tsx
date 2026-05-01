@@ -3,8 +3,6 @@ import "./globals.css"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
-import AppShell from "@/components/layout/app-shell"
-
 const geistSans = Geist({
   subsets: ["latin"],
   variable: "--font-geist-sans",
@@ -30,7 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AppShell>{children}</AppShell>
+        {children}
       </body>
     </html>
   )

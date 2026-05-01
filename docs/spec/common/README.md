@@ -9,6 +9,9 @@
   - [follows](#follows)
   - [blocks](#blocks)
   - [stamp_masters](#stamp_masters)
+  - [effects（将来フェーズ）](#effects将来フェーズ)
+  - [user_inventory（将来フェーズ）](#user_inventory将来フェーズ)
+  - [coin_transactions（将来フェーズ）](#coin_transactions将来フェーズ)
   - [talk_themes](#talk_themes)
   - [talk_theme_choices](#talk_theme_choices)
 - [API 設計](#api-設計)
@@ -42,7 +45,12 @@
 | name | varchar | nullable | 表示名 | 既存 |
 | avatar_url | varchar | nullable | アバター画像URL | 既存 |
 | bio | text | nullable | 自己紹介文 | **追加** |
+| birth_date | date | NOT NULL | 生年月日（年齢は計算で算出） | **追加（Spec1）** |
+| gender | Gender | NOT NULL | 性別（MALE / FEMALE / OTHER） | **追加（Spec1）** |
 | is_onboarded | boolean | NOT NULL, default: false | 初期設定完了フラグ | **追加** |
+| mbti | varchar(4) | nullable | MBTI タイプ（将来フェーズ） | **追加（nullable）** |
+| location | varchar(100) | nullable | 居住地域（将来フェーズ） | **追加（nullable）** |
+| coin_balance | int | NOT NULL, default: 0 | コイン残高（将来フェーズ） | **追加** |
 | created_at | timestamp | NOT NULL | 作成日時 | 既存 |
 | updated_at | timestamp | NOT NULL | 更新日時 | 既存 |
 
@@ -85,10 +93,59 @@
 | image_url | varchar(500) | nullable | スタンプ画像URL |
 | emoji | varchar(10) | NOT NULL | 絵文字（画像フォールバック） |
 | category | StampCategory | NOT NULL | GENERAL / BATTLE / MATCHING |
+| animation_type | AnimationType | NOT NULL, default: FLOAT | アニメーション種別（NONE / FLOAT / BOUNCE / EXPLODE / SHAKE） |
+| is_premium | boolean | NOT NULL, default: false | 有料スタンプか |
+| price | int | NOT NULL, default: 0 | 価格（コイン単位、0=無料） |
 | sort_order | int | NOT NULL, default: 0 | 表示順 |
 | is_active | boolean | NOT NULL, default: true | 有効フラグ |
 | created_at | timestamp | NOT NULL | 作成日時 |
 | updated_at | timestamp | NOT NULL | 更新日時 |
+
+### effects（将来フェーズ）
+
+エフェクトのマスターデータ。マッチング・バトル中に使用できる視覚エフェクト。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|------|------|------|
+| id | int | PK, auto_increment | エフェクトID |
+| name | varchar(100) | NOT NULL | エフェクト名（紙吹雪、花火等） |
+| type | EffectType | NOT NULL | CONFETTI / FIREWORKS / HEARTS / CUSTOM |
+| preview_url | varchar(500) | nullable | プレビュー動画/画像URL |
+| is_premium | boolean | NOT NULL, default: false | 有料か |
+| price | int | NOT NULL, default: 0 | 価格（コイン単位） |
+| duration_ms | int | NOT NULL, default: 3000 | エフェクト再生時間（ms） |
+| is_active | boolean | NOT NULL, default: true | 有効フラグ |
+| created_at | timestamp | NOT NULL | 作成日時 |
+| updated_at | timestamp | NOT NULL | 更新日時 |
+
+### user_inventory（将来フェーズ）
+
+ユーザーが購入した有料スタンプ・エフェクトの所持品。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|------|------|------|
+| id | int | PK, auto_increment | ID |
+| user_id | int | FK → users, NOT NULL | ユーザー |
+| item_type | ItemType | NOT NULL | STAMP / EFFECT |
+| item_id | int | NOT NULL | stamp_masters.id or effects.id |
+| purchased_at | timestamp | NOT NULL | 購入日時 |
+
+制約: `@@unique([user_id, item_type, item_id])`
+
+### coin_transactions（将来フェーズ）
+
+コインの取引履歴。購入・消費・ボーナス付与を記録。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|------|------|------|
+| id | int | PK, auto_increment | ID |
+| user_id | int | FK → users, NOT NULL | ユーザー |
+| amount | int | NOT NULL | コイン数（正=購入/付与、負=消費） |
+| type | TransactionType | NOT NULL | PURCHASE / SPEND / BONUS / REFUND |
+| description | varchar(255) | nullable | 取引内容 |
+| created_at | timestamp | NOT NULL | 取引日時 |
+
+インデックス: `(user_id, created_at)`
 
 ### talk_themes
 
@@ -186,40 +243,218 @@
 
 ### 共通レイアウト
 
-**ナビゲーションバー（上部 56px）**:
-- 左: アプリロゴ（パープル）
-- 中央: 検索バー（`#18181b` 背景）
-- 右: 通知ベル、「マッチング開始」ボタン（パープル）、ユーザーアバター（ドロップダウン）
+ルートレイアウトは `apps/web/src/app/layout.tsx` で `<AppShell>` を呼び出し、その内部で「フルスクリーンに振る舞うべきページ」と「ナビバー＋サイドバー付きページ」をパス単位で切り替える。
 
-**サイドバー（左 240px / 折りたたみ 56px）**:
-- ホーム、配信一覧、マッチング、バトル一覧のナビゲーション
-- フォロー中ユーザー一覧（ライブ中を上部に表示）
-- 背景: `#1f1f23`、アクティブ: `#9147ff1a` + 左ボーダー
+#### AppShell（apps/web/src/components/layout/app-shell.tsx）
+
+`usePathname()` から現在のパスを取得し、3 種類の表示モードを判定する Client Component。
+
+- **immersive モード**（ナビバー・サイドバーともに非表示の完全フルスクリーン）
+  - 対象パス: `/sign-in`、`/stream/...`、`/matching/session`、`/battles/{id}`（一覧 `/battles` は除外）
+  - レイアウト: `<main>` のみレンダリング。余白なし
+- **no-sidebar モード**（ナビバーのみ表示、サイドバー非表示）
+  - 対象パス: `/battles`（バトル一覧）
+  - レイアウト: ナビバー + `<main className="mt-14 p-6">`
+- **default モード**（ナビバー + サイドバー）
+  - 対象パス: 上記以外（`/`、`/matching`、`/matching/result`、`/profile/...`、`/search` 等）
+  - レイアウト: ナビバー + サイドバー + `<main className="ml-60 mt-14 p-6">`
+
+判定関数:
+- `isBattleDetailPath(pathname)`: `pathname.startsWith("/battles/") && pathname !== "/battles"`
+- `isImmersive`: `isBattleDetailPath || immersivePaths.some(p => pathname.startsWith(p))`
+- `isNoSidebar`: `noSidebarPaths.includes(pathname)`
+
+#### Navbar（上部固定 56px / `apps/web/src/components/layout/navbar.tsx`）
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ [⚡ロゴ] SNS Battle    [🔍 検索バー...]    [マッチング開始] [🔔3] [K] │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+- **配置**: `fixed left-0 right-0 top-0 z-50 h-14`、左右 padding `20px`
+- **背景**: `rgba(17, 25, 40, 0.75)` + `backdrop-filter: blur(16px) saturate(180%)`
+- **下境界**: `border-bottom: 1px solid rgba(255,255,255,0.08)`
+- **左（ロゴ）**: `<Link href="/">`。32px 角丸正方形にパープル→シアングラデ背景、内側に `⚡` 絵文字。右に「SNS Battle」テキスト
+- **中央（検索バー）**: `md:` 以上で表示。最大 `max-w-md`。背景 `bg-dark-base/50` + 左に `🔍` アイコン。Enter キーで `/search?q=...` に遷移
+- **右（アクション群）**: 3 要素を `gap-3` で並べる
+  1. 「マッチング開始」CTA: `<Link href="/matching">`。グラデ背景（`primary → cyan → primary`）+ ホバー時に `animate-shimmer` でシマー演出
+  2. 通知ベル: `🔔` + 右上に `bg-accent-pink` の小バッジ（数字）
+  3. ユーザーアバター: `<Link href="/profile/me">`。32px 円形にパープル→ピンクグラデ背景、ホバー時パープルグロー
+
+#### Sidebar（左固定 240px / 折りたたみ 68px / `apps/web/src/components/layout/sidebar.tsx`）
+
+```
+┌────────────────────┐
+│        ◂           │ ← 折りたたみトグル（中央）
+│                    │
+│ [🏠] ホーム        │ ← ナビゲーション
+│ [📺] 配信          │
+│ [🤝] マッチング    │   ← アクティブはパープル枠 + パープル背景
+│ [⚔️] バトル        │
+│ [🔍] 検索          │
+│ [👤] プロフィール  │
+│                    │
+│ FOLLOWING          │ ← セクション見出し（uppercase, tracking-widest）
+│ ─────────────────  │
+│ 🎸 ギターマスター  │ ← フォロー中ユーザー
+│   [LIVE] 1,234視聴 │
+│ 🎮 ゲーマーX       │
+│ 🎨 アート太郎      │
+│                    │
+│ ─────────────────  │
+│ [K] ケンタ         │ ← 自分のプロフィールカード（最下部固定）
+│     @kenta         │
+└────────────────────┘
+```
+
+- **配置**: `fixed left-0 top-14 z-40 h-[calc(100vh-56px)]`、ナビバー直下から画面下まで
+- **幅**: 展開時 `w-60` (240px) / 折りたたみ時 `w-[68px]`、`transition-all duration-300`
+- **背景**: 縦グラデ `linear-gradient(180deg, rgba(4,7,29,0.95) 0%, rgba(12,14,35,0.9) 100%)` + `backdrop-filter: blur(12px)`
+- **右境界**: `border-right: 1px solid rgba(255,255,255,0.05)`
+- **折りたたみトグル**: 中央上部の小さな `◂ / ▸` ボタン（28px 角）
+- **ナビゲーション項目**:
+  - リスト: `[ホーム /, 配信 /stream/{user}, マッチング /matching, バトル /battles, 検索 /search, プロフィール /profile/me]`
+  - アクティブ判定: `pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))`
+  - アクティブスタイル: `bg-primary-glow` + `border border-primary-border` + `text-primary`
+  - 非アクティブ: `text-text-muted` + ホバーで `bg-white/[0.03]` + `text-text-primary`
+  - 折りたたみ時はアイコンのみ中央配置（`justify-center px-2`）
+- **フォロー中セクション**:
+  - 見出し: `text-[10px] uppercase tracking-widest text-text-disabled`「フォロー中」
+  - 各項目: 絵文字アバター + 名前 + LIVE バッジ（配信中時のみ）+ 視聴者数
+  - LIVE 中はアバター右下に緑のドット（`bg-success` + 暗背景の枠）
+  - 折りたたみ時は LIVE 中ユーザーのみ円形アイコンで表示
+- **下部プロフィールカード**:
+  - `mt-auto` で最下部固定。上に `border-t border-white/[0.05]`
+  - パープル→シアングラデ背景の角丸円アバター + 名前 + `@username`
 
 ### 共通コンポーネント
 
-| コンポーネント | 説明 |
-|--------------|------|
-| `<CountdownOverlay>` | 3, 2, 1, START! のフルスクリーンオーバーレイ。`rgba(14,14,16,0.9)` + backdrop-blur。数字は120px パープルグロー。Framer Motion で scale + fade |
-| `<StampPalette>` | 画面下部スライドアップ（280px）。カテゴリタブ + 4列グリッド。タップで即送信 |
-| `<StampFloatLayer>` | ビデオ上のオーバーレイ。受信スタンプがランダム位置から上方向にフロート（2〜3秒）。同時30個上限。`pointer-events: none` |
-| `<ThemeCard>` | トークテーマカード。パープルグラデーションヘッダー + 選択肢ボタン横並び。選択済みはパープル背景 |
-| `<ConfettiEffect>` | `canvas-confetti` で紙吹雪。パープル + ホットピンク + ゴールド。3秒間 |
-| `<TimerBar>` | 画面上部固定（4px）。パープル → 残り2分でアンバー → 残り30秒で赤+点滅 |
+#### `<LiveBadge size?: "sm" | "md">`（apps/web/src/components/ui/live-badge.tsx）
+
+LIVE 中であることを示すバッジ。
+
+- **背景**: `linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0.1) 100%)`
+- **枠**: `1px solid rgba(239,68,68,0.3)`
+- **文字色**: `#EF4444`（error）。`font-bold uppercase`
+- **構成**: 左に点滅ドット（`h-1.5 w-1.5 bg-error animate-pulse rounded-full`）+「LIVE」テキスト
+- **サイズ**:
+  - `sm`（デフォルト）: `px-1.5 py-0.5 text-[10px] gap-1`
+  - `md`: `px-2.5 py-1 text-xs gap-1.5`
+
+#### `<VideoChatOverlay messages stampEmojis?>`（apps/web/src/components/ui/video-chat-overlay.tsx）
+
+配信視聴ページとバトルルームで使う、ビデオ最下部に重ねるチャットオーバーレイ。
+
+- **配置**: `absolute bottom-0 left-0 right-0`、`max-height: 60%`
+- **構成（上から下）**:
+  1. **コメント一覧**（スクロール可）: `[mask-image:linear-gradient(to_bottom,transparent_0%,black_30%)]` で上部フェードアウト。新着メッセージで自動スクロール（`scrollTop = scrollHeight`）
+     - 各メッセージ: `<userName>` をユーザー固有色（HSL ハッシュベース）、`<message>` を白で並列表示。`drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]` で読みやすさ確保
+  2. **スタンプパレット**（`showStamps` 時のみ）: 6列グリッド。デフォルトスタンプは絵文字 12 個（`["👍","🔥","😂","👏","💪","🎉","❤️","⭐","🏆","💯","😮","🤣"]`）。`stampEmojis` prop で上書き可能。背景 `rgba(0,3,25,0.7)` + blur
+  3. **入力エリア**:
+     - 左: 😀 ボタン（スタンプパレット開閉トグル。`showStamps` 時はパープル）
+     - 中央: `<input>` 入力欄。背景 `rgba(0,3,25,0.5)` + blur + 1px 白枠
+     - 右: 「送信」ボタン（パープル文字）
+
+#### `<CountdownOverlay>`（マッチング・バトル共通仕様）
+
+`/matching/session` のカウントダウン表示と同じパターンを共通化する想定。
+
+- **配置**: `fixed inset-0 z-50 flex items-center justify-center`
+- **背景**: `rgba(0,3,25,0.92)` + `backdrop-filter: blur(12px)`
+- **数字**: `text-[140px] font-bold` + パープル→シアングラデ + `bg-clip-text text-transparent`
+- **発光**: `filter: drop-shadow(0 0 60px rgba(203,172,249,0.4))`
+- **シーケンス**: `["3", "2", "1", "START!"]` を 1 秒ごとに切替
+- **アニメーション**: 各数字を Framer Motion `AnimatePresence mode="wait"` で `initial={scale: 0.3, opacity: 0}` → `animate={scale: 1, opacity: 1}` → `exit={scale: 1.5, opacity: 0}`、`duration: 0.3`
+
+#### `<StampPalette>`（スタンプ送信用パレット）
+
+ビデオチャット内（VideoChatOverlay 内蔵）または独立コンポーネント。
+
+- カテゴリタブ + 絵文字グリッド構成
+- マスターデータ API（`GET /api/stamps?category=...`）から取得した `stamp_masters` を表示
+- タップで即送信 → Data Channel 送信 + 親へ通知
+
+#### `<StampFloatLayer>`（受信スタンプの表示）
+
+配信ページ・バトルルームで、受信したスタンプをビデオ上にフロート表示。
+
+- **配置**: ビデオ要素の `absolute inset-0`、`pointer-events-none`
+- **動作**: 受信スタンプをランダムな水平位置（`left: 20%-80%`）から上方向に 2 秒間フロート（`y: 0 → -200`）+ 透明度フェードアウト
+- **同時表示上限**: 30 個。それ以上は最古から削除
+- **アニメーション**: Framer Motion `motion.div` で `initial={opacity: 0.9, scale: 0.5, y: 0}` → `animate={opacity: 1, scale: 1, y: -200}` → `exit={opacity: 0}`
+
+#### `<ConfettiEffect>`（紙吹雪）
+
+マッチングのリアクション一致、バトル勝利時に表示。
+
+- 推奨ライブラリ: `canvas-confetti`
+- カラー: `#CBACF9`（パープル）+ `#EC4899`（ピンク）+ `#FBBF24`（ゴールド）+ `#0EA5E9`（シアン）
+- 持続: 3 秒間。`spread: 70`、`particleCount: 100`
+
+#### `<TimerBar progress remainingSec>`（マッチング・バトル共通）
+
+画面上部固定の進行度バー。
+
+- **配置**: `absolute top-0 left-0 right-0 h-1`（4px）
+- **背景**: `bg-white/[0.08]`
+- **進行バー**: グラデ `from-primary via-cyan to-primary`
+- **色変化**:
+  - 残り時間 ≤ 10 秒: グラデを `from-warning to-warning`（アンバー単色）に切替
+  - 残り時間 ≤ 5 秒: `from-error to-error`（赤単色）+ `animate-pulse`
+- **滑らかな縮小**: 各テーマ開始時に `key` を更新し、`@keyframes timer-shrink` を `${duration}s linear forwards` で適用
 
 ---
 
 ## Enum 定義（共通）
 
 ```typescript
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
 enum StampCategory {
   GENERAL
   BATTLE
   MATCHING
 }
 
+enum AnimationType {
+  NONE
+  FLOAT
+  BOUNCE
+  EXPLODE
+  SHAKE
+}
+
 enum TalkThemeCategory {
   MATCHING
   BATTLE
+}
+
+enum TalkThemeType {
+  CHOICE
+  FREE_TALK
+}
+
+enum EffectType {
+  CONFETTI
+  FIREWORKS
+  HEARTS
+  CUSTOM
+}
+
+enum ItemType {
+  STAMP
+  EFFECT
+}
+
+enum TransactionType {
+  PURCHASE
+  SPEND
+  BONUS
+  REFUND
 }
 ```

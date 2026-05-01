@@ -193,75 +193,174 @@ enum BattleStampTarget { HOST, OPPONENT }
 
 ### バトル一覧（/battles）
 
+`apps/web/src/app/battles/page.tsx`。AppShell 上では **no-sidebar モード**（ナビバーのみ、サイドバーなし）。
+
 ```
-┌─────────────────────────────────────────────┐
-│ バトル一覧                    [バトル作成 +] │
-│                                             │
-│ 開催中 ⚔️                                   │
-│ ┌─────────────────────────────────────────┐ │
-│ │ きのこ vs たけのこ    🔴 LIVE           │ │
-│ │ HostA ⚔️ OpponentB   👁 150人          │ │
-│ │ 🏆 42 - 38            [観戦する]       │ │
-│ └─────────────────────────────────────────┘ │
-│                                             │
-│ 対戦相手募集中 🕐                            │
-│ ┌─────────────────────────────────────────┐ │
-│ │ 夏 vs 冬              待機中            │ │
-│ │ HostC ⚔️ ???          [参加する]        │ │
-│ └─────────────────────────────────────────┘ │
-└─────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│  バトル一覧                              [+ バトル作成] │
+│  リアルタイムの対決を観戦・参加しよう                    │
+│                                                        │
+│  ┌─ glass-card ─────────────────────────────────┐     │
+│  │ [すべて] [開催中] [募集中]                    │     │ ← タブ
+│  └────────────────────────────────────────────────┘     │
+│                                                        │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐               │
+│  │BattleCard│ │BattleCard│ │BattleCard│  ← 3 列グリッド │
+│  └──────────┘ └──────────┘ └──────────┘               │
+│  ┌──────────┐ ┌──────────┐                            │
+│  │BattleCard│ │BattleCard│                            │
+│  └──────────┘ └──────────┘                            │
+│                                                        │
+│  （該当なしの場合）                                      │
+│             該当するバトルはありません                   │
+└────────────────────────────────────────────────────────┘
 ```
 
-タブ: 「すべて」「開催中」「募集中」
+#### レイアウト
+
+- **背景装飾**: 右上に 500px ピンク blur オーブ + 左下に 400px パープル blur オーブ
+- **ヘッダー**: 「バトル一覧」（`text-2xl font-bold`）+ 「リアルタイムの対決を観戦・参加しよう」（`text-sm text-text-muted`）
+- **作成ボタン**: 右上、`<button>` + 内側に 3 点グラデ背景（`from-accent-pink via-primary to-cyan`）。クリックで `/battles/create` に遷移
+- **タブ**: `glass-card` 内に `flex gap-1 p-1`、3 タブ（`すべて` / `開催中` / `募集中`）
+  - アクティブ: `bg-gradient-to-r from-primary to-cyan text-dark-base shadow-[0_0_12px_rgba(203,172,249,0.15)]`
+- **グリッド**: `<BattleCard>`（仕様は [social/README.md](../social/README.md) 参照）を `grid sm:grid-cols-2 lg:grid-cols-3 gap-4` で並べる
+- **空状態**: 「該当するバトルはありません」を中央表示（`py-20 text-center text-text-disabled`）
+
+#### データ取得
+
+- Server Component で `GET /api/battles?status=...` を呼び出す
+- フィルタロジック（クライアント側）: `activeTab === "all"` ならすべて、それ以外は `battle.status === activeTab`
 
 ### バトル作成（/battles/create）
 
-タイトル入力フィールド + 「バトルを作成する」ボタン
+シンプルフォーム。タイトル入力（`text-input`）+ 「バトルを作成する」ボタン。送信で `POST /api/battles` → `/battles/:id` に遷移。
 
 ### バトルルーム（/battles/:id）
 
+`apps/web/src/app/battles/[id]/page.tsx`。AppShell 上では **immersive モード**（フルスクリーン）。
+
 ```
-┌──────────────────────────────────────────┬──────────────┐
-│ きのこ vs たけのこ   🔴 LIVE              │ コメント 💬  │
-│                                          │              │
-│ ┌──────────────┐  ⚔️  ┌──────────────┐  │ User: がんば │
-│ │  HostA 映像  │  VS  │ OpponentB映像│  │ User: きのこ │
-│ │  🎤 話し中   │      │  🔇 待機中   │  │ 🔥🔥        │
-│ └──────────────┘      └──────────────┘  │              │
-│                                          │ ────────────│
-│ テーマ: きのこの山 vs たけのこの里         │ [メッセージ] │
-│ 🔄 HostA のターン（残り 0:42）            │ [😀] [送信]  │
-│                                          │ ────────────│
-│ ┌──────────────────────────────────────┐ │  スタンプ    │
-│ │ HostA  [=========  42  ] 53%         │ │ [HostAに送る]│
-│ │ OpptB  [=======  38  ] 47%           │ │ [OpptBに送る]│
-│ └──────────────────────────────────────┘ │ [🎯 パレット]│
-│                                          │              │
-│ 👁 150人が観戦中                          │              │
-└──────────────────────────────────────────┴──────────────┘
+┌────────────────────────────────────────────────────────────┐
+│ きのこの山 vs たけのこの里  [LIVE]      👁 150人が観戦中   │ ← 上部オーバーレイ
+│ チョコ派リーダー 42      53% — 47%      38 キャンディ女王  │
+│ [════════════════ host ║ opp ════════════]              │ ← スタンプカウントバー
+│                                                            │
+│ ┌─── ホスト側ビデオ ───┐ ⚪VS⚪ ┌─── 対戦者側ビデオ ───┐ │
+│ │  🍫 (大プレースホルダ)│      │  🍬 (大プレースホルダ) │ │
+│ │                      │      │                        │ │
+│ │  [🍫] チョコ派 [🎤話し中] │ │ [🔇待機中] キャンディ [🍬] │
+│ └──────────────────────┘      └────────────────────────┘ │
+│                                                            │
+│         ┌─ テーマ表示（半透明 + blur）─┐                   │
+│         │ 🔄 HostA のターン（残り 0:42）│                   │
+│         │ きのこの山 vs たけのこの里    │                   │
+│         └──────────────────────────────┘                   │
+│                                                            │
+│ [チョコ派リーダーに送る][キャンディ女王に送る] ← 送信先タブ│
+│ ┌─コメント・スタンプオーバーレイ（左半分）─┐               │
+│ │ User: こんにちは！                      │               │
+│ │ User: きのこの山！                      │               │
+│ │ [😀] [メッセージ送信...]    [送信]      │               │
+│ └────────────────────────────────────────┘               │
+└────────────────────────────────────────────────────────────┘
 ```
 
-- **左右分割**: 対戦者ビデオを VS レイアウトで配置
-- **ターン表示**: 話し中プレイヤーに緑ボーダー、相手はミュートアイコン + 半透明
-- **トークテーマ**: ビデオ下にテーマタイトル表示
-- **スタンプカウント**: プログレスバー（Host: パープル / Opponent: ホットピンク）
-- **チャットサイドバー**: 右側。コメント + スタンプ送信先選択
+#### レイアウト
+
+- **コンテナ**: `relative flex h-screen flex-col`
+- **上部オーバーレイ**（タイトル + スタンプカウント）:
+  - `absolute left-0 right-0 top-0 z-10 p-4`
+  - 上向きグラデ背景: `linear-gradient(to bottom, rgba(0,3,25,0.8) 0%, transparent 100%)`
+  - 1 行目: タイトル（`text-base font-bold text-white`）+ `<LiveBadge>` + 右端に `👁 {spectators}人が観戦中`
+  - 2 行目: 左に「{hostName} {hostStamps}」（パープル）+ 中央に `{hostPercent}% — {oppPercent}%`（白 50%）+ 右に「{opponentStamps} {opponentName}」（ピンク）
+  - 3 行目: スタンプカウントバー
+    - 高さ 6px、`bg-white/[0.1]`、`overflow-hidden`
+    - 左バー: `bg-gradient-to-r from-primary-light to-primary`
+    - 右バー: `bg-gradient-to-r from-accent-pink to-pink-light`
+    - `transition-all duration-700` で滑らかに変化
+  - 計算式: `hostPercent = Math.round((hostStamps / totalStamps) * 100)`、`totalStamps = 0` なら 50%
+
+- **VS ビデオエリア**:
+  - `flex flex-1` で左右 1:1
+  - **ホスト側（左）**: `bg-gradient-to-br from-purple-900/50 to-indigo-900/40`、右に 1px 区切り
+    - 中央に大きな絵文字プレースホルダ（`text-[100px] opacity-10`）
+    - 下部に `bg-gradient-to-t from-dark-base/40 to-transparent`
+    - 左下：アバター + 名前タグ + ステータスバッジ（`🎤 話し中` = 緑 / `🔇 待機中` = グレー）
+  - **対戦者側（右）**: `bg-gradient-to-br from-pink-900/40 to-rose-900/30`、内容は左右対称
+  - **VS バッジ**: 中央に絶対配置。56px 円形、`rgba(0,3,25,0.7) backdrop-blur-md` + 1px 白枠 + ドロップシャドウ、中身は「VS」テキスト
+
+- **テーマ表示オーバーレイ**:
+  - `absolute bottom-[140px] left-1/2 -translate-x-1/2 z-10`
+  - 角丸カード `rounded-xl px-6 py-3`、`bg: rgba(0,3,25,0.7) backdrop-blur-md` + 1px パープル枠（`rgba(203,172,249,0.2)`）
+  - 上行: `🔄 {currentTurnPlayer} のターン（残り 0:42）`（`text-[11px] text-white/50`）
+  - 下行: テーマタイトル（`text-sm font-bold text-white`）
+
+- **スタンプ送信先タブ**:
+  - `absolute bottom-[96px] left-4 z-10 flex gap-2`
+  - 2 ボタン: 「{hostName}に送る」「{opponentName}に送る」
+  - アクティブ（host）: 文字 `text-primary`、`bg: rgba(203,172,249,0.15)` + パープル枠
+  - アクティブ（opponent）: 文字 `text-accent-pink`、`bg: rgba(236,72,153,0.15)` + ピンク枠
+  - 非アクティブ: `bg: rgba(0,3,25,0.5) backdrop-blur-md`、文字 `text-white/50`
+  - 状態: `useState<"host" | "opponent">("host")`
+
+- **コメント・スタンプオーバーレイ**:
+  - `<VideoChatOverlay>` を画面下部の左半分に配置（`pointer-events-auto absolute bottom-0 left-0 w-[50%]`）
+  - 仕様は [common/README.md](../common/README.md) の `<VideoChatOverlay>` を参照
+  - 右半分はクリーンに保ち、ビデオが見えやすくする
+
+#### データ取得 / 操作
+
+- 初期データ: `GET /api/battles/:id`（バトル詳細）、`GET /api/talk-themes/:id`（現テーマ）
+- スタンプ送信: 送信先タブで `host` または `opponent` を選択 → スタンプパレットから絵文字選択 → Data Channel `battle:stamp` で送信
+- リアルタイム更新: `battle:stamp_count`, `battle:turn`, `battle:result` を Data Channel から購読
 
 ### バトル結果（/battles/:id/result）
 
+`apps/web/src/app/battles/[id]/result/page.tsx`。AppShell では immersive モード（バトル詳細パスのため）。
+
 ```
-┌─────────────────────────────────────────┐
-│           🏆 バトル結果                  │
-│    [Avatar A]        [Avatar B]         │
-│     HostA             OpponentB         │
-│      42 🏆   VS   38                   │
-│     WIN!            LOSE               │
-│    観客数: 150人 / バトル時間: 10:00     │
-│    [ホームに戻る]  [もう一度バトル]      │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│             バトル結果                       │
+│           おつかれさまでした！                │
+│                                             │
+│        👑（spring 出現）                     │
+│   [Avatar A glow]    VS    [Avatar B 透明]   │
+│   チョコ派リーダー         キャンディ女王     │
+│       42（パープル）          38（淡）       │
+│      [WINNER]                                │
+│                                             │
+│   ┌─ glass-card ─────────────────────────┐ │
+│   │  👁 観客数: 150人  ⏱ バトル時間: 10:00 │ │
+│   └────────────────────────────────────────┘ │
+│                                             │
+│   [ホームに戻る]   [もう一度バトル]          │
+└─────────────────────────────────────────────┘
 ```
 
-勝者に冠アイコン + 紙吹雪。敗者はグレーアウト。
+#### レイアウト
+
+- **コンテナ**: `relative flex items-center justify-center py-16`、内側 `w-full max-w-lg text-center`
+- **背景装飾**: パープル + ピンクの blur オーブ
+- **タイトル**: `text-3xl font-bold` 「バトル結果」+ サブテキスト「おつかれさまでした！」
+- **VS 表示**:
+  - 勝者・敗者を判定（`hostWon = battle.hostStamps > battle.opponentStamps`）
+  - **勝者**:
+    - 上に 👑（`text-5xl`、spring `rotate: -30 → 0`、`scale: 0 → 1`、`delay: 0.6`）
+    - アバター 80px 角丸、対応する `glow-border-purple` または `glow-border-pink`
+    - スタンプ数を 30px のアクセント色で表示
+    - 下に「WINNER」バッジ（`bg-primary-glow` + 1px 枠）
+  - **敗者**: `opacity-40` でフェード、グレー文字、👑 と WINNER バッジは非表示
+  - 中央に「VS」テキスト（`text-text-disabled`）
+- **統計カード**（glass-card）: `flex justify-center gap-10 text-sm text-text-muted`
+  - `👁 観客数: {spectators}人` と `⏱ バトル時間: 10:00` を並列表示
+- **アクションボタン**:
+  - 左: 「ホームに戻る」、border + ニュートラル
+  - 右: 「もう一度バトル」`<Link href="/battles">`、パープル→シアングラデ
+- **紙吹雪**: 結果表示と同時に `<ConfettiEffect>` を 3 秒間トリガー（勝者がいる場合のみ）
+
+#### データ取得
+
+- `GET /api/battles/:id/result`: `winnerId, hostStamps, opponentStamps, spectators, durationSec`
 
 ---
 

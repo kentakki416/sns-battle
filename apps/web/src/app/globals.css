@@ -128,3 +128,11 @@ body {
   animation: shimmer 2s linear infinite;
   background-size: 200% 100%;
 }
+
+/**
+ * テーマタイマーバー: 100% → 0% に滑らかに縮小
+ */
+@keyframes timer-shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
