@@ -1,5 +1,5 @@
 <!-- TODO: プロジェクト名に変更してください -->
-# sns-battle
+# project-template
 
 Turborepo + pnpm monorepo を使用したフルスタックアプリケーションテンプレート
 
@@ -97,7 +97,7 @@ graph TB
 
 ---
 
-## 使い方
+## テンプレートの使い方
 
 ### 1. プロジェクトのコピー
 
@@ -107,19 +107,14 @@ graph TB
 # 例: プロジェクト名を明示的に指定
 ./scripts/copy-template.sh ../my-new-app my-new-app
 
-# 例: 絶対パスで指定
+# 例: 絶対パスで指定 ⚠️ プロジェクト名を省略した場合、コピー先ディレクトリ名が使用される
 ./scripts/copy-template.sh ~/workspace/my-new-app
 ```
 
-プロジェクト名を省略した場合、コピー先ディレクトリ名が使用されます。
-
 ### 2. 環境変数の設定
 
-各アプリの `.env.local` は [dotenvx](https://dotenvx.com/) で暗号化されています。復号に必要な `.env.keys` をプロジェクトルートに配置してください。
+各アプリの `.env.local` は [dotenvx](https://dotenvx.com/) で暗号化されています。復号に必要な `.env.keys` を管理者から受け取り、プロジェクトルートに配置してください。
 
-**既存プロジェクトに参加する場合:**
-
-管理者から `.env.keys` を受け取り、プロジェクトルートに配置してください。
 各アプリ (`apps/api`, `apps/web`, `apps/mobile`) にはルートへのシンボリックリンクが git に含まれているため、ルートに置くだけで全アプリから参照されます。
 
 ```
@@ -129,56 +124,6 @@ graph TB
 │   ├── api/.env.keys → ../../.env.keys   (シンボリックリンク)
 │   ├── web/.env.keys → ../../.env.keys   (シンボリックリンク)
 │   └── mobile/.env.keys → ../../.env.keys (シンボリックリンク)
-```
-
-**新規プロジェクトとして始める場合:**
-
-1. 各アプリに `.env.local` を作成し、必要な環境変数を設定:
-```bash
-# 例: apps/api/.env.local
-cp apps/api/.env.local.example apps/api/.env.local  # テンプレートがある場合
-```
-
-2. dotenvx で暗号化（`.env.keys` が自動生成される）:
-```bash
-cd apps/api && pnpm exec dotenvx encrypt -f .env.local
-```
-
-3. 生成された `.env.keys` をプロジェクトルートに移動:
-```bash
-mv apps/api/.env.keys .env.keys
-```
-
-4. 他のアプリからシンボリックリンクを作成:
-```bash
-ln -s ../../.env.keys apps/api/.env.keys
-ln -s ../../.env.keys apps/web/.env.keys
-ln -s ../../.env.keys apps/mobile/.env.keys
-```
-
-> `.env.keys` には復号キーが含まれるため、**git にコミットしないでください**（`.gitignore` で除外済み）。
-
-### 3. セットアップ
-
-```bash
-# コピー先に移動
-cd <コピー先パス>
-
-# git リポジトリを初期化
-git init
-
-# 依存関係のインストール
-pnpm install
-
-# Docker 環境の起動（PostgreSQL + Redis）
-docker compose up -d
-
-# スキーマパッケージのビルド
-cd packages/schema && pnpm build
-
-# 開発サーバーの起動（ルートに戻って）
-cd ../..
-pnpm dev
 ```
 
 ## Claude Code（MCP設定）
@@ -265,4 +210,3 @@ docker compose down
 # データを含めて完全に削除
 docker compose down -v
 ```
-# sns-battle
