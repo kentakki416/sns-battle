@@ -10,5 +10,10 @@
  */
 export type * from './models/User.js'
 export type * from './models/AuthAccount.js'
+export type * from './models/Follow.js'
+export type * from './models/Block.js'
+export type * from './models/StampMaster.js'
+export type * from './models/TalkTheme.js'
+export type * from './models/TalkThemeChoice.js'
 export type * from './models/Memo.js'
 export type * from './commonInputTypes.js'

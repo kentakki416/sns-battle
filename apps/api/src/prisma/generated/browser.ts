@@ -28,6 +28,31 @@ export type User = Prisma.UserModel
  */
 export type AuthAccount = Prisma.AuthAccountModel
 /**
+ * Model Follow
+ * 
+ */
+export type Follow = Prisma.FollowModel
+/**
+ * Model Block
+ * 
+ */
+export type Block = Prisma.BlockModel
+/**
+ * Model StampMaster
+ * 
+ */
+export type StampMaster = Prisma.StampMasterModel
+/**
+ * Model TalkTheme
+ * 
+ */
+export type TalkTheme = Prisma.TalkThemeModel
+/**
+ * Model TalkThemeChoice
+ * 
+ */
+export type TalkThemeChoice = Prisma.TalkThemeChoiceModel
+/**
  * Model Memo
  * 
  */

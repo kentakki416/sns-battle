@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.2.0
- * Query Engine version: 0c8ef2ce45c83248ab3df073180d5eda9e8be7a3
+ * Prisma Client JS version: 7.8.0
+ * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.2.0",
-  engine: "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3"
+  client: "7.8.0",
+  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
 }
 
 /**
@@ -386,6 +386,11 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   AuthAccount: 'AuthAccount',
+  Follow: 'Follow',
+  Block: 'Block',
+  StampMaster: 'StampMaster',
+  TalkTheme: 'TalkTheme',
+  TalkThemeChoice: 'TalkThemeChoice',
   Memo: 'Memo'
 } as const
 
@@ -402,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authAccount" | "memo"
+    modelProps: "user" | "authAccount" | "follow" | "block" | "stampMaster" | "talkTheme" | "talkThemeChoice" | "memo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -554,6 +559,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Follow: {
+      payload: Prisma.$FollowPayload<ExtArgs>
+      fields: Prisma.FollowFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FollowFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FollowFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>
+        }
+        findFirst: {
+          args: Prisma.FollowFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FollowFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>
+        }
+        findMany: {
+          args: Prisma.FollowFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>[]
+        }
+        create: {
+          args: Prisma.FollowCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>
+        }
+        createMany: {
+          args: Prisma.FollowCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FollowCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>[]
+        }
+        delete: {
+          args: Prisma.FollowDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>
+        }
+        update: {
+          args: Prisma.FollowUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>
+        }
+        deleteMany: {
+          args: Prisma.FollowDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FollowUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FollowUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>[]
+        }
+        upsert: {
+          args: Prisma.FollowUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FollowPayload>
+        }
+        aggregate: {
+          args: Prisma.FollowAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFollow>
+        }
+        groupBy: {
+          args: Prisma.FollowGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FollowGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FollowCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FollowCountAggregateOutputType> | number
+        }
+      }
+    }
+    Block: {
+      payload: Prisma.$BlockPayload<ExtArgs>
+      fields: Prisma.BlockFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BlockFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BlockFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>
+        }
+        findFirst: {
+          args: Prisma.BlockFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BlockFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>
+        }
+        findMany: {
+          args: Prisma.BlockFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>[]
+        }
+        create: {
+          args: Prisma.BlockCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>
+        }
+        createMany: {
+          args: Prisma.BlockCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BlockCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>[]
+        }
+        delete: {
+          args: Prisma.BlockDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>
+        }
+        update: {
+          args: Prisma.BlockUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>
+        }
+        deleteMany: {
+          args: Prisma.BlockDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BlockUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BlockUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>[]
+        }
+        upsert: {
+          args: Prisma.BlockUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BlockPayload>
+        }
+        aggregate: {
+          args: Prisma.BlockAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBlock>
+        }
+        groupBy: {
+          args: Prisma.BlockGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BlockGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BlockCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BlockCountAggregateOutputType> | number
+        }
+      }
+    }
+    StampMaster: {
+      payload: Prisma.$StampMasterPayload<ExtArgs>
+      fields: Prisma.StampMasterFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StampMasterFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StampMasterFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>
+        }
+        findFirst: {
+          args: Prisma.StampMasterFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StampMasterFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>
+        }
+        findMany: {
+          args: Prisma.StampMasterFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>[]
+        }
+        create: {
+          args: Prisma.StampMasterCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>
+        }
+        createMany: {
+          args: Prisma.StampMasterCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StampMasterCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>[]
+        }
+        delete: {
+          args: Prisma.StampMasterDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>
+        }
+        update: {
+          args: Prisma.StampMasterUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>
+        }
+        deleteMany: {
+          args: Prisma.StampMasterDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StampMasterUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StampMasterUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>[]
+        }
+        upsert: {
+          args: Prisma.StampMasterUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StampMasterPayload>
+        }
+        aggregate: {
+          args: Prisma.StampMasterAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStampMaster>
+        }
+        groupBy: {
+          args: Prisma.StampMasterGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StampMasterGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StampMasterCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StampMasterCountAggregateOutputType> | number
+        }
+      }
+    }
+    TalkTheme: {
+      payload: Prisma.$TalkThemePayload<ExtArgs>
+      fields: Prisma.TalkThemeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TalkThemeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TalkThemeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>
+        }
+        findFirst: {
+          args: Prisma.TalkThemeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TalkThemeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>
+        }
+        findMany: {
+          args: Prisma.TalkThemeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>[]
+        }
+        create: {
+          args: Prisma.TalkThemeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>
+        }
+        createMany: {
+          args: Prisma.TalkThemeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TalkThemeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>[]
+        }
+        delete: {
+          args: Prisma.TalkThemeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>
+        }
+        update: {
+          args: Prisma.TalkThemeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>
+        }
+        deleteMany: {
+          args: Prisma.TalkThemeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TalkThemeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TalkThemeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>[]
+        }
+        upsert: {
+          args: Prisma.TalkThemeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemePayload>
+        }
+        aggregate: {
+          args: Prisma.TalkThemeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTalkTheme>
+        }
+        groupBy: {
+          args: Prisma.TalkThemeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TalkThemeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TalkThemeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TalkThemeCountAggregateOutputType> | number
+        }
+      }
+    }
+    TalkThemeChoice: {
+      payload: Prisma.$TalkThemeChoicePayload<ExtArgs>
+      fields: Prisma.TalkThemeChoiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TalkThemeChoiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TalkThemeChoiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>
+        }
+        findFirst: {
+          args: Prisma.TalkThemeChoiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TalkThemeChoiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>
+        }
+        findMany: {
+          args: Prisma.TalkThemeChoiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>[]
+        }
+        create: {
+          args: Prisma.TalkThemeChoiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>
+        }
+        createMany: {
+          args: Prisma.TalkThemeChoiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TalkThemeChoiceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>[]
+        }
+        delete: {
+          args: Prisma.TalkThemeChoiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>
+        }
+        update: {
+          args: Prisma.TalkThemeChoiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>
+        }
+        deleteMany: {
+          args: Prisma.TalkThemeChoiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TalkThemeChoiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TalkThemeChoiceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>[]
+        }
+        upsert: {
+          args: Prisma.TalkThemeChoiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TalkThemeChoicePayload>
+        }
+        aggregate: {
+          args: Prisma.TalkThemeChoiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTalkThemeChoice>
+        }
+        groupBy: {
+          args: Prisma.TalkThemeChoiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TalkThemeChoiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TalkThemeChoiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TalkThemeChoiceCountAggregateOutputType> | number
+        }
+      }
+    }
     Memo: {
       payload: Prisma.$MemoPayload<ExtArgs>
       fields: Prisma.MemoFieldRefs
@@ -697,6 +1072,71 @@ export const AuthAccountScalarFieldEnum = {
 export type AuthAccountScalarFieldEnum = (typeof AuthAccountScalarFieldEnum)[keyof typeof AuthAccountScalarFieldEnum]
 
 
+export const FollowScalarFieldEnum = {
+  id: 'id',
+  followerId: 'followerId',
+  followingId: 'followingId',
+  createdAt: 'createdAt'
+} as const
+
+export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof FollowScalarFieldEnum]
+
+
+export const BlockScalarFieldEnum = {
+  id: 'id',
+  blockerId: 'blockerId',
+  blockedId: 'blockedId',
+  createdAt: 'createdAt'
+} as const
+
+export type BlockScalarFieldEnum = (typeof BlockScalarFieldEnum)[keyof typeof BlockScalarFieldEnum]
+
+
+export const StampMasterScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  imageUrl: 'imageUrl',
+  emoji: 'emoji',
+  category: 'category',
+  animationType: 'animationType',
+  isPremium: 'isPremium',
+  price: 'price',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StampMasterScalarFieldEnum = (typeof StampMasterScalarFieldEnum)[keyof typeof StampMasterScalarFieldEnum]
+
+
+export const TalkThemeScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  type: 'type',
+  category: 'category',
+  duration: 'duration',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TalkThemeScalarFieldEnum = (typeof TalkThemeScalarFieldEnum)[keyof typeof TalkThemeScalarFieldEnum]
+
+
+export const TalkThemeChoiceScalarFieldEnum = {
+  id: 'id',
+  themeId: 'themeId',
+  label: 'label',
+  emoji: 'emoji',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type TalkThemeChoiceScalarFieldEnum = (typeof TalkThemeChoiceScalarFieldEnum)[keyof typeof TalkThemeChoiceScalarFieldEnum]
+
+
 export const MemoScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -777,6 +1217,69 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'StampCategory'
+ */
+export type EnumStampCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StampCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'StampCategory[]'
+ */
+export type ListEnumStampCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StampCategory[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AnimationType'
+ */
+export type EnumAnimationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnimationType'>
+    
+
+
+/**
+ * Reference to a field of type 'AnimationType[]'
+ */
+export type ListEnumAnimationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnimationType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'TalkThemeType'
+ */
+export type EnumTalkThemeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TalkThemeType'>
+    
+
+
+/**
+ * Reference to a field of type 'TalkThemeType[]'
+ */
+export type ListEnumTalkThemeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TalkThemeType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TalkThemeCategory'
+ */
+export type EnumTalkThemeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TalkThemeCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'TalkThemeCategory[]'
+ */
+export type ListEnumTalkThemeCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TalkThemeCategory[]'>
     
 
 
@@ -886,10 +1389,30 @@ export type PrismaClientOptions = ({
    * ```
    */
   comments?: runtime.SqlCommenterPlugin[]
+  /**
+   * Optional maximum size for the query plan cache. If not provided, a default size will be used.
+   * A value of `0` can be used to disable the cache entirely. A higher cache size can improve
+   * performance for applications that execute a large number of unique queries, while a smaller
+   * cache size can reduce memory usage.
+   * 
+   * @example
+   * ```
+   * const prisma = new PrismaClient({
+   *   adapter,
+   *   queryPlanCacheMaxSize: 100,
+   * })
+   * ```
+   */
+  queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   authAccount?: Prisma.AuthAccountOmit
+  follow?: Prisma.FollowOmit
+  block?: Prisma.BlockOmit
+  stampMaster?: Prisma.StampMasterOmit
+  talkTheme?: Prisma.TalkThemeOmit
+  talkThemeChoice?: Prisma.TalkThemeChoiceOmit
   memo?: Prisma.MemoOmit
 }
 
