@@ -110,7 +110,7 @@ export type AuthAccountScalarFieldEnum = (typeof AuthAccountScalarFieldEnum)[key
 export const FollowScalarFieldEnum = {
   id: 'id',
   followerId: 'followerId',
-  followingId: 'followingId',
+  followeeId: 'followeeId',
   createdAt: 'createdAt'
 } as const
 

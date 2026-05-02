@@ -295,7 +295,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AuthAccountCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
@@ -309,7 +309,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AuthAccountUncheckedCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
@@ -322,7 +322,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AuthAccountUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
@@ -336,7 +336,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AuthAccountUncheckedUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
@@ -500,7 +500,7 @@ export type UserCreateWithoutAccountsInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
@@ -513,7 +513,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
@@ -541,7 +541,7 @@ export type UserUpdateWithoutAccountsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
@@ -554,7 +554,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
@@ -567,7 +567,7 @@ export type UserCreateWithoutFollowingInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AuthAccountCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
 }
@@ -580,7 +580,7 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AuthAccountUncheckedCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
 }
@@ -638,7 +638,7 @@ export type UserUpdateWithoutFollowingInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AuthAccountUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
 }
@@ -651,7 +651,7 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AuthAccountUncheckedUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
 }
@@ -699,7 +699,7 @@ export type UserCreateWithoutBlockedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AuthAccountCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
 }
@@ -712,7 +712,7 @@ export type UserUncheckedCreateWithoutBlockedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AuthAccountUncheckedCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
 }
@@ -729,7 +729,7 @@ export type UserCreateWithoutBlockedByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AuthAccountCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
 }
@@ -742,7 +742,7 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accounts?: Prisma.AuthAccountUncheckedCreateNestedManyWithoutUserInput
-  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
 }
@@ -770,7 +770,7 @@ export type UserUpdateWithoutBlockedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AuthAccountUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
 }
@@ -783,7 +783,7 @@ export type UserUncheckedUpdateWithoutBlockedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AuthAccountUncheckedUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
 }
@@ -806,7 +806,7 @@ export type UserUpdateWithoutBlockedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AuthAccountUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
 }
@@ -819,7 +819,7 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accounts?: Prisma.AuthAccountUncheckedUpdateManyWithoutUserNestedInput
-  followers?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
 }
