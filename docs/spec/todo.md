@@ -12,7 +12,7 @@
 
 - [ ] Prisma スキーマ（`users` 拡張、`auth_accounts`、`follows`、`blocks`、`stamp_masters`、`talk_themes`、`talk_theme_choices`）
 - [ ] 初回マイグレーション + シードスクリプト（最低限のマスターデータ）
-- [ ] `packages/schema` の `api-schema/` に共通レスポンス型・エラーレスポンス型を定義
+- [x] `packages/schema` の `api-schema/` に共通レスポンス型・エラーレスポンス型を定義
 - [ ] LiveKit Cloud プロジェクト作成 + API キー取得 + `.env.local` に登録
 - [ ] Redis（ローカル: docker-compose、本番: ElastiCache）の接続確認
 - [ ] API サーバー: グローバルエラーハンドラ、認証ミドルウェアのスケルトン
