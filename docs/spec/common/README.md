@@ -64,11 +64,11 @@
 |--------|------|------|------|
 | id | int | PK, auto_increment | フォローID |
 | follower_id | int | FK → users, NOT NULL | フォローする側 |
-| following_id | int | FK → users, NOT NULL | フォローされる側 |
+| followee_id | int | FK → users, NOT NULL | フォローされる側 |
 | created_at | timestamp | NOT NULL | フォロー日時 |
 
-制約: `@@unique([follower_id, following_id])`
-インデックス: `follower_id`, `following_id`
+制約: `@@unique([follower_id, followee_id])`
+インデックス: `follower_id`, `followee_id`
 
 ### blocks
 

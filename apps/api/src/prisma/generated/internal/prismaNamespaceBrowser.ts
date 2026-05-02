@@ -53,6 +53,11 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   AuthAccount: 'AuthAccount',
+  Follow: 'Follow',
+  Block: 'Block',
+  StampMaster: 'StampMaster',
+  TalkTheme: 'TalkTheme',
+  TalkThemeChoice: 'TalkThemeChoice',
   Memo: 'Memo'
 } as const
 
@@ -62,12 +67,12 @@ export type ModelName = (typeof ModelName)[keyof typeof ModelName]
  * Enums
  */
 
-export const TransactionIsolationLevel = {
+export const TransactionIsolationLevel = runtime.makeStrictEnum({
   ReadUncommitted: 'ReadUncommitted',
   ReadCommitted: 'ReadCommitted',
   RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
-} as const
+} as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
@@ -100,6 +105,71 @@ export const AuthAccountScalarFieldEnum = {
 } as const
 
 export type AuthAccountScalarFieldEnum = (typeof AuthAccountScalarFieldEnum)[keyof typeof AuthAccountScalarFieldEnum]
+
+
+export const FollowScalarFieldEnum = {
+  id: 'id',
+  followerId: 'followerId',
+  followeeId: 'followeeId',
+  createdAt: 'createdAt'
+} as const
+
+export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof FollowScalarFieldEnum]
+
+
+export const BlockScalarFieldEnum = {
+  id: 'id',
+  blockerId: 'blockerId',
+  blockedId: 'blockedId',
+  createdAt: 'createdAt'
+} as const
+
+export type BlockScalarFieldEnum = (typeof BlockScalarFieldEnum)[keyof typeof BlockScalarFieldEnum]
+
+
+export const StampMasterScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  imageUrl: 'imageUrl',
+  emoji: 'emoji',
+  category: 'category',
+  animationType: 'animationType',
+  isPremium: 'isPremium',
+  price: 'price',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StampMasterScalarFieldEnum = (typeof StampMasterScalarFieldEnum)[keyof typeof StampMasterScalarFieldEnum]
+
+
+export const TalkThemeScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  type: 'type',
+  category: 'category',
+  duration: 'duration',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TalkThemeScalarFieldEnum = (typeof TalkThemeScalarFieldEnum)[keyof typeof TalkThemeScalarFieldEnum]
+
+
+export const TalkThemeChoiceScalarFieldEnum = {
+  id: 'id',
+  themeId: 'themeId',
+  label: 'label',
+  emoji: 'emoji',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type TalkThemeChoiceScalarFieldEnum = (typeof TalkThemeChoiceScalarFieldEnum)[keyof typeof TalkThemeChoiceScalarFieldEnum]
 
 
 export const MemoScalarFieldEnum = {

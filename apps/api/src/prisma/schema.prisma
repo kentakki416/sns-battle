@@ -19,7 +19,11 @@ model User {
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
 
-    accounts AuthAccount[]
+    accounts  AuthAccount[]
+    followers Follow[]      @relation("UserFollowers")
+    following Follow[]      @relation("UserFollowees")
+    blocked   Block[]       @relation("UserBlocker")
+    blockedBy Block[]       @relation("UserBlocked")
 
     @@map("users")
 }
@@ -51,6 +55,118 @@ model AuthAccount {
     @@unique([provider, providerAccountId])
     @@index([userId])
     @@map("auth_accounts")
+}
+
+// フォロー関係（follower → followee）
+model Follow {
+    id         Int      @id @default(autoincrement())
+    followerId Int      @map("follower_id")
+    followeeId Int      @map("followee_id")
+    createdAt  DateTime @default(now()) @map("created_at")
+
+    follower User @relation("UserFollowees", fields: [followerId], references: [id], onDelete: Cascade)
+    followee User @relation("UserFollowers", fields: [followeeId], references: [id], onDelete: Cascade)
+
+    @@unique([followerId, followeeId])
+    @@index([followerId])
+    @@index([followeeId])
+    @@map("follows")
+}
+
+// ブロック関係（blocker → blocked）
+model Block {
+    id        Int      @id @default(autoincrement())
+    blockerId Int      @map("blocker_id")
+    blockedId Int      @map("blocked_id")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    blocker User @relation("UserBlocker", fields: [blockerId], references: [id], onDelete: Cascade)
+    blocked User @relation("UserBlocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+    @@unique([blockerId, blockedId])
+    @@index([blockerId])
+    @@index([blockedId])
+    @@map("blocks")
+}
+
+// スタンプカテゴリ
+enum StampCategory {
+    GENERAL
+    BATTLE
+    MATCHING
+}
+
+// スタンプアニメーション種別
+enum AnimationType {
+    NONE
+    FLOAT
+    BOUNCE
+    EXPLODE
+    SHAKE
+}
+
+// スタンプマスター（管理画面で管理）
+model StampMaster {
+    id            Int           @id @default(autoincrement())
+    name          String        @db.VarChar(100)
+    imageUrl      String?       @map("image_url") @db.VarChar(500)
+    emoji         String        @db.VarChar(10)
+    category      StampCategory
+    animationType AnimationType @default(FLOAT) @map("animation_type")
+    isPremium     Boolean       @default(false) @map("is_premium")
+    price         Int           @default(0)
+    sortOrder     Int           @default(0) @map("sort_order")
+    isActive      Boolean       @default(true) @map("is_active")
+    createdAt     DateTime      @default(now()) @map("created_at")
+    updatedAt     DateTime      @updatedAt @map("updated_at")
+
+    @@index([category, isActive, sortOrder])
+    @@map("stamp_masters")
+}
+
+// トークテーマカテゴリ
+enum TalkThemeCategory {
+    MATCHING
+    BATTLE
+}
+
+// トークテーマ種別
+enum TalkThemeType {
+    CHOICE
+    FREE_TALK
+}
+
+// トークテーマ（マッチング・バトル共通）
+model TalkTheme {
+    id        Int               @id @default(autoincrement())
+    title     String            @db.VarChar(255)
+    type      TalkThemeType
+    category  TalkThemeCategory @default(MATCHING)
+    duration  Int               @default(20)
+    sortOrder Int               @default(0) @map("sort_order")
+    isActive  Boolean           @default(true) @map("is_active")
+    createdAt DateTime          @default(now()) @map("created_at")
+    updatedAt DateTime          @updatedAt @map("updated_at")
+
+    choices TalkThemeChoice[]
+
+    @@index([category, isActive, sortOrder])
+    @@map("talk_themes")
+}
+
+// トークテーマ選択肢（type=CHOICE のテーマに紐づく）
+model TalkThemeChoice {
+    id        Int      @id @default(autoincrement())
+    themeId   Int      @map("theme_id")
+    label     String   @db.VarChar(100)
+    emoji     String   @db.VarChar(10)
+    sortOrder Int      @default(0) @map("sort_order")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    theme TalkTheme @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+    @@index([themeId, sortOrder])
+    @@map("talk_theme_choices")
 }
 
 // メモ

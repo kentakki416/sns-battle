@@ -16,3 +16,39 @@ export const Provider = {
 } as const
 
 export type Provider = (typeof Provider)[keyof typeof Provider]
+
+
+export const StampCategory = {
+  GENERAL: 'GENERAL',
+  BATTLE: 'BATTLE',
+  MATCHING: 'MATCHING'
+} as const
+
+export type StampCategory = (typeof StampCategory)[keyof typeof StampCategory]
+
+
+export const AnimationType = {
+  NONE: 'NONE',
+  FLOAT: 'FLOAT',
+  BOUNCE: 'BOUNCE',
+  EXPLODE: 'EXPLODE',
+  SHAKE: 'SHAKE'
+} as const
+
+export type AnimationType = (typeof AnimationType)[keyof typeof AnimationType]
+
+
+export const TalkThemeCategory = {
+  MATCHING: 'MATCHING',
+  BATTLE: 'BATTLE'
+} as const
+
+export type TalkThemeCategory = (typeof TalkThemeCategory)[keyof typeof TalkThemeCategory]
+
+
+export const TalkThemeType = {
+  CHOICE: 'CHOICE',
+  FREE_TALK: 'FREE_TALK'
+} as const
+
+export type TalkThemeType = (typeof TalkThemeType)[keyof typeof TalkThemeType]
