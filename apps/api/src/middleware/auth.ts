@@ -10,7 +10,9 @@ export interface AuthRequest extends Request {
 }
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
-  // 公開パスは認証不要
+  /**
+   * 公開パスは認証不要
+   */
   if (PUBLIC_PATHS.some(path => req.path.startsWith(path))) {
     return next()
   }
