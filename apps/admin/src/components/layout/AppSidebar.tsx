@@ -2,7 +2,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 
 import { useSidebar } from "@/features/sidebar/sidebar.context"
 import {
@@ -92,6 +92,24 @@ const othersItems: NavItem[] = [
     ],
   },
 ]
+
+type SubmenuState = { type: "main" | "others"; index: number } | null
+
+const findSubmenuByPathname = (pathname: string): SubmenuState => {
+  const menuTypes = [
+    { items: navItems, type: "main" as const },
+    { items: othersItems, type: "others" as const },
+  ]
+  for (const { items, type } of menuTypes) {
+    for (let index = 0; index < items.length; index++) {
+      const nav = items[index]
+      if (nav.subItems?.some((subItem) => subItem.path === pathname)) {
+        return { type, index }
+      }
+    }
+  }
+  return null
+}
 
 export default function AppSidebar() {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar()
@@ -225,34 +243,19 @@ export default function AppSidebar() {
 
   const isActive = useCallback((path: string) => path === pathname, [pathname])
 
-  const initialSubmenu = useMemo(() => {
-    const menuTypes = [
-      { items: navItems, type: "main" as const },
-      { items: othersItems, type: "others" as const },
-    ]
-    for (const { items, type } of menuTypes) {
-      for (let index = 0; index < items.length; index++) {
-        const nav = items[index]
-        if (nav.subItems?.some((subItem) => subItem.path === pathname)) {
-          return { type, index }
-        }
-      }
-    }
-    return null
-  }, [pathname])
-
-  const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
-    index: number;
-  } | null>(initialSubmenu)
+  const [openSubmenu, setOpenSubmenu] = useState<SubmenuState>(() =>
+    findSubmenuByPathname(pathname)
+  )
+  const [prevPathname, setPrevPathname] = useState(pathname)
   const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
     {}
   )
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  useEffect(() => {
-    setOpenSubmenu(initialSubmenu)
-  }, [initialSubmenu])
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname)
+    setOpenSubmenu(findSubmenuByPathname(pathname))
+  }
 
   useEffect(() => {
     // Set the height of the submenu items when the submenu is opened
