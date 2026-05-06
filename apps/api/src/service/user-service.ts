@@ -8,12 +8,12 @@ import { err, notFoundError, ok, Result } from "../types/result"
  */
 export const getUserById = async (
   userId: number,
-  userRepository: UserRepository
+  repo: { userRepository: UserRepository }
 ): Promise<Result<User>> => {
   logger.debug("UserService: Fetching user by ID", {
     userId,
   })
-  const user = await userRepository.findById(userId)
+  const user = await repo.userRepository.findById(userId)
   if (!user) {
     logger.debug("UserService: User not found", {
       userId,

@@ -33,7 +33,7 @@ describe("deleteMemo", () => {
     mockDeleteById.mockResolvedValue(undefined)
 
     // Act
-    const result = await deleteMemo(1, mockMemoRepository)
+    const result = await deleteMemo(1, { memoRepository: mockMemoRepository })
 
     // Assert
     expect(result.ok).toBe(true)
@@ -49,7 +49,7 @@ describe("deleteMemo", () => {
     mockFindById.mockResolvedValue(null)
 
     // Act
-    const result = await deleteMemo(999, mockMemoRepository)
+    const result = await deleteMemo(999, { memoRepository: mockMemoRepository })
 
     // Assert
     expect(result.ok).toBe(false)
@@ -68,7 +68,7 @@ describe("deleteMemo", () => {
     mockFindById.mockRejectedValue(mockError)
 
     // Act & Assert
-    await expect(deleteMemo(1, mockMemoRepository)).rejects.toThrow(
+    await expect(deleteMemo(1, { memoRepository: mockMemoRepository })).rejects.toThrow(
       "Database connection failed"
     )
     expect(mockFindById).toHaveBeenCalledWith(1)

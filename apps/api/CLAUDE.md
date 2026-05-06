@@ -24,9 +24,33 @@ pnpm test:ci      # CI用（dotenvx不要。環境変数は外部から渡す前
   - Input 型（`Create{Feature}Input`, `Update{Feature}Input`）はリポジトリファイル内に定義
 - **Service**（`src/service/`）: エクスポート関数パターン
   - クラスではなく `export const` のアロー関数で定義
-  - Repository をパラメーターとして受け取る（DI はコントローラー経由）
+  - **Repository は単一でも複数でも必ず `repo` という名前のオブジェクト引数にまとめる**（引数の数を増やさず、将来 Repository が追加されてもシグネチャを変えなくて済むため）
+    ```typescript
+    /** ✗ 単一 Repository を直に受け取る（禁止） */
+    export const getUserById = async (userId: number, userRepository: UserRepository): Promise<Result<User>> => { ... }
+
+    /** ✓ 単一でも repo: { ... } で統一 */
+    export const getUserById = async (
+      userId: number,
+      repo: { userRepository: UserRepository }
+    ): Promise<Result<User>> => {
+      const user = await repo.userRepository.findById(userId)
+      ...
+    }
+
+    /** ✓ 複数 Repository も同じ形 */
+    export const authenticateWithGoogle = async (
+      input: { code: string; redirectUri: string },
+      repo: {
+        authAccountRepository: AuthAccountRepository
+        userRegistrationRepository: UserRegistrationRepository
+        refreshTokenRepository: RefreshTokenRepository
+      },
+      ...
+    ): Promise<Result<...>> => { ... }
+    ```
   - `service/index.ts` で `export * as {feature} from "./{feature}-service"` としてバレルエクスポート
-  - 呼び出し側は `service.{feature}.{method}(data, repository)` の形式
+  - 呼び出し側は `service.{feature}.{method}(data, { fooRepository })` の形式（プロパティ名は型定義と一致させる）
   - `logger.debug()` で処理の開始・完了をログ出力
   - **戻り値は必ず `Promise<Result<T>>`**（業務エラーは `err(...)`、想定外エラーは throw）
 - **Controller**（`src/controller/{feature}/`）: Class + `execute(req, res)` パターン。API（エンドポイント）と1対1でファイルを作成

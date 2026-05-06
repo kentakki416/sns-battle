@@ -15,7 +15,7 @@ export class MemoUpdateController {
     const { id } = updateMemoPathParamSchema.parse(req.params)
     const data = updateMemoRequestSchema.parse(req.body)
 
-    const result = await service.memo.updateMemo(id, data, this.memoRepository)
+    const result = await service.memo.updateMemo(id, data, { memoRepository: this.memoRepository })
 
     if (!result.ok) {
       const errorResponse: ErrorResponse = {
