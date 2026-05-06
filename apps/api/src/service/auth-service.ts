@@ -4,56 +4,64 @@ import {
   AuthAccountRepository,
   UserRegistrationRepository,
 } from "../repository/prisma"
+import { RefreshTokenRepository } from "../repository/redis"
 import { User } from "../types/domain"
 import { ok, Result } from "../types/result"
 
 export type AuthenticateWithGoogleSuccess = {
+    accessToken: string
     isNewUser: boolean
-    jwtToken: string
+    refreshToken: string
     user: User
 }
 
+type Repositories = {
+    authAccountRepository: AuthAccountRepository
+    refreshTokenRepository: RefreshTokenRepository
+    userRegistrationRepository: UserRegistrationRepository
+}
+
+type TokenGenerators = {
+    generateAccessToken: (userId: number) => string
+    generateRefreshToken: (userId: number) => { jti: string; token: string }
+}
+
+const REFRESH_TTL_SECONDS = 60 * 60 * 24 * 7
+
 /**
- * Googleアカウントでの認証
- * 業務エラー（現状なし）は Result.err として返し、外部サービス障害などの予期しないエラーは throw する
+ * Google アカウントでの認証
+ *
+ * Next.js 側で取得した Authorization Code を Google で検証し、UserInfo を取得する。
+ * 既存ユーザーが居なければ User + AuthAccount を作成し、Access/Refresh Token を発行する。
+ *
+ * 業務エラー（現状なし）は Result.err として返し、外部サービス障害などの予期しないエラーは throw する。
  */
 export const authenticateWithGoogle = async (
-  code: string,
-  repository: {
-        authAccountRepository: AuthAccountRepository
-        userRegistrationRepository: UserRegistrationRepository
-    },
+  input: { code: string; redirectUri: string },
+  repo: Repositories,
   googleAuthClient: IGoogleOAuthClient,
-  tokenGenerator: (userId: number) => string
+  tokenGenerators: TokenGenerators
 ): Promise<Result<AuthenticateWithGoogleSuccess>> => {
-  const { authAccountRepository, userRegistrationRepository } = repository
-
   logger.info("AuthService: Starting Google authentication")
 
-  // Googleからユーザー情報を取得
-  const googleUser: GoogleUserInfo = await googleAuthClient.getUserInfo(code)
+  const googleUser: GoogleUserInfo = await googleAuthClient.getUserInfo(input.code, input.redirectUri)
   logger.debug("AuthService: Retrieved Google user info", {
     email: googleUser.email,
     googleId: googleUser.id,
   })
 
-  // 既存アカウントを取得
-  const existingAccount = await authAccountRepository.findByProvider("google", googleUser.id)
+  const existingAccount = await repo.authAccountRepository.findByProvider("google", googleUser.id)
 
   let user: User
   let isNewUser = false
 
   if (existingAccount) {
-    logger.info("AuthService: Existing user found", {
-      userId: existingAccount.user.id,
-    })
+    logger.info("AuthService: Existing user found", { userId: existingAccount.user.id })
     user = existingAccount.user
   } else {
     isNewUser = true
     logger.info("AuthService: Creating new user")
-
-    // 新規ユーザーとアカウントを作成
-    user = await userRegistrationRepository.createUserWithAuthAccountTx({
+    user = await repo.userRegistrationRepository.createUserWithAuthAccountTx({
       authAccount: {
         provider: "google",
         providerAccountId: googleUser.id,
@@ -64,20 +72,19 @@ export const authenticateWithGoogle = async (
         name: googleUser.name,
       },
     })
-    logger.info("AuthService: New user created", {
-      userId: user.id,
-    })
+    logger.info("AuthService: New user created", { userId: user.id })
   }
 
-  // JWTトークンの生成
-  const jwtToken = tokenGenerator(user.id)
-  logger.debug("AuthService: JWT token generated", {
-    userId: user.id,
-  })
+  const accessToken = tokenGenerators.generateAccessToken(user.id)
+  const { jti, token: refreshToken } = tokenGenerators.generateRefreshToken(user.id)
+  await repo.refreshTokenRepository.save(jti, user.id, REFRESH_TTL_SECONDS)
+
+  logger.debug("AuthService: Tokens issued", { userId: user.id })
 
   return ok({
+    accessToken,
     isNewUser,
-    jwtToken,
+    refreshToken,
     user,
   })
 }

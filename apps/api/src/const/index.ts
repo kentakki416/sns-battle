@@ -32,7 +32,7 @@ export const NODE_ENV = {
  */
 export const PUBLIC_PATHS = [
   "/api/auth/google",
-  "/api/auth/google/callback",
+  "/api/auth/refresh",
   "/api/health",
   "/api/memo",
 ] as const

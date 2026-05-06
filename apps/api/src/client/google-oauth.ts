@@ -18,43 +18,33 @@ type GoogleUserInfoResponse = {
     verified_email?: boolean
 }
 
-export type GoogleAuthUrlOptions = {
-    accessType?: "offline" | "online"
-    prompt?: "none" | "consent" | "select_account"
-    scope?: string[]
-    state?: string
-}
-
 /**
  * GoogleOAuthクライアントのインターフェース
+ *
+ * code を token に交換する際の redirect_uri は Google OAuth の仕様上
+ * 認証時に使った URL と完全一致する必要があるため、getUserInfo の引数で受け取る。
  */
 export interface IGoogleOAuthClient {
-    generateAuthUrl(options?: GoogleAuthUrlOptions): string
-    getUserInfo(code: string): Promise<GoogleUserInfo>
+    getUserInfo(code: string, redirectUri: string): Promise<GoogleUserInfo>
 }
 
 export class GoogleOAuthClient implements IGoogleOAuthClient {
-  private oauth2Client: OAuth2Client
+  private clientId: string
+  private clientSecret: string
 
-  constructor(clientId: string, clientSecret: string, callbackUrl: string) {
-    this.oauth2Client = new OAuth2Client(clientId, clientSecret, callbackUrl)
+  constructor(clientId: string, clientSecret: string) {
+    this.clientId = clientId
+    this.clientSecret = clientSecret
   }
 
-  public generateAuthUrl(options?: GoogleAuthUrlOptions): string {
-    return this.oauth2Client.generateAuthUrl({
-      access_type: options?.accessType ?? "offline",
-      prompt: options?.prompt ?? "consent",
-      scope: options?.scope ?? [
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile"
-      ],
-      state: options?.state
-    })
-  }
-
-  public async getUserInfo(code: string): Promise<GoogleUserInfo> {
-    const { tokens } = await this.oauth2Client.getToken(code)
-    this.oauth2Client.setCredentials(tokens)
+  public async getUserInfo(code: string, redirectUri: string): Promise<GoogleUserInfo> {
+    /**
+     * リクエスト毎に OAuth2Client を生成する。
+     * テスト容易性と、redirect_uri をリクエスト単位で切り替える要件のため。
+     */
+    const oauth2Client = new OAuth2Client(this.clientId, this.clientSecret, redirectUri)
+    const { tokens } = await oauth2Client.getToken(code)
+    oauth2Client.setCredentials(tokens)
 
     const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
       headers: {
