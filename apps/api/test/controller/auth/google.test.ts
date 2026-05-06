@@ -17,13 +17,11 @@ import {
   testRedis,
 } from "../setup"
 
-/** 外部 SaaS（Google OAuth）はモックする */
 const mockGetUserInfo = jest.fn<Promise<GoogleUserInfo>, [string, string]>()
 const mockGoogleOAuthClient: IGoogleOAuthClient = {
   getUserInfo: mockGetUserInfo,
 }
 
-/** 自前インフラ（Postgres / Redis）は本物を使う */
 const authAccountRepository = new PrismaAuthAccountRepository(testPrisma)
 const userRegistrationRepository = new PrismaUserRegistrationRepository(testPrisma)
 const refreshTokenRepository = new IoRedisRefreshTokenRepository(testRedis)

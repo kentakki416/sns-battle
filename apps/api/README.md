@@ -156,7 +156,7 @@ async execute(req: Request, res: Response) {
 ### 基本方針
 
 - **Service層 → ユニットテスト**: DB不要、高速、並列実行可能
-- **Controller層 → インテグレーションテスト**: 実DB使用、supertest でHTTPレイヤーからテスト
+- **Controller層 → インテグレーションテスト**（`apps/api/test/controller/`）: 自前インフラ（Postgres・Redis）は本物を使い必ず実データを検証する。`supertest` で HTTP レイヤーから検証
 
 ### ユニットテスト（Service）
 
@@ -226,96 +226,6 @@ if (!result.ok) {
 // 想定外の throw
 mockFindById.mockRejectedValue(new Error("Database connection failed"))
 await expect(getMemoById(1, mockMemoRepository)).rejects.toThrow("Database connection failed")
-```
-
-### インテグレーションテスト（Controller）
-
-ユニットテストで検証できない以下の項目をテストする。
-
-- **controllerが返すレスポンスの全パターン**: 正常系・異常系のHTTPステータスコードとレスポンスボディの存在
-- **最終的なインフラの状態**: Postgres / Redis にデータの作成・更新・削除が正しく反映されているか
-
-※ 認証ミドルウェア単体のテストやリクエストバリデーション単体のテストは行わない。あくまでcontrollerのレスポンスパターンを網羅することで、これらも含めて検証する。
-
-#### 何をモックして何を本物にするか
-
-| 種類 | 例 | 扱い | 理由 |
-|---|---|---|---|
-| 自前インフラ | Postgres / Redis | **本物（テスト用 DB に接続）** | キー名・TTL・型変換・SQL の誤りなど、mock では検出できない不具合を捕捉する |
-| 外部 SaaS / ネットワーク | Google OAuth Client / S3 / 課金 API | **モック** | 外部依存・遅い・課金される・異常系の再現が難しい |
-
-自前 Redis を `mockRefreshTokenRepository` のように `jest.fn()` で差し替えるのは Controller integration テストでは禁止。`new IoRedisRefreshTokenRepository(testRedis)` で実 Redis を注入する。
-
-```typescript
-import { IoRedisRefreshTokenRepository } from "../../../src/repository/redis"
-import { cleanupTestRedis, disconnectTestRedis, testRedis } from "../setup"
-
-const refreshTokenRepository = new IoRedisRefreshTokenRepository(testRedis)
-
-beforeEach(async () => {
-  await cleanupTestRedis()
-})
-
-afterAll(async () => {
-  await cleanupTestRedis()
-  await disconnectTestRedis()
-})
-```
-
-#### アサーションは「最終状態」まで含める
-
-「メソッドが呼ばれた」だけ検証する mock 駆動の assertion は不十分。**Postgres / Redis の最終状態を直接確認する**（呼び出しの検証は Service ユニットテストの責務）。
-
-```typescript
-/** ❌ 自前インフラを mock している場合これしかできない */
-expect(mockRefreshTokenRepository.save).toHaveBeenCalled()
-
-/** ✅ Redis に意図通り保存されているかを直接検証 */
-const payload = verifyRefreshToken(res.body.refresh_token)
-expect(await refreshTokenRepository.findUserId(payload!.jti)).toBe(userId)
-```
-
-#### アサーションの方針
-
-- **ステータスコード、主要なレスポンスフィールドの値は検証する**（`expect(res.status).toBe(404)`, `expect(res.body.id).toBe(user.id)` など）
-- **エラーメッセージの文字列は検証しない**。メッセージはユーザー向け表記の微調整で変わり得るため、`expect(res.body.error).toBeDefined()` のみで「エラーフィールドが返っていること」を確認する
-
-```typescript
-// ❌ 悪い例: エラーメッセージの文字列に依存
-expect(res.body.error).toBe("Memo not found")
-
-// ✅ 良い例: ステータスコードとエラーフィールドの存在のみ検証
-expect(res.status).toBe(404)
-expect(res.body.error).toBeDefined()
-```
-
-#### グローバルエラーハンドラの適用
-
-`attachErrorHandler(app)` をルート登録後に必ず呼び出し、本番同様に ZodError を 400、想定外 throw を 500 に変換する状態でテストする。
-
-```typescript
-const app = createTestApp()
-app.use("/api/memo", memoRouter({ detail: new MemoDetailController(memoRepository) }))
-attachErrorHandler(app)  // ルート登録後に呼び出すこと
-```
-
-#### テスト用DB
-
-- 開発用と同じDBコンテナ内にテスト用データベースを作成する（コンテナを分けない）
-- インテグレーションテストはドメイン単位でデータベースを分割可能にし、並列実行やCI での分割実行に対応する
-- 各テストケースの `beforeEach` / `afterEach` で初期データの投入とクリーンアップを必ず行い、テスト間の独立性を保証する
-
-#### テストの実行
-
-```bash
-# ユニットテストのみ（DB不要）
-pnpm test test/service
-
-# インテグレーションテストのみ（DB必要）
-pnpm test test/controller
-
-# 全テスト
-pnpm test
 ```
 
 ## 開発コマンド
