@@ -4,7 +4,9 @@ import express from "express"
 import { GoogleOAuthClient } from "./client/google-oauth"
 import { redis } from "./client/redis"
 import { AuthGoogleController } from "./controller/auth/google"
+import { AuthLogoutController } from "./controller/auth/logout"
 import { AuthMeController } from "./controller/auth/me"
+import { AuthRefreshController } from "./controller/auth/refresh"
 import { HealthLivenessController } from "./controller/health/liveness"
 import { HealthReadinessController } from "./controller/health/readiness"
 import { MemoCreateController } from "./controller/memo/create"
@@ -61,6 +63,8 @@ const authGoogleController = new AuthGoogleController(
   googleOAuthClient,
 )
 const authMeController = new AuthMeController(userRepository)
+const authRefreshController = new AuthRefreshController(refreshTokenRepository)
+const authLogoutController = new AuthLogoutController(refreshTokenRepository)
 
 // Memo Controller のインスタンス化
 const memoListController = new MemoListController(memoRepository)
@@ -98,7 +102,9 @@ app.use(
   "/api/auth",
   authRouter({
     google: authGoogleController,
+    logout: authLogoutController,
     me: authMeController,
+    refresh: authRefreshController,
   })
 )
 app.use(
