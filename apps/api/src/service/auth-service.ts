@@ -38,7 +38,7 @@ const REFRESH_TTL_SECONDS = 60 * 60 * 24 * 7
  */
 export const authenticateWithGoogle = async (
   input: { code: string; redirectUri: string },
-  repository: Repositories,
+  repo: Repositories,
   googleAuthClient: IGoogleOAuthClient,
   tokenGenerators: TokenGenerators
 ): Promise<Result<AuthenticateWithGoogleSuccess>> => {
@@ -50,7 +50,7 @@ export const authenticateWithGoogle = async (
     googleId: googleUser.id,
   })
 
-  const existingAccount = await repository.authAccountRepository.findByProvider("google", googleUser.id)
+  const existingAccount = await repo.authAccountRepository.findByProvider("google", googleUser.id)
 
   let user: User
   let isNewUser = false
@@ -61,7 +61,7 @@ export const authenticateWithGoogle = async (
   } else {
     isNewUser = true
     logger.info("AuthService: Creating new user")
-    user = await repository.userRegistrationRepository.createUserWithAuthAccountTx({
+    user = await repo.userRegistrationRepository.createUserWithAuthAccountTx({
       authAccount: {
         provider: "google",
         providerAccountId: googleUser.id,
@@ -77,7 +77,7 @@ export const authenticateWithGoogle = async (
 
   const accessToken = tokenGenerators.generateAccessToken(user.id)
   const { jti, token: refreshToken } = tokenGenerators.generateRefreshToken(user.id)
-  await repository.refreshTokenRepository.save(jti, user.id, REFRESH_TTL_SECONDS)
+  await repo.refreshTokenRepository.save(jti, user.id, REFRESH_TTL_SECONDS)
 
   logger.debug("AuthService: Tokens issued", { userId: user.id })
 
