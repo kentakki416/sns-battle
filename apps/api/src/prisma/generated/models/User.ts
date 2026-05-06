@@ -1055,7 +1055,13 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     email: string | null
     name: string | null
     avatarUrl: string | null
+    /**
+     * 自己紹介文（プロフィール画面で表示）。Google から取得しないためオンボーディングまたはプロフィール編集で入力する
+     */
     bio: string | null
+    /**
+     * オンボーディング完了フラグ。初回ログイン後の必須プロフィール設定（表示名・生年月日・性別など）が完了したら true に更新する。サインイン直後にこの値が false なら /onboarding へ誘導する
+     */
     isOnboarded: boolean
     createdAt: Date
     updatedAt: Date
