@@ -54,3 +54,48 @@ export const authMeResponseSchema = z.object({
 })
 
 export type AuthMeResponse = z.infer<typeof authMeResponseSchema>
+
+// ========================================================
+// POST /api/auth/refresh - Access/Refresh Token のローテーション
+// ========================================================
+
+/**
+ * Refresh Token によるトークン更新リクエストのスキーマ
+ */
+export const authRefreshRequestSchema = z.object({
+  refresh_token: z.string().min(1),
+})
+
+export type AuthRefreshRequest = z.infer<typeof authRefreshRequestSchema>
+
+/**
+ * Refresh Token によるトークン更新レスポンスのスキーマ
+ */
+export const authRefreshResponseSchema = z.object({
+  access_token: z.string(),
+  refresh_token: z.string(),
+})
+
+export type AuthRefreshResponse = z.infer<typeof authRefreshResponseSchema>
+
+// ========================================================
+// POST /api/auth/logout - Refresh Token を無効化
+// ========================================================
+
+/**
+ * ログアウトリクエストのスキーマ
+ */
+export const authLogoutRequestSchema = z.object({
+  refresh_token: z.string().min(1),
+})
+
+export type AuthLogoutRequest = z.infer<typeof authLogoutRequestSchema>
+
+/**
+ * ログアウトレスポンスのスキーマ
+ */
+export const authLogoutResponseSchema = z.object({
+  message: z.literal("OK"),
+})
+
+export type AuthLogoutResponse = z.infer<typeof authLogoutResponseSchema>

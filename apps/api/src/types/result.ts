@@ -73,3 +73,12 @@ export const conflictError = (message: string): ApiError => ({
   statusCode: 409,
   type: "CONFLICT",
 })
+
+/**
+ * 401 Unauthorized のエラーを生成する
+ */
+export const unauthorizedError = (message: string): ApiError => ({
+  message,
+  statusCode: 401,
+  type: "UNAUTHORIZED",
+})

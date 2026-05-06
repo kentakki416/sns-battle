@@ -6,7 +6,7 @@ import {
 } from "../repository/prisma"
 import { RefreshTokenRepository } from "../repository/redis"
 import { User } from "../types/domain"
-import { ok, Result } from "../types/result"
+import { err, ok, Result, unauthorizedError } from "../types/result"
 
 export type AuthenticateWithGoogleSuccess = {
     accessToken: string
@@ -87,4 +87,71 @@ export const authenticateWithGoogle = async (
     refreshToken,
     user,
   })
+}
+
+export type RefreshTokensSuccess = {
+    accessToken: string
+    refreshToken: string
+}
+
+type RefreshVerifier = (token: string) => { jti: string; userId: number } | null
+
+/**
+ * Refresh Token のローテーション
+ *
+ * 受け取った Refresh Token を検証し、Redis 上の jti と一致する場合は旧 jti を破棄して
+ * 新しい Access Token + Refresh Token を発行する（1 回使用で無効化）。
+ *
+ * 検証失敗・既に無効化済み・userId 不一致はすべて 401 で返す。
+ */
+export const refreshTokens = async (
+  input: { refreshToken: string },
+  repo: { refreshTokenRepository: RefreshTokenRepository },
+  verifier: RefreshVerifier,
+  generators: TokenGenerators
+): Promise<Result<RefreshTokensSuccess>> => {
+  logger.info("AuthService: Starting refresh token rotation")
+
+  const payload = verifier(input.refreshToken)
+  if (!payload) {
+    return err(unauthorizedError("Invalid refresh token"))
+  }
+
+  const userId = await repo.refreshTokenRepository.findUserId(payload.jti)
+  if (userId === null || userId !== payload.userId) {
+    return err(unauthorizedError("Refresh token has been revoked"))
+  }
+
+  /** ローテーション: 旧 jti を破棄して新しい jti を発行 */
+  await repo.refreshTokenRepository.delete(payload.jti)
+
+  const accessToken = generators.generateAccessToken(userId)
+  const { jti, token: refreshToken } = generators.generateRefreshToken(userId)
+  await repo.refreshTokenRepository.save(jti, userId, REFRESH_TTL_SECONDS)
+
+  logger.debug("AuthService: Tokens rotated", { userId })
+
+  return ok({ accessToken, refreshToken })
+}
+
+/**
+ * ログアウト
+ *
+ * Refresh Token を検証して Redis から jti を削除する。冪等性を保つため、
+ * 検証失敗時もエラーにせず 200 を返す（呼び出し元の Result.ok = true）。
+ */
+export const logout = async (
+  input: { refreshToken: string },
+  repo: { refreshTokenRepository: RefreshTokenRepository },
+  verifier: RefreshVerifier
+): Promise<Result<{ ok: true }>> => {
+  logger.info("AuthService: Logout")
+
+  const payload = verifier(input.refreshToken)
+  if (!payload) {
+    /** 無効なトークンでも成功扱いにして冪等性を保つ */
+    return ok({ ok: true })
+  }
+  await repo.refreshTokenRepository.delete(payload.jti)
+  return ok({ ok: true })
 }
