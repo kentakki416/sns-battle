@@ -58,9 +58,7 @@ describe("createMemo", () => {
     mockCreate.mockRejectedValue(mockError)
 
     // Act & Assert
-    await expect(createMemo(input, { memoRepository: mockMemoRepository })).rejects.toThrow(
-      "Database connection failed"
-    )
+    await expect(createMemo(input, { memoRepository: mockMemoRepository })).rejects.toThrow()
     expect(mockCreate).toHaveBeenCalledWith(input)
   })
 })

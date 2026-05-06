@@ -40,8 +40,10 @@ describe("POST /api/auth/refresh", () => {
       .send({ refresh_token: token })
 
     expect(res.status).toBe(200)
-    expect(res.body.access_token).toBeDefined()
-    expect(res.body.refresh_token).toBeDefined()
+    expect(res.body).toEqual({
+      access_token: expect.any(String),
+      refresh_token: expect.any(String),
+    })
 
     /** 旧 jti は Redis から削除されている */
     expect(await refreshTokenRepository.findUserId(oldJti)).toBeNull()
@@ -66,7 +68,7 @@ describe("POST /api/auth/refresh", () => {
       .post("/api/auth/refresh")
       .send({ refresh_token: token })
     expect(second.status).toBe(401)
-    expect(second.body.error).toBeDefined()
+    expect(second.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
   it("Refresh Token が改ざんされている場合、401 を返す", async () => {
@@ -75,7 +77,7 @@ describe("POST /api/auth/refresh", () => {
       .send({ refresh_token: "invalid.refresh.token" })
 
     expect(res.status).toBe(401)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
   it("Redis に jti が無い場合（再利用検知）、401 を返す", async () => {
@@ -86,7 +88,7 @@ describe("POST /api/auth/refresh", () => {
       .send({ refresh_token: token })
 
     expect(res.status).toBe(401)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
   it("refresh_token が無い場合、400 を返す", async () => {
@@ -95,6 +97,6 @@ describe("POST /api/auth/refresh", () => {
       .send({})
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 })

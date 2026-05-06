@@ -32,8 +32,10 @@ describe("refreshTokens", () => {
 
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.value.accessToken).toBe("new.access")
-      expect(result.value.refreshToken).toBe("new.refresh")
+      expect(result.value).toEqual({
+        accessToken: "new.access",
+        refreshToken: "new.refresh",
+      })
     }
     expect(mockDelete).toHaveBeenCalledWith("old-jti")
     expect(mockSave).toHaveBeenCalledWith("new-jti", 1, expect.any(Number))
@@ -49,8 +51,10 @@ describe("refreshTokens", () => {
 
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.error.statusCode).toBe(401)
-      expect(result.error.type).toBe("UNAUTHORIZED")
+      expect(result.error).toMatchObject({
+        statusCode: 401,
+        type: "UNAUTHORIZED",
+      })
     }
     expect(mockDelete).not.toHaveBeenCalled()
     expect(mockSave).not.toHaveBeenCalled()
@@ -68,8 +72,10 @@ describe("refreshTokens", () => {
 
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.error.statusCode).toBe(401)
-      expect(result.error.type).toBe("UNAUTHORIZED")
+      expect(result.error).toMatchObject({
+        statusCode: 401,
+        type: "UNAUTHORIZED",
+      })
     }
     expect(mockDelete).not.toHaveBeenCalled()
   })
@@ -86,7 +92,10 @@ describe("refreshTokens", () => {
 
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.error.statusCode).toBe(401)
+      expect(result.error).toMatchObject({
+        statusCode: 401,
+        type: "UNAUTHORIZED",
+      })
     }
     expect(mockDelete).not.toHaveBeenCalled()
   })

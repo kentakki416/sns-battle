@@ -66,17 +66,44 @@ describe("POST /api/auth/google", () => {
       .post("/api/auth/google")
       .send({ code: "auth-code", redirect_uri: REDIRECT_URI })
 
+    /** API レスポンス契約を全フィールドで検証 */
     expect(res.status).toBe(200)
-    expect(res.body.access_token).toBeDefined()
-    expect(res.body.refresh_token).toBeDefined()
-    expect(res.body.is_new_user).toBe(true)
-    expect(res.body.user.email).toBe("new@example.com")
+    expect(res.body).toEqual({
+      access_token: expect.any(String),
+      is_new_user: true,
+      refresh_token: expect.any(String),
+      user: {
+        avatar_url: "https://example.com/new-avatar.jpg",
+        bio: null,
+        created_at: expect.any(String),
+        email: "new@example.com",
+        id: expect.any(Number),
+        is_onboarded: false,
+        name: "New User",
+      },
+    })
 
-    /** Postgres に User が作成されている */
+    /** Postgres に User が作成されている（id/timestamp は省略） */
     const createdUser = await testPrisma.user.findUnique({
       where: { email: "new@example.com" },
     })
-    expect(createdUser).not.toBeNull()
+    expect(createdUser).toMatchObject({
+      avatarUrl: "https://example.com/new-avatar.jpg",
+      bio: null,
+      email: "new@example.com",
+      isOnboarded: false,
+      name: "New User",
+    })
+
+    /** Postgres に AuthAccount が作成され、User と同じトランザクションで紐付いている */
+    const createdAuthAccount = await testPrisma.authAccount.findFirst({
+      where: { provider: "google", providerAccountId: "google-456" },
+    })
+    expect(createdAuthAccount).toMatchObject({
+      provider: "google",
+      providerAccountId: "google-456",
+      userId: createdUser!.id,
+    })
 
     /** Redis に Refresh Token が保存され、userId が紐付いている */
     const payload = verifyRefreshToken(res.body.refresh_token)
@@ -112,8 +139,20 @@ describe("POST /api/auth/google", () => {
       .send({ code: "auth-code", redirect_uri: REDIRECT_URI })
 
     expect(res.status).toBe(200)
-    expect(res.body.is_new_user).toBe(false)
-    expect(res.body.user.id).toBe(user.id)
+    expect(res.body).toEqual({
+      access_token: expect.any(String),
+      is_new_user: false,
+      refresh_token: expect.any(String),
+      user: {
+        avatar_url: "https://example.com/avatar.jpg",
+        bio: null,
+        created_at: expect.any(String),
+        email: "test@example.com",
+        id: user.id,
+        is_onboarded: false,
+        name: "Test User",
+      },
+    })
 
     const payload = verifyRefreshToken(res.body.refresh_token)
     expect(payload).not.toBeNull()
@@ -126,7 +165,7 @@ describe("POST /api/auth/google", () => {
       .send({ redirect_uri: REDIRECT_URI })
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
   it("redirect_uri が URL でない場合、400 を返す", async () => {
@@ -135,7 +174,7 @@ describe("POST /api/auth/google", () => {
       .send({ code: "auth-code", redirect_uri: "not-a-url" })
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
   it("Google 認証エラー時、グローバルエラーハンドラが 500 を返す", async () => {
@@ -146,6 +185,6 @@ describe("POST /api/auth/google", () => {
       .send({ code: "invalid-code", redirect_uri: REDIRECT_URI })
 
     expect(res.status).toBe(500)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 500 })
   })
 })

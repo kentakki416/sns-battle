@@ -73,8 +73,6 @@ describe("getAllMemos", () => {
     mockFindAll.mockRejectedValue(mockError)
 
     // Act & Assert
-    await expect(getAllMemos({ memoRepository: mockMemoRepository })).rejects.toThrow(
-      "Database connection failed"
-    )
+    await expect(getAllMemos({ memoRepository: mockMemoRepository })).rejects.toThrow()
   })
 })

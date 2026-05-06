@@ -93,10 +93,12 @@ describe("authenticateWithGoogle", () => {
 
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.value.isNewUser).toBe(false)
-      expect(result.value.user).toEqual(mockExistingUser)
-      expect(result.value.accessToken).toBe("access.jwt")
-      expect(result.value.refreshToken).toBe("refresh.jwt")
+      expect(result.value).toEqual({
+        accessToken: "access.jwt",
+        isNewUser: false,
+        refreshToken: "refresh.jwt",
+        user: mockExistingUser,
+      })
     }
     expect(mockGetUserInfo).toHaveBeenCalledWith("auth-code", REDIRECT_URI)
     expect(mockCreateUserWithAuthAccountTx).not.toHaveBeenCalled()
@@ -135,8 +137,12 @@ describe("authenticateWithGoogle", () => {
 
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.value.isNewUser).toBe(true)
-      expect(result.value.user).toEqual(mockNewUser)
+      expect(result.value).toEqual({
+        accessToken: "access.jwt",
+        isNewUser: true,
+        refreshToken: "refresh.jwt",
+        user: mockNewUser,
+      })
     }
     expect(mockCreateUserWithAuthAccountTx).toHaveBeenCalledWith({
       authAccount: {

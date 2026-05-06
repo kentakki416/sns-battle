@@ -34,10 +34,10 @@ describe("checkReadiness", () => {
     // Assert
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.value.database.status).toBe("ok")
-      expect(result.value.redis.status).toBe("ok")
-      expect(result.value.database.latency_ms).toBeGreaterThanOrEqual(0)
-      expect(result.value.redis.latency_ms).toBeGreaterThanOrEqual(0)
+      expect(result.value).toEqual({
+        database: { latency_ms: expect.any(Number), status: "ok" },
+        redis: { latency_ms: expect.any(Number), status: "ok" },
+      })
     }
     expect(mockDatabasePing).toHaveBeenCalledTimes(1)
     expect(mockRedisPing).toHaveBeenCalledTimes(1)
@@ -54,8 +54,10 @@ describe("checkReadiness", () => {
     // Assert
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.value.database.status).toBe("error")
-      expect(result.value.redis.status).toBe("ok")
+      expect(result.value).toEqual({
+        database: { latency_ms: expect.any(Number), status: "error" },
+        redis: { latency_ms: expect.any(Number), status: "ok" },
+      })
     }
   })
 
@@ -70,8 +72,10 @@ describe("checkReadiness", () => {
     // Assert
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.value.database.status).toBe("ok")
-      expect(result.value.redis.status).toBe("error")
+      expect(result.value).toEqual({
+        database: { latency_ms: expect.any(Number), status: "ok" },
+        redis: { latency_ms: expect.any(Number), status: "error" },
+      })
     }
   })
 
@@ -86,8 +90,10 @@ describe("checkReadiness", () => {
     // Assert
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.value.database.status).toBe("error")
-      expect(result.value.redis.status).toBe("error")
+      expect(result.value).toEqual({
+        database: { latency_ms: expect.any(Number), status: "error" },
+        redis: { latency_ms: expect.any(Number), status: "error" },
+      })
     }
   })
 })

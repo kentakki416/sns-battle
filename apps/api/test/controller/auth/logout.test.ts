@@ -42,6 +42,7 @@ describe("POST /api/auth/logout", () => {
       .send({ refresh_token: refreshToken })
 
     expect(res.status).toBe(200)
+    expect(res.body).toEqual({ message: "OK" })
     expect(await refreshTokenRepository.findUserId(jti)).toBeNull()
   })
 
@@ -74,6 +75,7 @@ describe("POST /api/auth/logout", () => {
       .send({ refresh_token: "invalid.refresh.token" })
 
     expect(res.status).toBe(200)
+    expect(res.body).toEqual({ message: "OK" })
     expect(await refreshTokenRepository.findUserId(otherJti)).toBe(2)
   })
 
@@ -85,7 +87,7 @@ describe("POST /api/auth/logout", () => {
       .send({ refresh_token: refreshToken })
 
     expect(res.status).toBe(401)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
   it("refresh_token が無い場合、400 を返す", async () => {
@@ -97,6 +99,6 @@ describe("POST /api/auth/logout", () => {
       .send({})
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 })

@@ -231,6 +231,59 @@ expect(createdUser).not.toBeNull()
 
 「呼び出し検証」は Service ユニットテストの責務。Controller integration テストは「実際に永続層が意図通り変化したか」を検証する。
 
+### オブジェクト一括 assertion を使う（フィールドごとの個別 assertion を避ける）
+
+レスポンスや DB 行を1フィールドずつ `expect(...).toBe(...)` で比較すると、検証漏れ・ノイズ・差分の読みにくさが生じる。**オブジェクト全体を `toEqual` または `toMatchObject` で一括検証する**。
+
+```typescript
+/** ❌ 悪い例: フィールドごとの個別 assertion */
+expect(res.status).toBe(200)
+expect(res.body.access_token).toBeDefined()
+expect(res.body.refresh_token).toBeDefined()
+expect(res.body.is_new_user).toBe(true)
+expect(res.body.user.email).toBe("new@example.com")
+
+/** ✅ 良い例: API レスポンスは toEqual で全フィールド完全一致 */
+expect(res.status).toBe(200)
+expect(res.body).toEqual({
+  access_token: expect.any(String),
+  is_new_user: true,
+  refresh_token: expect.any(String),
+  user: {
+    avatar_url: "https://example.com/new-avatar.jpg",
+    created_at: expect.any(String),
+    email: "new@example.com",
+    id: expect.any(Number),
+    name: "New User",
+  },
+})
+
+/** ✅ 良い例: DB 行は toMatchObject で内部詳細（id/timestamp）を省略 */
+const createdUser = await testPrisma.user.findUnique({ where: { email: "new@example.com" } })
+expect(createdUser).toMatchObject({
+  avatarUrl: "https://example.com/new-avatar.jpg",
+  email: "new@example.com",
+  name: "New User",
+})
+
+/** ✅ 良い例: エラーレスポンスも完全契約で検証（文言は any） */
+expect(res.status).toBe(400)
+expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
+
+/** ✅ 良い例: Redis のような単一値は toBe のままで簡潔 */
+expect(await refreshTokenRepository.findUserId(jti)).toBe(userId)
+```
+
+#### 推奨指針
+
+| 対象 | 推奨マッチャー | 理由 |
+|---|---|---|
+| API レスポンス（外部契約） | **`toEqual`** + `expect.any(...)` | スキーマ変更の検出が重要（フィールド増減で落ちる方が望ましい） |
+| DB 行（内部状態） | **`toMatchObject`** | id / timestamp は内部詳細なので省略 OK |
+| Redis / 単一値 | `toBe` のまま | 1値なので一括にする意味がない |
+
+`toEqual` は完全一致のためフィールド追加・削除で必ずテストが落ちる。これにより**契約変更の見落としを防げる**（API レスポンスでは特に重要）。一方 `toMatchObject` は subset 一致なので、id や timestamp などテストごとに揺れる値を含む DB 行に向く。
+
 ### テストの耐久性（重要）
 
 **エラーメッセージなどの文字列は assertion しない**。テストが脆くなり、文言変更・i18n 対応・ログ改善のたびに無関係なテストが落ちるため。

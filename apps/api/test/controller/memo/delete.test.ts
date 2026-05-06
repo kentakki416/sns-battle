@@ -35,9 +35,9 @@ describe("DELETE /api/memo/:id", () => {
     const res = await request(app).delete(`/api/memo/${memo.id}`)
 
     expect(res.status).toBe(200)
-    expect(res.body.message).toBeDefined()
+    expect(res.body).toEqual({ message: expect.any(String) })
 
-    // DBから実際に削除されていることを確認
+    /** DB から実際に削除されていることを確認 */
     const deleted = await testPrisma.memo.findUnique({ where: { id: memo.id } })
     expect(deleted).toBeNull()
   })
@@ -46,13 +46,13 @@ describe("DELETE /api/memo/:id", () => {
     const res = await request(app).delete("/api/memo/999999")
 
     expect(res.status).toBe(404)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 404 })
   })
 
   it("無効なID形式の場合、400 を返す", async () => {
     const res = await request(app).delete("/api/memo/abc")
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 })

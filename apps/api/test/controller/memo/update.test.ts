@@ -37,9 +37,20 @@ describe("PUT /api/memo/:id", () => {
       .send({ body: "Updated Body", title: "Updated Title" })
 
     expect(res.status).toBe(200)
-    expect(res.body.id).toBe(memo.id)
-    expect(res.body.title).toBe("Updated Title")
-    expect(res.body.body).toBe("Updated Body")
+    expect(res.body).toEqual({
+      body: "Updated Body",
+      created_at: expect.any(String),
+      id: memo.id,
+      title: "Updated Title",
+      updated_at: expect.any(String),
+    })
+
+    /** DB が実際に更新されていることを確認（id/timestamp は省略） */
+    const updated = await testPrisma.memo.findUnique({ where: { id: memo.id } })
+    expect(updated).toMatchObject({
+      body: "Updated Body",
+      title: "Updated Title",
+    })
   })
 
   it("メモが存在しない場合、404 を返す", async () => {
@@ -48,7 +59,7 @@ describe("PUT /api/memo/:id", () => {
       .send({ body: "Updated Body", title: "Updated Title" })
 
     expect(res.status).toBe(404)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 404 })
   })
 
   it("無効なID形式の場合、400 を返す", async () => {
@@ -57,7 +68,7 @@ describe("PUT /api/memo/:id", () => {
       .send({ body: "Updated Body", title: "Updated Title" })
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
   it("リクエストボディが不正な場合、400 を返す", async () => {
@@ -66,6 +77,6 @@ describe("PUT /api/memo/:id", () => {
       .send({})
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 })

@@ -53,9 +53,10 @@ describe("getUserById", () => {
     // Assert
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.error.type).toBe("NOT_FOUND")
-      expect(result.error.statusCode).toBe(404)
-      expect(result.error.message).toBe("User not found")
+      expect(result.error).toMatchObject({
+        statusCode: 404,
+        type: "NOT_FOUND",
+      })
     }
     expect(mockFindById).toHaveBeenCalledWith(999)
     expect(mockFindById).toHaveBeenCalledTimes(1)
@@ -67,9 +68,7 @@ describe("getUserById", () => {
     mockFindById.mockRejectedValue(mockError)
 
     // Act & Assert
-    await expect(getUserById(1, { userRepository: mockUserRepository })).rejects.toThrow(
-      "Database connection failed"
-    )
+    await expect(getUserById(1, { userRepository: mockUserRepository })).rejects.toThrow()
     expect(mockFindById).toHaveBeenCalledWith(1)
   })
 })

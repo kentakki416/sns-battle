@@ -30,8 +30,12 @@ describe("GET /api/health/ready", () => {
     const res = await request(app).get("/api/health/ready")
 
     expect(res.status).toBe(200)
-    expect(res.body.status).toBe("ok")
-    expect(res.body.services.database.status).toBe("ok")
-    expect(res.body.services.redis.status).toBe("ok")
+    expect(res.body).toEqual({
+      services: {
+        database: { latency_ms: expect.any(Number), status: "ok" },
+        redis: { latency_ms: expect.any(Number), status: "ok" },
+      },
+      status: "ok",
+    })
   })
 })

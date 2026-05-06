@@ -34,6 +34,24 @@ describe("GET /api/memo", () => {
     const res = await request(app).get("/api/memo")
 
     expect(res.status).toBe(200)
+    expect(res.body).toEqual({
+      memos: expect.arrayContaining([
+        {
+          body: "Body 1",
+          created_at: expect.any(String),
+          id: expect.any(Number),
+          title: "Title 1",
+          updated_at: expect.any(String),
+        },
+        {
+          body: "Body 2",
+          created_at: expect.any(String),
+          id: expect.any(Number),
+          title: "Title 2",
+          updated_at: expect.any(String),
+        },
+      ]),
+    })
     expect(res.body.memos).toHaveLength(2)
   })
 
@@ -41,6 +59,6 @@ describe("GET /api/memo", () => {
     const res = await request(app).get("/api/memo")
 
     expect(res.status).toBe(200)
-    expect(res.body.memos).toEqual([])
+    expect(res.body).toEqual({ memos: [] })
   })
 })

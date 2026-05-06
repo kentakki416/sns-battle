@@ -33,7 +33,10 @@ graph TB
 
     subgraph Packages
         Schema["packages/schema<br/>Zod スキーマ / 型定義"]
-        Terraform["packages/terraform<br/>AWS IaC"]
+    end
+
+    subgraph Infra
+        Terraform["infra/terraform<br/>AWS IaC"]
     end
 
     subgraph Infrastructure

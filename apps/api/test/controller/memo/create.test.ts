@@ -29,14 +29,20 @@ describe("POST /api/memo", () => {
       .send({ body: "New Body", title: "New Title" })
 
     expect(res.status).toBe(201)
-    expect(res.body.title).toBe("New Title")
-    expect(res.body.body).toBe("New Body")
-    expect(res.body.id).toBeDefined()
+    expect(res.body).toEqual({
+      body: "New Body",
+      created_at: expect.any(String),
+      id: expect.any(Number),
+      title: "New Title",
+      updated_at: expect.any(String),
+    })
 
-    // DBに実際に保存されていることを確認
+    /** DB に実際に保存されていることを確認（id/timestamp は内部詳細なので省略） */
     const memo = await testPrisma.memo.findUnique({ where: { id: res.body.id } })
-    expect(memo).not.toBeNull()
-    expect(memo!.title).toBe("New Title")
+    expect(memo).toMatchObject({
+      body: "New Body",
+      title: "New Title",
+    })
   })
 
   it("リクエストボディが不正な場合、400 を返す", async () => {
@@ -45,7 +51,7 @@ describe("POST /api/memo", () => {
       .send({})
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
   it("titleが空の場合、400 を返す", async () => {
@@ -54,6 +60,6 @@ describe("POST /api/memo", () => {
       .send({ body: "Body", title: "" })
 
     expect(res.status).toBe(400)
-    expect(res.body.error).toBeDefined()
+    expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 })

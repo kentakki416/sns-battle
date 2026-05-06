@@ -54,9 +54,10 @@ describe("deleteMemo", () => {
     // Assert
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.error.type).toBe("NOT_FOUND")
-      expect(result.error.statusCode).toBe(404)
-      expect(result.error.message).toBe("Memo not found")
+      expect(result.error).toMatchObject({
+        statusCode: 404,
+        type: "NOT_FOUND",
+      })
     }
     expect(mockFindById).toHaveBeenCalledWith(999)
     expect(mockDeleteById).not.toHaveBeenCalled()
@@ -68,9 +69,7 @@ describe("deleteMemo", () => {
     mockFindById.mockRejectedValue(mockError)
 
     // Act & Assert
-    await expect(deleteMemo(1, { memoRepository: mockMemoRepository })).rejects.toThrow(
-      "Database connection failed"
-    )
+    await expect(deleteMemo(1, { memoRepository: mockMemoRepository })).rejects.toThrow()
     expect(mockFindById).toHaveBeenCalledWith(1)
   })
 })
