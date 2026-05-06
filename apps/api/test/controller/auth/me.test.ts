@@ -1,7 +1,7 @@
 import request from "supertest"
 
 import { AuthMeController } from "../../../src/controller/auth/me"
-import { generateToken } from "../../../src/lib/jwt"
+import { generateAccessToken } from "../../../src/lib/jwt"
 import { PrismaUserRepository } from "../../../src/repository/prisma/user-repository"
 import { authRouter } from "../../../src/routes/auth-router"
 import { attachErrorHandler, createTestApp } from "../helper"
@@ -35,7 +35,7 @@ describe("GET /api/auth/me", () => {
       },
     })
 
-    const token = generateToken(user.id)
+    const token = generateAccessToken(user.id)
 
     const res = await request(app)
       .get("/api/auth/me")
@@ -48,7 +48,7 @@ describe("GET /api/auth/me", () => {
   })
 
   it("ユーザーが存在しない場合、404 を返す", async () => {
-    const token = generateToken(999999)
+    const token = generateAccessToken(999999)
 
     const res = await request(app)
       .get("/api/auth/me")

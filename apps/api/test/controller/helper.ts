@@ -1,6 +1,6 @@
 import express from "express"
 
-import { generateToken } from "../../src/lib/jwt"
+import { generateAccessToken } from "../../src/lib/jwt"
 import { authMiddleware } from "../../src/middleware/auth"
 import { errorHandler } from "../../src/middleware/error-handler"
 import { User } from "../../src/types/domain"
@@ -57,7 +57,7 @@ export const createTestUser = async (overrides?: {
     updatedAt: prismaUser.updatedAt,
   }
 
-  const token = generateToken(user.id)
+  const token = generateAccessToken(user.id)
 
   return { token, user }
 }

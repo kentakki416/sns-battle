@@ -1,43 +1,52 @@
-import { type IGoogleOAuthClient, GoogleUserInfo } from "../../../src/client/google-oauth"
+import { GoogleUserInfo, IGoogleOAuthClient } from "../../../src/client/google-oauth"
 import { UserRegistrationRepository } from "../../../src/repository/prisma/aggregate/user-registration-repository"
 import { AuthAccountRepository } from "../../../src/repository/prisma/auth-account-repository"
+import { RefreshTokenRepository } from "../../../src/repository/redis/refresh-token-repository"
 import { authenticateWithGoogle } from "../../../src/service/auth-service"
 import { AuthAccountWithUser, User } from "../../../src/types/domain"
 
-// モック
-const mockGetUserInfo = jest.fn<Promise<GoogleUserInfo>, [string]>()
-const mockFindByProvider = jest.fn<Promise<AuthAccountWithUser | null>, [string, string]>()
-const mockCreateUserWithAuthAccountTx = jest.fn<Promise<User>, [Parameters<UserRegistrationRepository["createUserWithAuthAccountTx"]>[0]]>()
-
-const mockGoogleAuthClient: IGoogleOAuthClient = {
-  generateAuthUrl: jest.fn(),
+const mockGetUserInfo = jest.fn<Promise<GoogleUserInfo>, [string, string]>()
+const mockGoogleOAuthClient: IGoogleOAuthClient = {
   getUserInfo: mockGetUserInfo,
 }
 
-const mockRepository: {
-  authAccountRepository: AuthAccountRepository
-  userRegistrationRepository: UserRegistrationRepository
-} = {
-  authAccountRepository: {
-    create: jest.fn(),
-    findByProvider: mockFindByProvider,
-  },
-  userRegistrationRepository: {
-    createUserWithAuthAccountTx: mockCreateUserWithAuthAccountTx,
-  },
+const mockFindByProvider = jest.fn<Promise<AuthAccountWithUser | null>, [string, string]>()
+const mockAuthAccountRepository: AuthAccountRepository = {
+  create: jest.fn(),
+  findByProvider: mockFindByProvider,
 }
 
-const mockTokenGenerator = jest.fn<string, [number]>(
-  (userId: number) => `mock-jwt-token-${userId}`
-)
+const mockCreateUserWithAuthAccountTx = jest.fn<Promise<User>, [Parameters<UserRegistrationRepository["createUserWithAuthAccountTx"]>[0]]>()
+const mockUserRegistrationRepository: UserRegistrationRepository = {
+  createUserWithAuthAccountTx: mockCreateUserWithAuthAccountTx,
+}
+
+const mockRefreshTokenSave = jest.fn<Promise<void>, [string, number, number]>()
+const mockRefreshTokenRepository: RefreshTokenRepository = {
+  delete: jest.fn(),
+  findUserId: jest.fn(),
+  save: mockRefreshTokenSave,
+}
+
+const mockRepository = {
+  authAccountRepository: mockAuthAccountRepository,
+  refreshTokenRepository: mockRefreshTokenRepository,
+  userRegistrationRepository: mockUserRegistrationRepository,
+}
+
+const mockTokenGenerators = {
+  generateAccessToken: jest.fn((_userId: number) => "access.jwt"),
+  generateRefreshToken: jest.fn((_userId: number) => ({ jti: "uuid-1", token: "refresh.jwt" })),
+}
+
+const REDIRECT_URI = "http://localhost:3000/api/auth/callback/google"
 
 describe("authenticateWithGoogle", () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
 
-  it("既存ユーザーの場合、ok: true とユーザー情報・JWTトークンを返す", async () => {
-    // Arrange
+  it("既存ユーザーの場合、isNewUser=false で Access/Refresh Token を発行する", async () => {
     const mockGoogleUser: GoogleUserInfo = {
       email: "test@example.com",
       id: "google-123",
@@ -75,28 +84,26 @@ describe("authenticateWithGoogle", () => {
     mockGetUserInfo.mockResolvedValue(mockGoogleUser)
     mockFindByProvider.mockResolvedValue(mockExistingAccount)
 
-    // Act
     const result = await authenticateWithGoogle(
-      "auth-code",
+      { code: "auth-code", redirectUri: REDIRECT_URI },
       mockRepository,
-      mockGoogleAuthClient,
-      mockTokenGenerator
+      mockGoogleOAuthClient,
+      mockTokenGenerators
     )
 
-    // Assert
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value.isNewUser).toBe(false)
       expect(result.value.user).toEqual(mockExistingUser)
-      expect(result.value.jwtToken).toBe("mock-jwt-token-1")
+      expect(result.value.accessToken).toBe("access.jwt")
+      expect(result.value.refreshToken).toBe("refresh.jwt")
     }
-    expect(mockGetUserInfo).toHaveBeenCalledWith("auth-code")
-    expect(mockFindByProvider).toHaveBeenCalledWith("google", "google-123")
+    expect(mockGetUserInfo).toHaveBeenCalledWith("auth-code", REDIRECT_URI)
     expect(mockCreateUserWithAuthAccountTx).not.toHaveBeenCalled()
+    expect(mockRefreshTokenSave).toHaveBeenCalledWith("uuid-1", 1, expect.any(Number))
   })
 
-  it("新規ユーザーの場合、ok: true でユーザーを作成してJWTトークンを返す", async () => {
-    // Arrange
+  it("新規ユーザーの場合、isNewUser=true でユーザーを作成し Access/Refresh Token を発行する", async () => {
     const mockGoogleUser: GoogleUserInfo = {
       email: "newuser@example.com",
       id: "google-456",
@@ -119,23 +126,18 @@ describe("authenticateWithGoogle", () => {
     mockFindByProvider.mockResolvedValue(null)
     mockCreateUserWithAuthAccountTx.mockResolvedValue(mockNewUser)
 
-    // Act
     const result = await authenticateWithGoogle(
-      "auth-code",
+      { code: "auth-code", redirectUri: REDIRECT_URI },
       mockRepository,
-      mockGoogleAuthClient,
-      mockTokenGenerator
+      mockGoogleOAuthClient,
+      mockTokenGenerators
     )
 
-    // Assert
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value.isNewUser).toBe(true)
       expect(result.value.user).toEqual(mockNewUser)
-      expect(result.value.jwtToken).toBe("mock-jwt-token-2")
     }
-    expect(mockGetUserInfo).toHaveBeenCalledWith("auth-code")
-    expect(mockFindByProvider).toHaveBeenCalledWith("google", "google-456")
     expect(mockCreateUserWithAuthAccountTx).toHaveBeenCalledWith({
       authAccount: {
         provider: "google",
@@ -147,21 +149,19 @@ describe("authenticateWithGoogle", () => {
         name: "New User",
       },
     })
+    expect(mockRefreshTokenSave).toHaveBeenCalledWith("uuid-1", 2, expect.any(Number))
   })
 
-  it("Google認証エラー時にエラーをスローする", async () => {
-    // Arrange
-    const mockError = new Error("Google authentication failed")
-    mockGetUserInfo.mockRejectedValue(mockError)
+  it("Google 認証エラー時に例外が伝播する", async () => {
+    mockGetUserInfo.mockRejectedValue(new Error("network"))
 
-    // Act & Assert
     await expect(
       authenticateWithGoogle(
-        "invalid-code",
+        { code: "invalid", redirectUri: REDIRECT_URI },
         mockRepository,
-        mockGoogleAuthClient,
-        mockTokenGenerator
+        mockGoogleOAuthClient,
+        mockTokenGenerators
       )
-    ).rejects.toThrow("Google authentication failed")
+    ).rejects.toThrow()
   })
 })

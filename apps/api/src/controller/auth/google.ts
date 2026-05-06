@@ -1,18 +1,66 @@
 import { Request, Response } from "express"
 
+import { authGoogleRequestSchema, authGoogleResponseSchema, ErrorResponse } from "@repo/api-schema"
+
 import { IGoogleOAuthClient } from "../../client/google-oauth"
+import { generateAccessToken, generateRefreshToken } from "../../lib/jwt"
 import { logger } from "../../log"
+import { AuthAccountRepository, UserRegistrationRepository } from "../../repository/prisma"
+import { RefreshTokenRepository } from "../../repository/redis"
+import * as service from "../../service"
 
 /**
- * Google OAuth 認証を開始（Googleの認証画面にリダイレクト）API
- * エラー（OAuth クライアント設定エラー等）はグローバルエラーハンドラが 500 で返す
+ * Google OAuth 認証コードを検証し、Access/Refresh Token を発行する API
  */
 export class AuthGoogleController {
-  constructor(private googleOAuthClient: IGoogleOAuthClient) {}
+  constructor(
+    private authAccountRepository: AuthAccountRepository,
+    private userRegistrationRepository: UserRegistrationRepository,
+    private refreshTokenRepository: RefreshTokenRepository,
+    private googleOAuthClient: IGoogleOAuthClient
+  ) {}
 
-  execute(_req: Request, res: Response) {
-    logger.info("AuthGoogleController: Redirecting to Google OAuth")
-    const authUrl = this.googleOAuthClient.generateAuthUrl()
-    res.redirect(authUrl)
+  async execute(req: Request, res: Response) {
+    logger.info("AuthGoogleController: Verifying Google authorization code")
+
+    const { code, redirect_uri: redirectUri } = authGoogleRequestSchema.parse(req.body)
+
+    const result = await service.auth.authenticateWithGoogle(
+      { code, redirectUri },
+      {
+        authAccountRepository: this.authAccountRepository,
+        refreshTokenRepository: this.refreshTokenRepository,
+        userRegistrationRepository: this.userRegistrationRepository,
+      },
+      this.googleOAuthClient,
+      { generateAccessToken, generateRefreshToken }
+    )
+
+    if (!result.ok) {
+      const errorResponse: ErrorResponse = {
+        error: result.error.message,
+        status_code: result.error.statusCode,
+      }
+      return res.status(result.error.statusCode).json(errorResponse)
+    }
+
+    const { accessToken, isNewUser, refreshToken, user } = result.value
+
+    const response = authGoogleResponseSchema.parse({
+      access_token: accessToken,
+      is_new_user: isNewUser,
+      refresh_token: refreshToken,
+      user: {
+        avatar_url: user.avatarUrl,
+        bio: user.bio,
+        created_at: user.createdAt.toISOString(),
+        email: user.email,
+        id: user.id,
+        is_onboarded: user.isOnboarded,
+        name: user.name,
+      },
+    })
+
+    return res.status(200).json(response)
   }
 }
