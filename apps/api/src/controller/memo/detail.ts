@@ -14,7 +14,7 @@ export class MemoDetailController {
   async execute(req: Request, res: Response) {
     const { id } = getMemoPathParamSchema.parse(req.params)
 
-    const result = await service.memo.getMemoById(id, this.memoRepository)
+    const result = await service.memo.getMemoById(id, { memoRepository: this.memoRepository })
 
     if (!result.ok) {
       const errorResponse: ErrorResponse = {

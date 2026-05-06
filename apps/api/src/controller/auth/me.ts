@@ -18,7 +18,7 @@ export class AuthMeController {
       requestedUserId: req.userId,
     })
 
-    const result = await service.user.getUserById(req.userId!, this.userRepository)
+    const result = await service.user.getUserById(req.userId!, { userRepository: this.userRepository })
 
     if (!result.ok) {
       const errorResponse: ErrorResponse = {

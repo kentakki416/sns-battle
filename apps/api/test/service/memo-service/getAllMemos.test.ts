@@ -40,7 +40,7 @@ describe("getAllMemos", () => {
     mockFindAll.mockResolvedValue(mockMemos)
 
     // Act
-    const result = await getAllMemos(mockMemoRepository)
+    const result = await getAllMemos({ memoRepository: mockMemoRepository })
 
     // Assert
     expect(result.ok).toBe(true)
@@ -56,7 +56,7 @@ describe("getAllMemos", () => {
     mockFindAll.mockResolvedValue([])
 
     // Act
-    const result = await getAllMemos(mockMemoRepository)
+    const result = await getAllMemos({ memoRepository: mockMemoRepository })
 
     // Assert
     expect(result.ok).toBe(true)
@@ -73,7 +73,7 @@ describe("getAllMemos", () => {
     mockFindAll.mockRejectedValue(mockError)
 
     // Act & Assert
-    await expect(getAllMemos(mockMemoRepository)).rejects.toThrow(
+    await expect(getAllMemos({ memoRepository: mockMemoRepository })).rejects.toThrow(
       "Database connection failed"
     )
   })

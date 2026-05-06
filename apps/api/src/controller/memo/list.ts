@@ -14,7 +14,7 @@ export class MemoListController {
   constructor(private memoRepository: MemoRepository) {}
 
   async execute(_req: Request, res: Response) {
-    const result = await service.memo.getAllMemos(this.memoRepository)
+    const result = await service.memo.getAllMemos({ memoRepository: this.memoRepository })
 
     if (!result.ok) {
       const errorResponse: ErrorResponse = {

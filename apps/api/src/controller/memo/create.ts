@@ -14,7 +14,7 @@ export class MemoCreateController {
   async execute(req: Request, res: Response) {
     const data = createMemoRequestSchema.parse(req.body)
 
-    const result = await service.memo.createMemo(data, this.memoRepository)
+    const result = await service.memo.createMemo(data, { memoRepository: this.memoRepository })
 
     if (!result.ok) {
       const errorResponse: ErrorResponse = {

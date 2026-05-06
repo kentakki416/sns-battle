@@ -14,7 +14,7 @@ export class MemoDeleteController {
   async execute(req: Request, res: Response) {
     const { id } = deleteMemoPathParamSchema.parse(req.params)
 
-    const result = await service.memo.deleteMemo(id, this.memoRepository)
+    const result = await service.memo.deleteMemo(id, { memoRepository: this.memoRepository })
 
     if (!result.ok) {
       const errorResponse: ErrorResponse = {

@@ -46,7 +46,7 @@ describe("updateMemo", () => {
     mockUpdate.mockResolvedValue(updatedMemo)
 
     // Act
-    const result = await updateMemo(1, input, mockMemoRepository)
+    const result = await updateMemo(1, input, { memoRepository: mockMemoRepository })
 
     // Assert
     expect(result.ok).toBe(true)
@@ -67,7 +67,7 @@ describe("updateMemo", () => {
     mockFindById.mockResolvedValue(null)
 
     // Act
-    const result = await updateMemo(999, input, mockMemoRepository)
+    const result = await updateMemo(999, input, { memoRepository: mockMemoRepository })
 
     // Assert
     expect(result.ok).toBe(false)
@@ -91,7 +91,7 @@ describe("updateMemo", () => {
     mockFindById.mockRejectedValue(mockError)
 
     // Act & Assert
-    await expect(updateMemo(1, input, mockMemoRepository)).rejects.toThrow(
+    await expect(updateMemo(1, input, { memoRepository: mockMemoRepository })).rejects.toThrow(
       "Database connection failed"
     )
     expect(mockFindById).toHaveBeenCalledWith(1)
