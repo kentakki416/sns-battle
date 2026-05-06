@@ -156,7 +156,7 @@ async execute(req: Request, res: Response) {
 ### 基本方針
 
 - **Service層 → ユニットテスト**: DB不要、高速、並列実行可能
-- **Controller層 → インテグレーションテスト**: 実DB使用、supertest でHTTPレイヤーからテスト
+- **Controller層 → インテグレーションテスト**（`apps/api/test/controller/`）: 自前インフラ（Postgres・Redis）は本物を使い必ず実データを検証する。`supertest` で HTTP レイヤーから検証
 
 ### ユニットテスト（Service）
 
