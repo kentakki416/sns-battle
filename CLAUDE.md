@@ -100,6 +100,29 @@ ESLint v9 flat config (`eslint.config.{js,mjs}`)。**全アプリ共通ルール
 
 **新機能を実装する前に必ず `design-feature` skill で設計書を作成する**。デザインのモックが必要なときは `design-mock` skill を使う（テーマヒアリング → admin 参照 → モック作成 → 承認後に仕様書追記）。
 
+## Environment Variables (dotenvx)
+
+各アプリの `.env.local` は [dotenvx](https://dotenvx.com/) で暗号化されている。**鍵管理はルート1箇所に集約**：
+
+- ルート直下に `.env.keys` 実体を1つ配置（`.gitignore` の `/.env.keys` で除外）
+- 各アプリの `.env.keys` は **ルートへのシンボリックリンク**（`apps/{api,web,mobile}/.env.keys → ../../.env.keys`）。リンクは git に追跡される
+- 結果として全アプリの `.env.local` は同じ鍵ペアで暗号化され、`DOTENV_PUBLIC_KEY_LOCAL` も揃う
+
+### dotenvx 操作ルール（必須）
+
+**`npx dotenvx set` は必ずプロジェクトルートから実行し、ターゲットを `-f apps/<app>/.env.local` で指定すること**。
+
+```bash
+# ✓ ルートから実行（既存のシンボリックリンク経由でルートの .env.keys を参照）
+npx dotenvx set DB_NAME "sns-battle_dev" -f apps/api/.env.local
+
+# ✗ 各アプリディレクトリで直接 cd して実行（シンボリックリンクを実体ファイルで上書きし、
+#    アプリごとに別鍵ペアが生成されてしまう）
+cd apps/api && npx dotenvx set DB_NAME "sns-battle_dev" -f .env.local
+```
+
+シンボリックリンクが破損／実体ファイルに置き換わった場合は、各アプリの `.env.keys` を削除して `ln -s ../../.env.keys .env.keys` で張り直し、各 `.env.local` を再 set する。
+
 ## Important Notes
 
 - スキーマパッケージは依存アプリより先にビルドする必要がある
