@@ -228,6 +228,58 @@ mockFindById.mockRejectedValue(new Error("Database connection failed"))
 await expect(getMemoById(1, mockMemoRepository)).rejects.toThrow("Database connection failed")
 ```
 
+### インテグレーションテスト（Controller）
+
+ユニットテストで検証できない以下の項目をテストする。
+
+- **controllerが返すレスポンスの全パターン**: 正常系・異常系のHTTPステータスコードとレスポンスボディの存在
+- **最終的なDBの状態**: データの作成・更新・削除が正しく反映されているか
+
+※ 認証ミドルウェア単体のテストやリクエストバリデーション単体のテストは行わない。あくまでcontrollerのレスポンスパターンを網羅することで、これらも含めて検証する。
+
+#### アサーションの方針
+
+- **ステータスコード、主要なレスポンスフィールドの値は検証する**（`expect(res.status).toBe(404)`, `expect(res.body.id).toBe(user.id)` など）
+- **エラーメッセージの文字列は検証しない**。メッセージはユーザー向け表記の微調整で変わり得るため、`expect(res.body.error).toBeDefined()` のみで「エラーフィールドが返っていること」を確認する
+
+```typescript
+// ❌ 悪い例: エラーメッセージの文字列に依存
+expect(res.body.error).toBe("Memo not found")
+
+// ✅ 良い例: ステータスコードとエラーフィールドの存在のみ検証
+expect(res.status).toBe(404)
+expect(res.body.error).toBeDefined()
+```
+
+#### グローバルエラーハンドラの適用
+
+`attachErrorHandler(app)` をルート登録後に必ず呼び出し、本番同様に ZodError を 400、想定外 throw を 500 に変換する状態でテストする。
+
+```typescript
+const app = createTestApp()
+app.use("/api/memo", memoRouter({ detail: new MemoDetailController(memoRepository) }))
+attachErrorHandler(app)  // ルート登録後に呼び出すこと
+```
+
+#### テスト用DB
+
+- 開発用と同じDBコンテナ内にテスト用データベースを作成する（コンテナを分けない）
+- インテグレーションテストはドメイン単位でデータベースを分割可能にし、並列実行やCI での分割実行に対応する
+- 各テストケースの `beforeEach` / `afterEach` で初期データの投入とクリーンアップを必ず行い、テスト間の独立性を保証する
+
+#### テストの実行
+
+```bash
+# ユニットテストのみ（DB不要）
+pnpm test test/service
+
+# インテグレーションテストのみ（DB必要）
+pnpm test test/controller
+
+# 全テスト
+pnpm test
+```
+
 ## 開発コマンド
 
 ```bash
