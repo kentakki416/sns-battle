@@ -126,6 +126,26 @@ graph TB
 │   └── mobile/.env.keys → ../../.env.keys (シンボリックリンク)
 ```
 
+<details>
+<summary>（管理者向け）.env.keys の作成方法とシンボリックリンクの貼り方</summary>
+
+ゼロからプロジェクトをセットアップする管理者向けの手順です。既に `.env.keys` を受け取っている開発者は実施不要です。
+
+```bash
+# 1. ルートで .env.keys を生成（初回 set でついでに鍵が作られる）
+npx dotenvx set _BOOTSTRAP "x" -f .env.local
+rm .env.local                          # ← ルートに .env.local は要らないので削除
+
+# 2. 各アプリにルートを指すシンボリックリンクを張る
+ln -s ../../.env.keys apps/api/.env.keys
+ln -s ../../.env.keys apps/web/.env.keys
+ln -s ../../.env.keys apps/mobile/.env.keys
+```
+
+以降は **必ずプロジェクトルートから** `npx dotenvx set KEY "value" -f apps/<app>/.env.local` を実行すること（各アプリで `cd` して直接叩くと、シンボリックリンクが実体ファイルで上書きされ、アプリごとに別の鍵ペアが生成されてしまう）。
+
+</details>
+
 ## Claude Code（MCP設定）
 
 このプロジェクトでは MCP サーバーの設定ファイル（`.mcp.json`）をリポジトリルートに配置しています。Claude Code 起動時に MCP サーバーを認識させるには、以下のコマンドを使用してください:
