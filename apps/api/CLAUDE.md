@@ -148,7 +148,64 @@ Controller で try-catch を書く必要はない。
 ### レイヤー別のテスト種別
 
 - **Service層 → ユニットテスト**（`apps/api/test/service/`）: DB 不要、`jest.fn()` で Repository をモック、高速・並列実行可
-- **Controller層 → インテグレーションテスト**（`apps/api/test/controller/`）: 実 DB を使い、`supertest` で HTTP レイヤーから検証
+- **Controller層 → インテグレーションテスト**（`apps/api/test/controller/`）: 自前インフラ（Postgres・Redis）は本物を使い、`supertest` で HTTP レイヤーから検証
+
+### Controller integration テストでモックして良いもの／いけないもの
+
+| 種類 | 例 | 扱い | 理由 |
+|---|---|---|---|
+| 自前インフラ | Postgres / Redis | **本物**（テスト用 DB に接続） | キー名・TTL・型変換・SQL の誤りなど、mock では検出できない不具合を捕捉する |
+| 外部 SaaS / ネットワーク | Google OAuth Client / S3 / 課金 API | **モック** | 外部依存・遅い・課金される・異常系の再現が難しい |
+| ピュアロジック | 計算・変換関数 | （モック不要） | Service ユニットテストで網羅 |
+
+**自前 Redis を `mockRefreshTokenRepository` のように `jest.fn()` で差し替えるのは Controller integration テストでは禁止**。`new IoRedisRefreshTokenRepository(testRedis)` で実 Redis を注入し、`beforeEach` で `cleanupTestRedis()` を呼んで分離する。
+
+```typescript
+import { IoRedisRefreshTokenRepository } from "../../../src/repository/redis"
+import {
+  cleanupTestData,
+  cleanupTestRedis,
+  disconnectTestDb,
+  disconnectTestRedis,
+  testPrisma,
+  testRedis,
+} from "../setup"
+
+const refreshTokenRepository = new IoRedisRefreshTokenRepository(testRedis)
+/** 外部 SaaS は mock のまま */
+const mockGoogleOAuthClient: IGoogleOAuthClient = { getUserInfo: jest.fn() }
+
+beforeEach(async () => {
+  await cleanupTestData()
+  await cleanupTestRedis()
+})
+
+afterAll(async () => {
+  await cleanupTestData()
+  await cleanupTestRedis()
+  await disconnectTestDb()
+  await disconnectTestRedis()
+})
+```
+
+### アサーションは「最終状態」まで含める
+
+「メソッドが呼ばれた」だけ検証する mock 駆動の assertion は Controller integration テストでは不十分。**Postgres / Redis の最終状態を直接確認する**。
+
+```typescript
+/** ❌ 悪い例: 呼び出しの検証だけ（自前インフラを mock しているとこれしかできない） */
+expect(mockRefreshTokenRepository.save).toHaveBeenCalled()
+
+/** ✅ 良い例: Redis の最終状態を確認 */
+const payload = verifyRefreshToken(res.body.refresh_token)
+expect(await refreshTokenRepository.findUserId(payload!.jti)).toBe(userId)
+
+/** ✅ 良い例: Postgres の最終状態を確認 */
+const createdUser = await testPrisma.user.findUnique({ where: { email: "new@example.com" } })
+expect(createdUser).not.toBeNull()
+```
+
+「呼び出し検証」は Service ユニットテストの責務。Controller integration テストは「実際に永続層が意図通り変化したか」を検証する。
 
 ### テストの耐久性（重要）
 

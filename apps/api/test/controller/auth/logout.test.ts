@@ -2,33 +2,39 @@ import request from "supertest"
 
 import { AuthLogoutController } from "../../../src/controller/auth/logout"
 import { generateAccessToken, generateRefreshToken } from "../../../src/lib/jwt"
-import { RefreshTokenRepository } from "../../../src/repository/redis/refresh-token-repository"
+import { IoRedisRefreshTokenRepository } from "../../../src/repository/redis"
 import { authRouter } from "../../../src/routes/auth-router"
 import { attachErrorHandler, createTestApp } from "../helper"
+import {
+  cleanupTestRedis,
+  disconnectTestRedis,
+  testRedis,
+} from "../setup"
 
-const mockDelete = jest.fn<Promise<void>, [string]>()
-const mockRefreshTokenRepository: RefreshTokenRepository = {
-  delete: mockDelete,
-  findUserId: jest.fn(),
-  save: jest.fn(),
-}
+const REFRESH_TTL_SECONDS = 60 * 60 * 24 * 7
+
+const refreshTokenRepository = new IoRedisRefreshTokenRepository(testRedis)
 
 const app = createTestApp()
-
-const authLogoutController = new AuthLogoutController(mockRefreshTokenRepository)
-
+const authLogoutController = new AuthLogoutController(refreshTokenRepository)
 app.use("/api/auth", authRouter({ logout: authLogoutController }))
 attachErrorHandler(app)
 
-beforeEach(() => {
-  jest.clearAllMocks()
+beforeEach(async () => {
+  await cleanupTestRedis()
+})
+
+afterAll(async () => {
+  await cleanupTestRedis()
+  await disconnectTestRedis()
 })
 
 describe("POST /api/auth/logout", () => {
-  it("正常系: 200 を返し Refresh Token の jti を削除する", async () => {
+  it("正常系: 200 を返し Refresh Token の jti が Redis から削除される", async () => {
     const userId = 1
     const accessToken = generateAccessToken(userId)
     const { jti, token: refreshToken } = generateRefreshToken(userId)
+    await refreshTokenRepository.save(jti, userId, REFRESH_TTL_SECONDS)
 
     const res = await request(app)
       .post("/api/auth/logout")
@@ -36,11 +42,31 @@ describe("POST /api/auth/logout", () => {
       .send({ refresh_token: refreshToken })
 
     expect(res.status).toBe(200)
-    expect(mockDelete).toHaveBeenCalledWith(jti)
+    expect(await refreshTokenRepository.findUserId(jti)).toBeNull()
   })
 
-  it("無効な Refresh Token でも冪等性のため 200 を返す（delete は呼ばれない）", async () => {
-    const accessToken = generateAccessToken(1)
+  it("ログアウト後、同じ Refresh Token は使えない（/refresh が 401）", async () => {
+    const userId = 1
+    const accessToken = generateAccessToken(userId)
+    const { jti, token: refreshToken } = generateRefreshToken(userId)
+    await refreshTokenRepository.save(jti, userId, REFRESH_TTL_SECONDS)
+
+    await request(app)
+      .post("/api/auth/logout")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send({ refresh_token: refreshToken })
+
+    /** Redis から消えていることを直接確認（/refresh の挙動は refresh.test.ts 側で網羅済み） */
+    expect(await refreshTokenRepository.findUserId(jti)).toBeNull()
+  })
+
+  it("無効な Refresh Token でも冪等性のため 200 を返し、Redis 状態は変化しない", async () => {
+    const userId = 1
+    const accessToken = generateAccessToken(userId)
+
+    /** 別ユーザーの jti が Redis に残っていても影響しないこと */
+    const { jti: otherJti } = generateRefreshToken(2)
+    await refreshTokenRepository.save(otherJti, 2, REFRESH_TTL_SECONDS)
 
     const res = await request(app)
       .post("/api/auth/logout")
@@ -48,7 +74,7 @@ describe("POST /api/auth/logout", () => {
       .send({ refresh_token: "invalid.refresh.token" })
 
     expect(res.status).toBe(200)
-    expect(mockDelete).not.toHaveBeenCalled()
+    expect(await refreshTokenRepository.findUserId(otherJti)).toBe(2)
   })
 
   it("Access Token が無い場合、401 を返す", async () => {

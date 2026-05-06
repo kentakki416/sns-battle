@@ -2,33 +2,38 @@ import request from "supertest"
 
 import { GoogleUserInfo, IGoogleOAuthClient } from "../../../src/client/google-oauth"
 import { AuthGoogleController } from "../../../src/controller/auth/google"
+import { verifyRefreshToken } from "../../../src/lib/jwt"
 import { PrismaUserRegistrationRepository } from "../../../src/repository/prisma/aggregate/user-registration-repository"
 import { PrismaAuthAccountRepository } from "../../../src/repository/prisma/auth-account-repository"
-import { RefreshTokenRepository } from "../../../src/repository/redis/refresh-token-repository"
+import { IoRedisRefreshTokenRepository } from "../../../src/repository/redis"
 import { authRouter } from "../../../src/routes/auth-router"
 import { attachErrorHandler, createTestApp } from "../helper"
-import { cleanupTestData, disconnectTestDb, testPrisma } from "../setup"
+import {
+  cleanupTestData,
+  cleanupTestRedis,
+  disconnectTestDb,
+  disconnectTestRedis,
+  testPrisma,
+  testRedis,
+} from "../setup"
 
+/** 外部 SaaS（Google OAuth）はモックする */
 const mockGetUserInfo = jest.fn<Promise<GoogleUserInfo>, [string, string]>()
 const mockGoogleOAuthClient: IGoogleOAuthClient = {
   getUserInfo: mockGetUserInfo,
 }
 
+/** 自前インフラ（Postgres / Redis）は本物を使う */
 const authAccountRepository = new PrismaAuthAccountRepository(testPrisma)
 const userRegistrationRepository = new PrismaUserRegistrationRepository(testPrisma)
-
-const mockRefreshTokenRepository: RefreshTokenRepository = {
-  delete: jest.fn(),
-  findUserId: jest.fn(),
-  save: jest.fn(),
-}
+const refreshTokenRepository = new IoRedisRefreshTokenRepository(testRedis)
 
 const app = createTestApp()
 
 const authGoogleController = new AuthGoogleController(
   authAccountRepository,
   userRegistrationRepository,
-  mockRefreshTokenRepository,
+  refreshTokenRepository,
   mockGoogleOAuthClient,
 )
 
@@ -39,16 +44,19 @@ const REDIRECT_URI = "http://localhost:3000/api/auth/callback/google"
 
 beforeEach(async () => {
   await cleanupTestData()
+  await cleanupTestRedis()
   jest.clearAllMocks()
 })
 
 afterAll(async () => {
   await cleanupTestData()
+  await cleanupTestRedis()
   await disconnectTestDb()
+  await disconnectTestRedis()
 })
 
 describe("POST /api/auth/google", () => {
-  it("新規ユーザーの場合、200 と Access/Refresh Token を返し、DB にユーザーが作成される", async () => {
+  it("新規ユーザーの場合、200 と Access/Refresh Token を返し、DB にユーザーが作成され Redis に Refresh Token が保存される", async () => {
     mockGetUserInfo.mockResolvedValue({
       email: "new@example.com",
       id: "google-456",
@@ -66,14 +74,19 @@ describe("POST /api/auth/google", () => {
     expect(res.body.is_new_user).toBe(true)
     expect(res.body.user.email).toBe("new@example.com")
 
+    /** Postgres に User が作成されている */
     const createdUser = await testPrisma.user.findUnique({
       where: { email: "new@example.com" },
     })
     expect(createdUser).not.toBeNull()
-    expect(mockRefreshTokenRepository.save).toHaveBeenCalled()
+
+    /** Redis に Refresh Token が保存され、userId が紐付いている */
+    const payload = verifyRefreshToken(res.body.refresh_token)
+    expect(payload).not.toBeNull()
+    expect(await refreshTokenRepository.findUserId(payload!.jti)).toBe(createdUser!.id)
   })
 
-  it("既存ユーザーの場合、200 と is_new_user=false で Token を返す", async () => {
+  it("既存ユーザーの場合、200 と is_new_user=false で Token を返し Redis に新しい Refresh Token が保存される", async () => {
     const user = await testPrisma.user.create({
       data: {
         avatarUrl: "https://example.com/avatar.jpg",
@@ -103,6 +116,10 @@ describe("POST /api/auth/google", () => {
     expect(res.status).toBe(200)
     expect(res.body.is_new_user).toBe(false)
     expect(res.body.user.id).toBe(user.id)
+
+    const payload = verifyRefreshToken(res.body.refresh_token)
+    expect(payload).not.toBeNull()
+    expect(await refreshTokenRepository.findUserId(payload!.jti)).toBe(user.id)
   })
 
   it("code が無い場合、400 を返す", async () => {

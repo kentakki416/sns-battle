@@ -233,9 +233,47 @@ await expect(getMemoById(1, mockMemoRepository)).rejects.toThrow("Database conne
 ユニットテストで検証できない以下の項目をテストする。
 
 - **controllerが返すレスポンスの全パターン**: 正常系・異常系のHTTPステータスコードとレスポンスボディの存在
-- **最終的なDBの状態**: データの作成・更新・削除が正しく反映されているか
+- **最終的なインフラの状態**: Postgres / Redis にデータの作成・更新・削除が正しく反映されているか
 
 ※ 認証ミドルウェア単体のテストやリクエストバリデーション単体のテストは行わない。あくまでcontrollerのレスポンスパターンを網羅することで、これらも含めて検証する。
+
+#### 何をモックして何を本物にするか
+
+| 種類 | 例 | 扱い | 理由 |
+|---|---|---|---|
+| 自前インフラ | Postgres / Redis | **本物（テスト用 DB に接続）** | キー名・TTL・型変換・SQL の誤りなど、mock では検出できない不具合を捕捉する |
+| 外部 SaaS / ネットワーク | Google OAuth Client / S3 / 課金 API | **モック** | 外部依存・遅い・課金される・異常系の再現が難しい |
+
+自前 Redis を `mockRefreshTokenRepository` のように `jest.fn()` で差し替えるのは Controller integration テストでは禁止。`new IoRedisRefreshTokenRepository(testRedis)` で実 Redis を注入する。
+
+```typescript
+import { IoRedisRefreshTokenRepository } from "../../../src/repository/redis"
+import { cleanupTestRedis, disconnectTestRedis, testRedis } from "../setup"
+
+const refreshTokenRepository = new IoRedisRefreshTokenRepository(testRedis)
+
+beforeEach(async () => {
+  await cleanupTestRedis()
+})
+
+afterAll(async () => {
+  await cleanupTestRedis()
+  await disconnectTestRedis()
+})
+```
+
+#### アサーションは「最終状態」まで含める
+
+「メソッドが呼ばれた」だけ検証する mock 駆動の assertion は不十分。**Postgres / Redis の最終状態を直接確認する**（呼び出しの検証は Service ユニットテストの責務）。
+
+```typescript
+/** ❌ 自前インフラを mock している場合これしかできない */
+expect(mockRefreshTokenRepository.save).toHaveBeenCalled()
+
+/** ✅ Redis に意図通り保存されているかを直接検証 */
+const payload = verifyRefreshToken(res.body.refresh_token)
+expect(await refreshTokenRepository.findUserId(payload!.jti)).toBe(userId)
+```
 
 #### アサーションの方針
 
