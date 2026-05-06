@@ -64,9 +64,11 @@ export class AuthGoogleCallbackController {
         token: jwtToken,
         user: {
           avatar_url: user.avatarUrl,
+          bio: user.bio,
           created_at: user.createdAt.toISOString(),
           email: user.email,
           id: user.id,
+          is_onboarded: user.isOnboarded,
           name: user.name,
         },
       })

@@ -47,9 +47,11 @@ describe("authenticateWithGoogle", () => {
 
     const mockExistingUser: User = {
       avatarUrl: "https://example.com/avatar.jpg",
+      bio: null,
       createdAt: new Date(),
       email: "test@example.com",
       id: 1,
+      isOnboarded: false,
       name: "Test User",
       updatedAt: new Date(),
     }
@@ -104,9 +106,11 @@ describe("authenticateWithGoogle", () => {
 
     const mockNewUser: User = {
       avatarUrl: "https://example.com/new-avatar.jpg",
+      bio: null,
       createdAt: new Date(),
       email: "newuser@example.com",
       id: 2,
+      isOnboarded: false,
       name: "New User",
       updatedAt: new Date(),
     }

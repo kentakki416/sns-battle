@@ -20,9 +20,11 @@ describe("getUserById", () => {
     // Arrange
     const mockUser: User = {
       avatarUrl: "https://example.com/avatar.jpg",
+      bio: null,
       createdAt: new Date(),
       email: "test@example.com",
       id: 1,
+      isOnboarded: false,
       name: "Test User",
       updatedAt: new Date(),
     }
