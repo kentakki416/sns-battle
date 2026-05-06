@@ -21,10 +21,12 @@ export const authGoogleCallbackResponseSchema = z.object({
   token: z.string(),
   user: z.object({
     avatar_url: z.string().nullable(),
-    created_at: z.string(),
+    bio: z.string().nullable(),
     email: z.string().nullable(),
     id: z.number(),
+    is_onboarded: z.boolean(),
     name: z.string().nullable(),
+    created_at: z.string(),
   }),
 })
 
@@ -39,10 +41,12 @@ export type AuthGoogleCallbackResponse = z.infer<typeof authGoogleCallbackRespon
  */
 export const authMeResponseSchema = z.object({
   avatar_url: z.string().nullable(),
-  created_at: z.string(),
+  bio: z.string().nullable(),
   email: z.string().nullable(),
   id: z.number(),
+  is_onboarded: z.boolean(),
   name: z.string().nullable(),
+  created_at: z.string(),
 })
 
 export type AuthMeResponse = z.infer<typeof authMeResponseSchema>

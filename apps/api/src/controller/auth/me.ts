@@ -35,9 +35,11 @@ export class AuthMeController {
     // レスポンススキーマのバリデーション
     const response = authMeResponseSchema.parse({
       avatar_url: result.value.avatarUrl,
+      bio: result.value.bio,
       created_at: result.value.createdAt.toISOString(),
       email: result.value.email,
       id: result.value.id,
+      is_onboarded: result.value.isOnboarded,
       name: result.value.name,
     })
 

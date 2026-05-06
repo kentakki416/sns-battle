@@ -67,9 +67,11 @@ export class PrismaUserRegistrationRepository implements UserRegistrationReposit
   private _toDomainUser(prismaUser: PrismaTypes.UserGetPayload<{}>): User {
     return {
       avatarUrl: prismaUser.avatarUrl,
+      bio: prismaUser.bio,
       createdAt: prismaUser.createdAt,
       email: prismaUser.email,
       id: prismaUser.id,
+      isOnboarded: prismaUser.isOnboarded,
       name: prismaUser.name,
       updatedAt: prismaUser.updatedAt,
     }

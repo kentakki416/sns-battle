@@ -520,10 +520,6 @@ export type EnumAnimationTypeFieldUpdateOperationsInput = {
   set?: $Enums.AnimationType
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 
 
 export type StampMasterSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
