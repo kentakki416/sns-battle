@@ -18,6 +18,7 @@
   - [マッチングフィルタリング（将来フェーズ）](#マッチングフィルタリング将来フェーズ)
   - [MBTI 連携（将来フェーズ）](#mbti-連携将来フェーズ)
 - [注意事項](#注意事項)
+- [実装ロードマップ（Phase 3）](#実装ロードマップphase-3)
 
 ---
 
@@ -278,3 +279,31 @@ enum Gender {
 - 表示名: 1〜30文字
 - bio: 0〜500文字
 - MBTI: 4文字（INTJ, ENFP 等の有効なタイプのみ、将来フェーズ）
+
+---
+
+## 実装ロードマップ（Phase 3）
+
+Phase 3 は本ファイルの設計を依存関係順に 7 step に分割して実装する。各 step はテスト可能な最小単位として独立して PR を切る（Phase 1 / Phase 2 と同じ流儀）。
+
+実装順は **DB → API → Web** の順で依存関係に従う。step3 / step4 は step2 で作る共通スキーマ・Service ヘルパーを利用するため step2 の後に進める。Web 系（step5〜7）は対応する API がマージされた後に実装する。
+
+| step | 種別 | 内容 | 依存 | リンク |
+|------|------|------|------|------|
+| step1 | DB | Prisma スキーマ拡張（users に birth_date / gender / mbti / location / coin_balance、Gender enum、matching_preferences テーブル）+ マイグレーション | - | [step1-db-profile.md](./step1-db-profile.md) |
+| step2 | API | `GET /api/users/:id`。年齢計算、is_self によるプライバシー情報出し分け | step1 | [step2-api-get-user.md](./step2-api-get-user.md) |
+| step3 | API | `PUT /api/users/:id`。プロフィール更新、18歳以上 / 120歳以下バリデーション | step1, step2 | [step3-api-put-user.md](./step3-api-put-user.md) |
+| step4 | API | `PUT /api/users/:id/onboarding`。初回プロフィール一括登録、is_onboarded=true | step1, step2 | [step4-api-onboarding.md](./step4-api-onboarding.md) |
+| step5 | Web | `/onboarding` ページ。Server Action から step4 を呼ぶ | step4 | [step5-web-onboarding.md](./step5-web-onboarding.md) |
+| step6 | Web | `/profile/[id]` 表示ページ + `/profile/me` リダイレクト | step2 | [step6-web-profile-view.md](./step6-web-profile-view.md) |
+| step7 | Web | `/profile/edit` 編集ページ。Server Action から step3 を呼ぶ | step3, step6 | [step7-web-profile-edit.md](./step7-web-profile-edit.md) |
+
+### 全 step 共通の方針
+
+- API のコード例は `apps/api/CLAUDE.md` のレイヤードアーキテクチャ・Result 型・テスト戦略に厳密準拠
+- スキーマは `packages/schema` の `@repo/api-schema` に定義し、API/Web 両方が import する
+- Web のコード例は `apps/web/CLAUDE.md` の API 通信ルール（GET は Server Component / RouteHandler、Mutation は Server Action）に従う
+- Service ユニットテスト（`jest.fn()` モック）+ Controller インテグレーションテスト（実 DB / supertest）を必ず書く
+- 18 歳以上 / 120 歳以下の境界値テストを step3 / step4 で必ず含める
+- 18 歳未満チェックはサーバーサイドで厳密に実施。Web 側のフォーム制約はあくまで補助
+- Lint（`cd apps/{api,web} && pnpm lint`）が通ること
