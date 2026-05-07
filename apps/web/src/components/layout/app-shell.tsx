@@ -8,6 +8,7 @@ import {
   isBattleDetailPath,
   NO_SIDEBAR_PATHS,
 } from "./app-shell.constants"
+import { Navbar } from "./navbar"
 
 type Props = {
   children: ReactNode
@@ -29,10 +30,7 @@ export function AppShell({ children }: Props) {
   if (isNoSidebar) {
     return (
       <>
-        {/**
-         * TODO(step2): <Navbar /> をここに配置
-         */}
-        <div className="h-14" data-slot="navbar-placeholder" />
+        <Navbar />
         <main className="mt-14 p-6">{children}</main>
       </>
     )
@@ -40,10 +38,7 @@ export function AppShell({ children }: Props) {
 
   return (
     <>
-      {/**
-       * TODO(step2): <Navbar /> をここに配置
-       */}
-      <div className="h-14" data-slot="navbar-placeholder" />
+      <Navbar />
       {/**
        * TODO(step3): <Sidebar /> をここに配置
        */}
