@@ -49,10 +49,15 @@ export const createTestUser = async (overrides?: {
   const user: User = {
     avatarUrl: prismaUser.avatarUrl,
     bio: prismaUser.bio,
+    birthDate: prismaUser.birthDate,
+    coinBalance: prismaUser.coinBalance,
     createdAt: prismaUser.createdAt,
     email: prismaUser.email,
+    gender: prismaUser.gender,
     id: prismaUser.id,
     isOnboarded: prismaUser.isOnboarded,
+    location: prismaUser.location,
+    mbti: prismaUser.mbti,
     name: prismaUser.name,
     updatedAt: prismaUser.updatedAt,
   }

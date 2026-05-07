@@ -52,6 +52,9 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  HobbyMaster: 'HobbyMaster',
+  UserHobby: 'UserHobby',
+  MatchingPreference: 'MatchingPreference',
   AuthAccount: 'AuthAccount',
   Follow: 'Follow',
   Block: 'Block',
@@ -83,12 +86,55 @@ export const UserScalarFieldEnum = {
   name: 'name',
   avatarUrl: 'avatarUrl',
   bio: 'bio',
+  birthDate: 'birthDate',
+  gender: 'gender',
+  mbti: 'mbti',
+  location: 'location',
+  coinBalance: 'coinBalance',
   isOnboarded: 'isOnboarded',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const HobbyMasterScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HobbyMasterScalarFieldEnum = (typeof HobbyMasterScalarFieldEnum)[keyof typeof HobbyMasterScalarFieldEnum]
+
+
+export const UserHobbyScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  hobbyId: 'hobbyId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserHobbyScalarFieldEnum = (typeof UserHobbyScalarFieldEnum)[keyof typeof UserHobbyScalarFieldEnum]
+
+
+export const MatchingPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  preferredGenders: 'preferredGenders',
+  ageMin: 'ageMin',
+  ageMax: 'ageMax',
+  preferredLocations: 'preferredLocations',
+  preferredMbti: 'preferredMbti',
+  preferredHobbyIds: 'preferredHobbyIds',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MatchingPreferenceScalarFieldEnum = (typeof MatchingPreferenceScalarFieldEnum)[keyof typeof MatchingPreferenceScalarFieldEnum]
 
 
 export const AuthAccountScalarFieldEnum = {

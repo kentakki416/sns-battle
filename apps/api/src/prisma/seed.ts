@@ -27,6 +27,11 @@ type TalkThemeSeed = {
   type: TalkThemeType
 }
 
+type HobbyMasterSeed = {
+  name: string
+  sortOrder: number
+}
+
 /**
  * スタンプマスターのシードデータ
  * GENERAL（汎用）/ BATTLE / MATCHING の各カテゴリに最小セットを用意
@@ -100,6 +105,41 @@ const talkThemes: TalkThemeSeed[] = [
   { category: "BATTLE", choices: [], duration: 60, sortOrder: 2, title: "人生で最も衝撃的だった出来事", type: "FREE_TALK" },
 ]
 
+/**
+ * 趣味マスターのシードデータ
+ * Phase 3 で追加。Admin 画面で随時追加できるようマスター管理する
+ */
+const hobbyMasters: HobbyMasterSeed[] = [
+  { name: "音楽鑑賞", sortOrder: 1 },
+  { name: "映画", sortOrder: 2 },
+  { name: "読書", sortOrder: 3 },
+  { name: "アニメ・漫画", sortOrder: 4 },
+  { name: "ゲーム", sortOrder: 5 },
+  { name: "スポーツ観戦", sortOrder: 6 },
+  { name: "サッカー", sortOrder: 7 },
+  { name: "野球", sortOrder: 8 },
+  { name: "バスケットボール", sortOrder: 9 },
+  { name: "筋トレ", sortOrder: 10 },
+  { name: "ランニング", sortOrder: 11 },
+  { name: "ヨガ", sortOrder: 12 },
+  { name: "料理", sortOrder: 13 },
+  { name: "カフェ巡り", sortOrder: 14 },
+  { name: "旅行", sortOrder: 15 },
+  { name: "キャンプ", sortOrder: 16 },
+  { name: "写真", sortOrder: 17 },
+  { name: "プログラミング", sortOrder: 18 },
+  { name: "アート・絵画", sortOrder: 19 },
+  { name: "ペット", sortOrder: 20 },
+]
+
+const upsertHobbyMaster = async (hobby: HobbyMasterSeed): Promise<void> => {
+  await prisma.hobbyMaster.upsert({
+    create: { isActive: true, name: hobby.name, sortOrder: hobby.sortOrder },
+    update: { sortOrder: hobby.sortOrder },
+    where: { name: hobby.name },
+  })
+}
+
 const upsertStampMaster = async (stamp: StampMasterSeed): Promise<void> => {
   const existing = await prisma.stampMaster.findFirst({
     where: { category: stamp.category, name: stamp.name },
@@ -153,6 +193,11 @@ const main = async (): Promise<void> => {
   console.log("Seeding talk_themes...")
   for (const theme of talkThemes) {
     await upsertTalkTheme(theme)
+  }
+
+  console.log("Seeding hobby_masters...")
+  for (const hobby of hobbyMasters) {
+    await upsertHobbyMaster(hobby)
   }
 
   console.log("Seed completed (PostgreSQL)")

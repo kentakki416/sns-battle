@@ -10,26 +10,101 @@ datasource db {
     provider = "postgresql"
 }
 
+// 性別
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+}
+
 // ユーザー（認証プロバイダー非依存）
 model User {
-    id          Int      @id @default(autoincrement())
-    email       String?  @unique
+    id          Int       @id @default(autoincrement())
+    email       String?   @unique
     name        String?
-    avatarUrl   String?  @map("avatar_url")
+    avatarUrl   String?   @map("avatar_url")
     /// 自己紹介文（プロフィール画面で表示）。Google から取得しないためオンボーディングまたはプロフィール編集で入力する
-    bio         String?  @db.Text
+    bio         String?   @db.Text
+    /// 生年月日（年齢は計算で算出）。オンボーディングで必須入力
+    birthDate   DateTime? @map("birth_date") @db.Date
+    /// 性別（MALE / FEMALE / OTHER）。オンボーディングで必須入力
+    gender      Gender?
+    /// MBTI タイプ（INTJ, ENFP 等）。オンボーディングはスキップ可、編集で設定可能
+    mbti        String?   @db.VarChar(4)
+    /// 居住地域。オンボーディングはスキップ可、編集で設定可能
+    location    String?   @db.VarChar(100)
+    /// コイン残高（将来フェーズ：課金・ショップ）
+    coinBalance Int       @default(0) @map("coin_balance")
     /// オンボーディング完了フラグ。初回ログイン後の必須プロフィール設定（表示名・生年月日・性別など）が完了したら true に更新する。サインイン直後にこの値が false なら /onboarding へ誘導する
-    isOnboarded Boolean  @default(false) @map("is_onboarded")
-    createdAt   DateTime @default(now()) @map("created_at")
-    updatedAt   DateTime @updatedAt @map("updated_at")
+    isOnboarded Boolean   @default(false) @map("is_onboarded")
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime  @updatedAt @map("updated_at")
 
-    accounts  AuthAccount[]
-    followers Follow[]      @relation("UserFollowers")
-    following Follow[]      @relation("UserFollowees")
-    blocked   Block[]       @relation("UserBlocker")
-    blockedBy Block[]       @relation("UserBlocked")
+    accounts           AuthAccount[]
+    followers          Follow[]            @relation("UserFollowers")
+    following          Follow[]            @relation("UserFollowees")
+    blocked            Block[]             @relation("UserBlocker")
+    blockedBy          Block[]             @relation("UserBlocked")
+    hobbies            UserHobby[]
+    matchingPreference MatchingPreference?
 
     @@map("users")
+}
+
+// 趣味マスター（Admin で管理）
+model HobbyMaster {
+    id        Int      @id @default(autoincrement())
+    name      String   @unique @db.VarChar(50)
+    sortOrder Int      @default(0) @map("sort_order")
+    isActive  Boolean  @default(true) @map("is_active")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    users UserHobby[]
+
+    @@index([isActive, sortOrder])
+    @@map("hobby_masters")
+}
+
+// ユーザーと趣味の中間テーブル（多対多）
+model UserHobby {
+    id        Int      @id @default(autoincrement())
+    userId    Int      @map("user_id")
+    hobbyId   Int      @map("hobby_id")
+    createdAt DateTime @default(now()) @map("created_at")
+
+    user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+    hobby HobbyMaster @relation(fields: [hobbyId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, hobbyId])
+    @@index([userId])
+    @@index([hobbyId])
+    @@map("user_hobbies")
+}
+
+// マッチングフィルタ設定（複数選択対応）
+model MatchingPreference {
+    id                 Int      @id @default(autoincrement())
+    userId             Int      @unique @map("user_id")
+    /// 希望する相手の性別（空配列 = 制限なし）
+    preferredGenders   Gender[] @map("preferred_genders")
+    /// 希望する最小年齢（null = 制限なし）
+    ageMin             Int?     @map("age_min")
+    /// 希望する最大年齢（null = 制限なし）
+    ageMax             Int?     @map("age_max")
+    /// 希望する相手の居住地域（空配列 = 制限なし）
+    preferredLocations String[] @map("preferred_locations")
+    /// 希望する相手の MBTI 値（空配列 = 制限なし）
+    preferredMbti      String[] @map("preferred_mbti")
+    /// 希望する相手の趣味 hobby_master.id（空配列 = 制限なし）
+    preferredHobbyIds  Int[]    @map("preferred_hobby_ids")
+    createdAt          DateTime @default(now()) @map("created_at")
+    updatedAt          DateTime @updatedAt @map("updated_at")
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@map("matching_preferences")
 }
 
 // 認証プロバイダー

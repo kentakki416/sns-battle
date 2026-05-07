@@ -28,10 +28,12 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   id: number | null
+  coinBalance: number | null
 }
 
 export type UserSumAggregateOutputType = {
   id: number | null
+  coinBalance: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -40,6 +42,11 @@ export type UserMinAggregateOutputType = {
   name: string | null
   avatarUrl: string | null
   bio: string | null
+  birthDate: Date | null
+  gender: $Enums.Gender | null
+  mbti: string | null
+  location: string | null
+  coinBalance: number | null
   isOnboarded: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -51,6 +58,11 @@ export type UserMaxAggregateOutputType = {
   name: string | null
   avatarUrl: string | null
   bio: string | null
+  birthDate: Date | null
+  gender: $Enums.Gender | null
+  mbti: string | null
+  location: string | null
+  coinBalance: number | null
   isOnboarded: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -62,6 +74,11 @@ export type UserCountAggregateOutputType = {
   name: number
   avatarUrl: number
   bio: number
+  birthDate: number
+  gender: number
+  mbti: number
+  location: number
+  coinBalance: number
   isOnboarded: number
   createdAt: number
   updatedAt: number
@@ -71,10 +88,12 @@ export type UserCountAggregateOutputType = {
 
 export type UserAvgAggregateInputType = {
   id?: true
+  coinBalance?: true
 }
 
 export type UserSumAggregateInputType = {
   id?: true
+  coinBalance?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -83,6 +102,11 @@ export type UserMinAggregateInputType = {
   name?: true
   avatarUrl?: true
   bio?: true
+  birthDate?: true
+  gender?: true
+  mbti?: true
+  location?: true
+  coinBalance?: true
   isOnboarded?: true
   createdAt?: true
   updatedAt?: true
@@ -94,6 +118,11 @@ export type UserMaxAggregateInputType = {
   name?: true
   avatarUrl?: true
   bio?: true
+  birthDate?: true
+  gender?: true
+  mbti?: true
+  location?: true
+  coinBalance?: true
   isOnboarded?: true
   createdAt?: true
   updatedAt?: true
@@ -105,6 +134,11 @@ export type UserCountAggregateInputType = {
   name?: true
   avatarUrl?: true
   bio?: true
+  birthDate?: true
+  gender?: true
+  mbti?: true
+  location?: true
+  coinBalance?: true
   isOnboarded?: true
   createdAt?: true
   updatedAt?: true
@@ -203,6 +237,11 @@ export type UserGroupByOutputType = {
   name: string | null
   avatarUrl: string | null
   bio: string | null
+  birthDate: Date | null
+  gender: $Enums.Gender | null
+  mbti: string | null
+  location: string | null
+  coinBalance: number
   isOnboarded: boolean
   createdAt: Date
   updatedAt: Date
@@ -237,6 +276,11 @@ export type UserWhereInput = {
   name?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   bio?: Prisma.StringNullableFilter<"User"> | string | null
+  birthDate?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  gender?: Prisma.EnumGenderNullableFilter<"User"> | $Enums.Gender | null
+  mbti?: Prisma.StringNullableFilter<"User"> | string | null
+  location?: Prisma.StringNullableFilter<"User"> | string | null
+  coinBalance?: Prisma.IntFilter<"User"> | number
   isOnboarded?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -245,6 +289,8 @@ export type UserWhereInput = {
   following?: Prisma.FollowListRelationFilter
   blocked?: Prisma.BlockListRelationFilter
   blockedBy?: Prisma.BlockListRelationFilter
+  hobbies?: Prisma.UserHobbyListRelationFilter
+  matchingPreference?: Prisma.XOR<Prisma.MatchingPreferenceNullableScalarRelationFilter, Prisma.MatchingPreferenceWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -253,6 +299,11 @@ export type UserOrderByWithRelationInput = {
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
+  birthDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  mbti?: Prisma.SortOrderInput | Prisma.SortOrder
+  location?: Prisma.SortOrderInput | Prisma.SortOrder
+  coinBalance?: Prisma.SortOrder
   isOnboarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -261,6 +312,8 @@ export type UserOrderByWithRelationInput = {
   following?: Prisma.FollowOrderByRelationAggregateInput
   blocked?: Prisma.BlockOrderByRelationAggregateInput
   blockedBy?: Prisma.BlockOrderByRelationAggregateInput
+  hobbies?: Prisma.UserHobbyOrderByRelationAggregateInput
+  matchingPreference?: Prisma.MatchingPreferenceOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -272,6 +325,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   bio?: Prisma.StringNullableFilter<"User"> | string | null
+  birthDate?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  gender?: Prisma.EnumGenderNullableFilter<"User"> | $Enums.Gender | null
+  mbti?: Prisma.StringNullableFilter<"User"> | string | null
+  location?: Prisma.StringNullableFilter<"User"> | string | null
+  coinBalance?: Prisma.IntFilter<"User"> | number
   isOnboarded?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -280,6 +338,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   following?: Prisma.FollowListRelationFilter
   blocked?: Prisma.BlockListRelationFilter
   blockedBy?: Prisma.BlockListRelationFilter
+  hobbies?: Prisma.UserHobbyListRelationFilter
+  matchingPreference?: Prisma.XOR<Prisma.MatchingPreferenceNullableScalarRelationFilter, Prisma.MatchingPreferenceWhereInput> | null
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -288,6 +348,11 @@ export type UserOrderByWithAggregationInput = {
   name?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
+  birthDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  mbti?: Prisma.SortOrderInput | Prisma.SortOrder
+  location?: Prisma.SortOrderInput | Prisma.SortOrder
+  coinBalance?: Prisma.SortOrder
   isOnboarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -307,6 +372,11 @@ export type UserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   bio?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  birthDate?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  gender?: Prisma.EnumGenderNullableWithAggregatesFilter<"User"> | $Enums.Gender | null
+  mbti?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  location?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  coinBalance?: Prisma.IntWithAggregatesFilter<"User"> | number
   isOnboarded?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -317,6 +387,11 @@ export type UserCreateInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -325,6 +400,8 @@ export type UserCreateInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -333,6 +410,11 @@ export type UserUncheckedCreateInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -341,6 +423,8 @@ export type UserUncheckedCreateInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -348,6 +432,11 @@ export type UserUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -356,6 +445,8 @@ export type UserUpdateInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -364,6 +455,11 @@ export type UserUncheckedUpdateInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,6 +468,8 @@ export type UserUncheckedUpdateInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -380,6 +478,11 @@ export type UserCreateManyInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -390,6 +493,11 @@ export type UserUpdateManyMutationInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -401,6 +509,11 @@ export type UserUncheckedUpdateManyInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -412,6 +525,11 @@ export type UserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   bio?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
+  mbti?: Prisma.SortOrder
+  location?: Prisma.SortOrder
+  coinBalance?: Prisma.SortOrder
   isOnboarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -419,6 +537,7 @@ export type UserCountOrderByAggregateInput = {
 
 export type UserAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  coinBalance?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -427,6 +546,11 @@ export type UserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   bio?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
+  mbti?: Prisma.SortOrder
+  location?: Prisma.SortOrder
+  coinBalance?: Prisma.SortOrder
   isOnboarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -438,6 +562,11 @@ export type UserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   bio?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
+  gender?: Prisma.SortOrder
+  mbti?: Prisma.SortOrder
+  location?: Prisma.SortOrder
+  coinBalance?: Prisma.SortOrder
   isOnboarded?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -445,6 +574,7 @@ export type UserMinOrderByAggregateInput = {
 
 export type UserSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  coinBalance?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -456,12 +586,12 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
+export type NullableEnumGenderFieldUpdateOperationsInput = {
+  set?: $Enums.Gender | null
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -470,6 +600,42 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
+}
+
+export type UserCreateNestedOneWithoutHobbiesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutHobbiesInput, Prisma.UserUncheckedCreateWithoutHobbiesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutHobbiesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutHobbiesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutHobbiesInput, Prisma.UserUncheckedCreateWithoutHobbiesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutHobbiesInput
+  upsert?: Prisma.UserUpsertWithoutHobbiesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutHobbiesInput, Prisma.UserUpdateWithoutHobbiesInput>, Prisma.UserUncheckedUpdateWithoutHobbiesInput>
+}
+
+export type UserCreateNestedOneWithoutMatchingPreferenceInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMatchingPreferenceInput, Prisma.UserUncheckedCreateWithoutMatchingPreferenceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMatchingPreferenceInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMatchingPreferenceNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMatchingPreferenceInput, Prisma.UserUncheckedCreateWithoutMatchingPreferenceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMatchingPreferenceInput
+  upsert?: Prisma.UserUpsertWithoutMatchingPreferenceInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMatchingPreferenceInput, Prisma.UserUpdateWithoutMatchingPreferenceInput>, Prisma.UserUncheckedUpdateWithoutMatchingPreferenceInput>
 }
 
 export type UserCreateNestedOneWithoutAccountsInput = {
@@ -542,11 +708,220 @@ export type UserUpdateOneRequiredWithoutBlockedByNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBlockedByInput, Prisma.UserUpdateWithoutBlockedByInput>, Prisma.UserUncheckedUpdateWithoutBlockedByInput>
 }
 
+export type UserCreateWithoutHobbiesInput = {
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
+  isOnboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AuthAccountCreateNestedManyWithoutUserInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
+  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
+  blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutHobbiesInput = {
+  id?: number
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
+  isOnboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AuthAccountUncheckedCreateNestedManyWithoutUserInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
+  blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutHobbiesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutHobbiesInput, Prisma.UserUncheckedCreateWithoutHobbiesInput>
+}
+
+export type UserUpsertWithoutHobbiesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutHobbiesInput, Prisma.UserUncheckedUpdateWithoutHobbiesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutHobbiesInput, Prisma.UserUncheckedCreateWithoutHobbiesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutHobbiesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutHobbiesInput, Prisma.UserUncheckedUpdateWithoutHobbiesInput>
+}
+
+export type UserUpdateWithoutHobbiesInput = {
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AuthAccountUpdateManyWithoutUserNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
+  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
+  blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutHobbiesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AuthAccountUncheckedUpdateManyWithoutUserNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+}
+
+export type UserCreateWithoutMatchingPreferenceInput = {
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
+  isOnboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AuthAccountCreateNestedManyWithoutUserInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
+  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
+  blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMatchingPreferenceInput = {
+  id?: number
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
+  isOnboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AuthAccountUncheckedCreateNestedManyWithoutUserInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
+  blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMatchingPreferenceInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMatchingPreferenceInput, Prisma.UserUncheckedCreateWithoutMatchingPreferenceInput>
+}
+
+export type UserUpsertWithoutMatchingPreferenceInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMatchingPreferenceInput, Prisma.UserUncheckedUpdateWithoutMatchingPreferenceInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMatchingPreferenceInput, Prisma.UserUncheckedCreateWithoutMatchingPreferenceInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMatchingPreferenceInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMatchingPreferenceInput, Prisma.UserUncheckedUpdateWithoutMatchingPreferenceInput>
+}
+
+export type UserUpdateWithoutMatchingPreferenceInput = {
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AuthAccountUpdateManyWithoutUserNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
+  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
+  blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMatchingPreferenceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AuthAccountUncheckedUpdateManyWithoutUserNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutAccountsInput = {
   email?: string | null
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -554,6 +929,8 @@ export type UserCreateWithoutAccountsInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -562,6 +939,11 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -569,6 +951,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -592,6 +976,11 @@ export type UserUpdateWithoutAccountsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -599,6 +988,8 @@ export type UserUpdateWithoutAccountsInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -607,6 +998,11 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -614,6 +1010,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFollowingInput = {
@@ -621,6 +1019,11 @@ export type UserCreateWithoutFollowingInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -628,6 +1031,8 @@ export type UserCreateWithoutFollowingInput = {
   followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowingInput = {
@@ -636,6 +1041,11 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -643,6 +1053,8 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowingInput = {
@@ -655,6 +1067,11 @@ export type UserCreateWithoutFollowersInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -662,6 +1079,8 @@ export type UserCreateWithoutFollowersInput = {
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowersInput = {
@@ -670,6 +1089,11 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -677,6 +1101,8 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowersInput = {
@@ -700,6 +1126,11 @@ export type UserUpdateWithoutFollowingInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -707,6 +1138,8 @@ export type UserUpdateWithoutFollowingInput = {
   followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowingInput = {
@@ -715,6 +1148,11 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -722,6 +1160,8 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutFollowersInput = {
@@ -740,6 +1180,11 @@ export type UserUpdateWithoutFollowersInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -747,6 +1192,8 @@ export type UserUpdateWithoutFollowersInput = {
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowersInput = {
@@ -755,6 +1202,11 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -762,6 +1214,8 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBlockedInput = {
@@ -769,6 +1223,11 @@ export type UserCreateWithoutBlockedInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -776,6 +1235,8 @@ export type UserCreateWithoutBlockedInput = {
   followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBlockedInput = {
@@ -784,6 +1245,11 @@ export type UserUncheckedCreateWithoutBlockedInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -791,6 +1257,8 @@ export type UserUncheckedCreateWithoutBlockedInput = {
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBlockedInput = {
@@ -803,6 +1271,11 @@ export type UserCreateWithoutBlockedByInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -810,6 +1283,8 @@ export type UserCreateWithoutBlockedByInput = {
   followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBlockedByInput = {
@@ -818,6 +1293,11 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   name?: string | null
   avatarUrl?: string | null
   bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
   isOnboarded?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -825,6 +1305,8 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
   following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBlockedByInput = {
@@ -848,6 +1330,11 @@ export type UserUpdateWithoutBlockedInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -855,6 +1342,8 @@ export type UserUpdateWithoutBlockedInput = {
   followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockedInput = {
@@ -863,6 +1352,11 @@ export type UserUncheckedUpdateWithoutBlockedInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -870,6 +1364,8 @@ export type UserUncheckedUpdateWithoutBlockedInput = {
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutBlockedByInput = {
@@ -888,6 +1384,11 @@ export type UserUpdateWithoutBlockedByInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -895,6 +1396,8 @@ export type UserUpdateWithoutBlockedByInput = {
   followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockedByInput = {
@@ -903,6 +1406,11 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
   isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -910,6 +1418,8 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
   following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
 }
 
 
@@ -923,6 +1433,7 @@ export type UserCountOutputType = {
   following: number
   blocked: number
   blockedBy: number
+  hobbies: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -931,6 +1442,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   following?: boolean | UserCountOutputTypeCountFollowingArgs
   blocked?: boolean | UserCountOutputTypeCountBlockedArgs
   blockedBy?: boolean | UserCountOutputTypeCountBlockedByArgs
+  hobbies?: boolean | UserCountOutputTypeCountHobbiesArgs
 }
 
 /**
@@ -978,6 +1490,13 @@ export type UserCountOutputTypeCountBlockedByArgs<ExtArgs extends runtime.Types.
   where?: Prisma.BlockWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountHobbiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserHobbyWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -985,6 +1504,11 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   name?: boolean
   avatarUrl?: boolean
   bio?: boolean
+  birthDate?: boolean
+  gender?: boolean
+  mbti?: boolean
+  location?: boolean
+  coinBalance?: boolean
   isOnboarded?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -993,6 +1517,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   blocked?: boolean | Prisma.User$blockedArgs<ExtArgs>
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
+  hobbies?: boolean | Prisma.User$hobbiesArgs<ExtArgs>
+  matchingPreference?: boolean | Prisma.User$matchingPreferenceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1002,6 +1528,11 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   avatarUrl?: boolean
   bio?: boolean
+  birthDate?: boolean
+  gender?: boolean
+  mbti?: boolean
+  location?: boolean
+  coinBalance?: boolean
   isOnboarded?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1013,6 +1544,11 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   avatarUrl?: boolean
   bio?: boolean
+  birthDate?: boolean
+  gender?: boolean
+  mbti?: boolean
+  location?: boolean
+  coinBalance?: boolean
   isOnboarded?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1024,18 +1560,25 @@ export type UserSelectScalar = {
   name?: boolean
   avatarUrl?: boolean
   bio?: boolean
+  birthDate?: boolean
+  gender?: boolean
+  mbti?: boolean
+  location?: boolean
+  coinBalance?: boolean
   isOnboarded?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "avatarUrl" | "bio" | "isOnboarded" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "avatarUrl" | "bio" | "birthDate" | "gender" | "mbti" | "location" | "coinBalance" | "isOnboarded" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   followers?: boolean | Prisma.User$followersArgs<ExtArgs>
   following?: boolean | Prisma.User$followingArgs<ExtArgs>
   blocked?: boolean | Prisma.User$blockedArgs<ExtArgs>
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
+  hobbies?: boolean | Prisma.User$hobbiesArgs<ExtArgs>
+  matchingPreference?: boolean | Prisma.User$matchingPreferenceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1049,6 +1592,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     following: Prisma.$FollowPayload<ExtArgs>[]
     blocked: Prisma.$BlockPayload<ExtArgs>[]
     blockedBy: Prisma.$BlockPayload<ExtArgs>[]
+    hobbies: Prisma.$UserHobbyPayload<ExtArgs>[]
+    matchingPreference: Prisma.$MatchingPreferencePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1059,6 +1604,26 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
      * 自己紹介文（プロフィール画面で表示）。Google から取得しないためオンボーディングまたはプロフィール編集で入力する
      */
     bio: string | null
+    /**
+     * 生年月日（年齢は計算で算出）。オンボーディングで必須入力
+     */
+    birthDate: Date | null
+    /**
+     * 性別（MALE / FEMALE / OTHER）。オンボーディングで必須入力
+     */
+    gender: $Enums.Gender | null
+    /**
+     * MBTI タイプ（INTJ, ENFP 等）。オンボーディングはスキップ可、編集で設定可能
+     */
+    mbti: string | null
+    /**
+     * 居住地域。オンボーディングはスキップ可、編集で設定可能
+     */
+    location: string | null
+    /**
+     * コイン残高（将来フェーズ：課金・ショップ）
+     */
+    coinBalance: number
     /**
      * オンボーディング完了フラグ。初回ログイン後の必須プロフィール設定（表示名・生年月日・性別など）が完了したら true に更新する。サインイン直後にこの値が false なら /onboarding へ誘導する
      */
@@ -1464,6 +2029,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   following<T extends Prisma.User$followingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$followingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FollowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   blocked<T extends Prisma.User$blockedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   blockedBy<T extends Prisma.User$blockedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  hobbies<T extends Prisma.User$hobbiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$hobbiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserHobbyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  matchingPreference<T extends Prisma.User$matchingPreferenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$matchingPreferenceArgs<ExtArgs>>): Prisma.Prisma__MatchingPreferenceClient<runtime.Types.Result.GetResult<Prisma.$MatchingPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1498,6 +2065,11 @@ export interface UserFieldRefs {
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
   readonly bio: Prisma.FieldRef<"User", 'String'>
+  readonly birthDate: Prisma.FieldRef<"User", 'DateTime'>
+  readonly gender: Prisma.FieldRef<"User", 'Gender'>
+  readonly mbti: Prisma.FieldRef<"User", 'String'>
+  readonly location: Prisma.FieldRef<"User", 'String'>
+  readonly coinBalance: Prisma.FieldRef<"User", 'Int'>
   readonly isOnboarded: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2011,6 +2583,49 @@ export type User$blockedByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.BlockScalarFieldEnum | Prisma.BlockScalarFieldEnum[]
+}
+
+/**
+ * User.hobbies
+ */
+export type User$hobbiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserHobby
+   */
+  select?: Prisma.UserHobbySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserHobby
+   */
+  omit?: Prisma.UserHobbyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserHobbyInclude<ExtArgs> | null
+  where?: Prisma.UserHobbyWhereInput
+  orderBy?: Prisma.UserHobbyOrderByWithRelationInput | Prisma.UserHobbyOrderByWithRelationInput[]
+  cursor?: Prisma.UserHobbyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserHobbyScalarFieldEnum | Prisma.UserHobbyScalarFieldEnum[]
+}
+
+/**
+ * User.matchingPreference
+ */
+export type User$matchingPreferenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MatchingPreference
+   */
+  select?: Prisma.MatchingPreferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MatchingPreference
+   */
+  omit?: Prisma.MatchingPreferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MatchingPreferenceInclude<ExtArgs> | null
+  where?: Prisma.MatchingPreferenceWhereInput
 }
 
 /**
