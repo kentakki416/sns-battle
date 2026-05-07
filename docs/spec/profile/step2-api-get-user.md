@@ -1,16 +1,30 @@
 # step2-api-get-user.md
 
-`GET /api/users/:id` を実装する。指定ユーザーのプロフィール情報を返却する。`birth_date` から年齢を計算してレスポンスに含め、自分の id を取得した場合のみ生年月日等のプライバシー情報も返す。
+`GET /api/users/:id` を実装する。指定ユーザーのプロフィール情報（年齢計算済 / 趣味 / MBTI / 居住地域含む）を返却する。`is_self` フラグでプライバシー情報の出し分けを行う。
 
 設計詳細は `docs/spec/profile/README.md` の [API 設計](./README.md#api-設計) と [プロフィール公開範囲](./README.md#プロフィール公開範囲) を参照。
 
-依存: step1（Prisma スキーマ拡張）が完了していること。
+依存: step1（Prisma スキーマ拡張、`hobby_masters` / `user_hobbies` テーブル含む）。
+
+## 公開範囲のポリシー
+
+| フィールド | 自分（is_self=true） | 他人（is_self=false） |
+|----------|--------------------|-----------------------|
+| name / avatar_url / bio / created_at / is_onboarded | 公開 | 公開 |
+| age（birth_date から計算） | 公開 | 公開 |
+| gender | 公開 | 公開 |
+| **mbti** | 公開 | **公開**（マッチング相手も使うため公開する。表示可否は UI 側で制御） |
+| **location** | 公開 | **公開**（同上） |
+| **hobbies** | 公開 | **公開**（同上） |
+| **birth_date** | 公開 | **null マスク** |
+| **coin_balance** | 公開 | **null マスク** |
+| **is_self** | 常に true | 常に false |
+
+`mbti` / `location` / `hobbies` は **マッチング時の相性表示にも使う** ため他人にも公開する（README.md の「プロフィール公開範囲」セクションも合わせて更新済み）。`birth_date` は年齢があれば足りるためマスク。
 
 ## 対応内容
 
 ### スキーマ定義（`packages/schema/src/api-schema/user.ts`）
-
-既存の `getUserRequestSchema` / `getUserResponseSchema` は memo の雛形なので **置き換える**。
 
 ```typescript
 import { z } from "zod"
@@ -26,33 +40,52 @@ export const genderSchema = z.enum(["MALE", "FEMALE", "OTHER"])
 export type Gender = z.infer<typeof genderSchema>
 
 /**
- * パスパラメータ: id (数値)
+ * 共通の MBTI enum（16 タイプ）
  */
+export const mbtiSchema = z.enum([
+  "INTJ", "INTP", "ENTJ", "ENTP",
+  "INFJ", "INFP", "ENFJ", "ENFP",
+  "ISTJ", "ISFJ", "ESTJ", "ESFJ",
+  "ISTP", "ISFP", "ESTP", "ESFP",
+])
+export type MbtiType = z.infer<typeof mbtiSchema>
+
+/**
+ * 趣味エントリ（プロフィールレスポンスに埋め込む形）
+ */
+export const hobbySchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+})
+export type Hobby = z.infer<typeof hobbySchema>
+
 export const getUserPathParamSchema = z.object({
   id: z.coerce.number().int().positive(),
 })
 
 /**
- * レスポンス。is_self=true のときだけ birth_date, mbti, location, coin_balance を返す
+ * レスポンス。birth_date / coin_balance のみ is_self=true 時に値を返し、他人取得時は null。
+ * mbti / location / hobbies は他人にも公開する（マッチング時の相性表示用）。
  */
 export const getUserResponseSchema = z.object({
   age: z.number().int().nullable(),
   avatar_url: z.string().nullable(),
   bio: z.string().nullable(),
-  /** 自分のプロフィール取得時のみ ISO 日付文字列、他人取得時は null */
+  /** is_self=true 時のみ ISO 日付文字列、他人取得時は null */
   birth_date: z.string().nullable(),
-  /** 自分のプロフィール取得時のみ数値、他人取得時は null */
+  /** is_self=true 時のみ数値、他人取得時は null */
   coin_balance: z.number().int().nullable(),
   created_at: z.string(),
   gender: genderSchema.nullable(),
+  /** 趣味は他人にも公開（hobby_master との JOIN 結果） */
+  hobbies: z.array(hobbySchema),
   id: z.number().int(),
   is_onboarded: z.boolean(),
-  /** 自分のプロフィール取得時 true */
   is_self: z.boolean(),
-  /** 自分のプロフィール取得時のみ、他人取得時は null */
+  /** 居住地域は他人にも公開 */
   location: z.string().nullable(),
-  /** 自分のプロフィール取得時のみ、他人取得時は null（将来は表示可否を別ルールで管理） */
-  mbti: z.string().nullable(),
+  /** MBTI は他人にも公開 */
+  mbti: mbtiSchema.nullable(),
   name: z.string().nullable(),
 })
 
@@ -60,25 +93,21 @@ export type GetUserPathParam = z.infer<typeof getUserPathParamSchema>
 export type GetUserResponse = z.infer<typeof getUserResponseSchema>
 ```
 
-memo 雛形時代の既存 `getUserRequestSchema` を export している箇所（grep で確認）から削除しても影響無いことを確認すること。
+memo 雛形時代の既存 `getUserRequestSchema` / `getUserResponseSchema` は **置き換える**。grep で参照箇所を確認して影響無いことを確認すること。
 
-### `packages/schema/src/api-schema/index.ts`
-
-既に `export * from "./user"` 済みなので変更不要。スキーマ追加後は必ず:
+スキーマ追加後:
 
 ```bash
 cd packages/schema && pnpm build
 ```
 
-### Domain ロジック: 年齢計算
+### 年齢計算 lib
 
-`apps/api/src/lib/age.ts`（新規）。Service / 他で再利用するため lib に切り出す。
+`apps/api/src/lib/age.ts`（新規）。step3 / step4 でも使う。
 
 ```typescript
 /**
- * 生年月日から満年齢を計算する。
- * 誕生日前なら -1 する正確な日付比較を行う。
- * birthDate が null の場合は null を返す。
+ * 生年月日から満年齢を計算する。誕生日前なら -1。birthDate が null なら null。
  */
 export const calculateAge = (birthDate: Date | null, today: Date = new Date()): number | null => {
   if (!birthDate) return null
@@ -91,16 +120,58 @@ export const calculateAge = (birthDate: Date | null, today: Date = new Date()): 
 }
 ```
 
-### Service の拡張
+### Repository: 趣味も含めて取得する
 
-`apps/api/src/service/user-service.ts` に `getUserProfile` を追加。`getUserById` は既存のままにし、ID 取得用途で残す。
+`UserRepository` の interface に「趣味込み」のメソッドを追加。既存 `findById` は `User` のみ返す。趣味込みは別メソッド `findProfileById` として分離する（責務を明確に）。
 
 ```typescript
-import { logger } from "../log"
-import { UserRepository } from "../repository/prisma"
-import { User } from "../types/domain"
-import { err, notFoundError, ok, Result } from "../types/result"
+import { Prisma as PrismaTypes, PrismaClient } from "../../prisma/generated/client"
+import { Hobby, User } from "../../types/domain"
+
+export type UserProfileWithHobbies = {
+  hobbies: Hobby[]
+  user: User
+}
+
+export interface UserRepository {
+  create(data: CreateUserInput): Promise<User>
+  findByEmail(email: string): Promise<User | null>
+  findById(id: number): Promise<User | null>
+  findProfileById(id: number): Promise<UserProfileWithHobbies | null>
+}
+
+// PrismaUserRepository 実装
+async findProfileById(id: number): Promise<UserProfileWithHobbies | null> {
+  const prismaUser = await this._prisma.user.findUnique({
+    include: {
+      hobbies: {
+        include: { hobby: true },
+        orderBy: { hobby: { sortOrder: "asc" } },
+      },
+    },
+    where: { id },
+  })
+  if (!prismaUser) return null
+  return {
+    hobbies: prismaUser.hobbies.map((uh) => ({
+      id: uh.hobby.id,
+      name: uh.hobby.name,
+      sortOrder: uh.hobby.sortOrder,
+    })),
+    user: this._toDomainUser(prismaUser),
+  }
+}
+```
+
+### Service: `getUserProfile`
+
+`apps/api/src/service/user-service.ts`。既存 `getUserById` は ID 取得用途で残す。趣味込みのプロフィール取得は新規 `getUserProfile`。
+
+```typescript
 import { calculateAge } from "../lib/age"
+import { Hobby, User } from "../types/domain"
+import { err, notFoundError, ok, Result } from "../types/result"
+import { UserRepository } from "../repository/prisma"
 
 export type UserProfile = {
   age: number | null
@@ -110,6 +181,7 @@ export type UserProfile = {
   coinBalance: number | null
   createdAt: Date
   gender: User["gender"]
+  hobbies: Hobby[]
   id: number
   isOnboarded: boolean
   isSelf: boolean
@@ -118,24 +190,21 @@ export type UserProfile = {
   name: string | null
 }
 
-/**
- * 指定ユーザーのプロフィールを取得。
- * isSelf=true（自分のプロフィール取得時）はプライバシー情報も含めて返却する。
- * isSelf=false の場合、birthDate / mbti / location / coinBalance は null マスクして返す。
- */
 export const getUserProfile = async (
   input: { targetUserId: number; viewerUserId: number },
-  repo: { userRepository: UserRepository }
+  repo: { userRepository: UserRepository },
 ): Promise<Result<UserProfile>> => {
   const { targetUserId, viewerUserId } = input
   logger.debug("UserService: Fetching user profile", { targetUserId, viewerUserId })
 
-  const user = await repo.userRepository.findById(targetUserId)
-  if (!user) {
+  const found = await repo.userRepository.findProfileById(targetUserId)
+  if (!found) {
     return err(notFoundError("User not found"))
   }
 
+  const { hobbies, user } = found
   const isSelf = user.id === viewerUserId
+
   const profile: UserProfile = {
     age: calculateAge(user.birthDate),
     avatarUrl: user.avatarUrl,
@@ -144,11 +213,12 @@ export const getUserProfile = async (
     coinBalance: isSelf ? user.coinBalance : null,
     createdAt: user.createdAt,
     gender: user.gender,
+    hobbies,
     id: user.id,
     isOnboarded: user.isOnboarded,
     isSelf,
-    location: isSelf ? user.location : null,
-    mbti: isSelf ? user.mbti : null,
+    location: user.location,
+    mbti: user.mbti,
     name: user.name,
   }
   return ok(profile)
@@ -198,6 +268,7 @@ export class UserGetController {
       coin_balance: result.value.coinBalance,
       created_at: result.value.createdAt.toISOString(),
       gender: result.value.gender,
+      hobbies: result.value.hobbies.map((h) => ({ id: h.id, name: h.name })),
       id: result.value.id,
       is_onboarded: result.value.isOnboarded,
       is_self: result.value.isSelf,
@@ -256,16 +327,25 @@ app.use(
 
 `apps/api/test/service/user-service/getUserProfile.test.ts`（新規）。
 
+検証ケース:
+1. 自分のプロフィール取得時、birth_date / coin_balance も値が返る
+2. 他人のプロフィール取得時、birth_date / coin_balance は null マスク。mbti / location / hobbies は値あり
+3. 趣味が複数登録されている場合、`Hobby[]` で sortOrder 昇順に返る
+4. ユーザー存在しない場合、404 NOT_FOUND
+5. birth_date が null の場合、age=null
+6. mbti / location が null の場合、レスポンスでも null
+
 ```typescript
 import { UserRepository } from "../../../src/repository/prisma/user-repository"
 import { getUserProfile } from "../../../src/service/user-service"
-import { User } from "../../../src/types/domain"
+import { Hobby, User } from "../../../src/types/domain"
 
-const mockFindById = jest.fn<Promise<User | null>, [number]>()
+const mockFindProfileById = jest.fn<Promise<{ hobbies: Hobby[]; user: User } | null>, [number]>()
 const mockUserRepository: UserRepository = {
   create: jest.fn(),
   findByEmail: jest.fn(),
-  findById: mockFindById,
+  findById: jest.fn(),
+  findProfileById: mockFindProfileById,
 }
 
 const baseUser: User = {
@@ -284,13 +364,16 @@ const baseUser: User = {
   updatedAt: new Date(),
 }
 
+const baseHobbies: Hobby[] = [
+  { id: 1, name: "音楽鑑賞", sortOrder: 1 },
+  { id: 5, name: "ゲーム", sortOrder: 5 },
+]
+
 describe("getUserProfile", () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
+  beforeEach(() => jest.clearAllMocks())
 
   it("自分のプロフィール取得時 isSelf=true で全情報を返す", async () => {
-    mockFindById.mockResolvedValue(baseUser)
+    mockFindProfileById.mockResolvedValue({ hobbies: baseHobbies, user: baseUser })
 
     const result = await getUserProfile(
       { targetUserId: 1, viewerUserId: 1 },
@@ -302,16 +385,16 @@ describe("getUserProfile", () => {
       expect(result.value).toMatchObject({
         birthDate: baseUser.birthDate,
         coinBalance: 100,
+        hobbies: baseHobbies,
         isSelf: true,
         location: "Tokyo",
         mbti: "INTJ",
       })
-      expect(result.value.age).toBeGreaterThanOrEqual(18)
     }
   })
 
-  it("他人のプロフィール取得時 isSelf=false でプライバシー情報を null マスクする", async () => {
-    mockFindById.mockResolvedValue(baseUser)
+  it("他人のプロフィール取得時 isSelf=false で birth_date / coin_balance のみ null マスク", async () => {
+    mockFindProfileById.mockResolvedValue({ hobbies: baseHobbies, user: baseUser })
 
     const result = await getUserProfile(
       { targetUserId: 1, viewerUserId: 99 },
@@ -323,17 +406,17 @@ describe("getUserProfile", () => {
       expect(result.value).toMatchObject({
         birthDate: null,
         coinBalance: null,
-        gender: "MALE", // gender は他人にも公開
+        gender: "MALE",
+        hobbies: baseHobbies,
         isSelf: false,
-        location: null,
-        mbti: null,
+        location: "Tokyo",
+        mbti: "INTJ",
       })
-      expect(result.value.age).toBeGreaterThanOrEqual(18)
     }
   })
 
-  it("ユーザーが存在しない場合、404 NOT_FOUND を返す", async () => {
-    mockFindById.mockResolvedValue(null)
+  it("ユーザーが存在しない場合、404 NOT_FOUND", async () => {
+    mockFindProfileById.mockResolvedValue(null)
 
     const result = await getUserProfile(
       { targetUserId: 999, viewerUserId: 1 },
@@ -346,8 +429,11 @@ describe("getUserProfile", () => {
     }
   })
 
-  it("birth_date が null の場合、age=null を返す", async () => {
-    mockFindById.mockResolvedValue({ ...baseUser, birthDate: null })
+  it("birth_date が null の場合、age=null", async () => {
+    mockFindProfileById.mockResolvedValue({
+      hobbies: [],
+      user: { ...baseUser, birthDate: null },
+    })
 
     const result = await getUserProfile(
       { targetUserId: 1, viewerUserId: 1 },
@@ -364,7 +450,7 @@ describe("getUserProfile", () => {
 
 ### Controller インテグレーションテスト
 
-`apps/api/test/controller/user/get.test.ts`（新規）。実 DB を使う。
+`apps/api/test/controller/user/get.test.ts`（新規）。実 DB を使い、`testPrisma` で hobby_masters / user_hobbies を直接書く。
 
 ```typescript
 import request from "supertest"
@@ -393,13 +479,22 @@ afterAll(async () => {
 })
 
 describe("GET /api/users/:id", () => {
-  it("自分の id を取得すると is_self=true で全情報が返る", async () => {
+  it("自分の id を取得すると is_self=true で全情報 + 趣味配列が返る", async () => {
+    const hobby1 = await testPrisma.hobbyMaster.create({
+      data: { name: "音楽鑑賞", sortOrder: 1 },
+    })
+    const hobby2 = await testPrisma.hobbyMaster.create({
+      data: { name: "ゲーム", sortOrder: 5 },
+    })
     const me = await testPrisma.user.create({
       data: {
         birthDate: new Date("1995-05-15"),
         coinBalance: 100,
         email: "me@example.com",
         gender: "MALE",
+        hobbies: {
+          create: [{ hobbyId: hobby1.id }, { hobbyId: hobby2.id }],
+        },
         isOnboarded: true,
         location: "Tokyo",
         mbti: "INTJ",
@@ -422,6 +517,10 @@ describe("GET /api/users/:id", () => {
       coin_balance: 100,
       created_at: expect.any(String),
       gender: "MALE",
+      hobbies: [
+        { id: hobby1.id, name: "音楽鑑賞" },
+        { id: hobby2.id, name: "ゲーム" },
+      ],
       id: me.id,
       is_onboarded: true,
       is_self: true,
@@ -431,7 +530,10 @@ describe("GET /api/users/:id", () => {
     })
   })
 
-  it("他人の id を取得すると is_self=false でプライバシー情報が null になる", async () => {
+  it("他人の id を取得すると is_self=false で birth_date / coin_balance のみ null マスク。趣味は公開", async () => {
+    const hobby = await testPrisma.hobbyMaster.create({
+      data: { name: "ヨガ", sortOrder: 12 },
+    })
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -441,6 +543,7 @@ describe("GET /api/users/:id", () => {
         coinBalance: 9999,
         email: "other@example.com",
         gender: "FEMALE",
+        hobbies: { create: [{ hobbyId: hobby.id }] },
         isOnboarded: true,
         location: "Osaka",
         mbti: "ENFP",
@@ -463,19 +566,18 @@ describe("GET /api/users/:id", () => {
       coin_balance: null,
       created_at: expect.any(String),
       gender: "FEMALE",
+      hobbies: [{ id: hobby.id, name: "ヨガ" }],
       id: other.id,
       is_onboarded: true,
       is_self: false,
-      location: null,
-      mbti: null,
+      location: "Osaka",
+      mbti: "ENFP",
       name: "Other",
     })
   })
 
   it("存在しない id の場合 404 を返す", async () => {
-    const me = await testPrisma.user.create({
-      data: { email: "me@example.com", name: "Me" },
-    })
+    const me = await testPrisma.user.create({ data: { email: "me@example.com", name: "Me" } })
     const token = generateAccessToken(me.id)
 
     const res = await request(app)
@@ -487,9 +589,7 @@ describe("GET /api/users/:id", () => {
   })
 
   it("不正な id の場合 400 を返す", async () => {
-    const me = await testPrisma.user.create({
-      data: { email: "me@example.com", name: "Me" },
-    })
+    const me = await testPrisma.user.create({ data: { email: "me@example.com", name: "Me" } })
     const token = generateAccessToken(me.id)
 
     const res = await request(app)
@@ -502,7 +602,6 @@ describe("GET /api/users/:id", () => {
 
   it("認証なしの場合 401 を返す", async () => {
     const res = await request(app).get("/api/users/1")
-
     expect(res.status).toBe(401)
     expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
@@ -511,16 +610,11 @@ describe("GET /api/users/:id", () => {
 
 ## 動作確認
 
-### スキーマビルド
+### スキーマ + API ビルド
 
 ```bash
 cd packages/schema && pnpm build
-```
-
-### API ビルド
-
-```bash
-cd apps/api && pnpm build
+cd ../../apps/api && pnpm build
 ```
 
 ### テスト実行
@@ -529,24 +623,18 @@ cd apps/api && pnpm build
 cd apps/api && pnpm test
 ```
 
-新規 Service ユニットテスト（4 ケース）と Controller インテグレーションテスト（5 ケース）が全て通ること。
+新規 Service ユニット 5 ケース、Controller integration 5 ケースが通ること。
 
-### dev サーバーで疎通確認
-
-```bash
-cd apps/api && pnpm dev
-```
-
-別ターミナルから（access token は dev 環境で実際にサインインして取得）:
+### dev で疎通
 
 ```bash
 curl -H "Authorization: Bearer <ACCESS_TOKEN>" http://localhost:8080/api/users/1
 ```
 
-`is_self / age / birth_date` 等のフィールドを含む JSON が返ること。
+`hobbies / mbti / location / is_self / age / birth_date` 等のフィールドを含む JSON が返ること。
 
 ## 既知の未対応 / 後続 step に持ち越し
 
-- 18 歳未満チェックは取得 API では行わない（更新 API（step3 / step4）で実施）
-- フォロワー数 / フォロー中数 / `is_followed_by_me` / `is_live` 等の関係性フィールドは Phase 5（social）で `getUserResponseSchema` に追加する
-- `MatchingPreference` の取得は将来フェーズ
+- 18 歳バリデーションは更新 API（step3 / step4）で実施
+- フォロワー数 / フォロー中数 / `is_followed_by_me` / `is_live` は Phase 5（social）で追加
+- `MatchingPreference` の取得 API は step6

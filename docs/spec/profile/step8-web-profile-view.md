@@ -1,10 +1,24 @@
-# step6-web-profile-view.md
+# step8-web-profile-view.md
 
 `/profile/[id]/page.tsx` を実装する。指定 `id` のユーザーのプロフィールを表示するページ。`/profile/me` で自分のプロフィールにリダイレクトするルートも作る。
 
 UI 仕様は `docs/spec/profile/README.md` の [プロフィール表示（/profile/:id）](./README.md#プロフィール表示profileid) を参照。AppShell（Phase 2 step1）の **default モード**で動作する。
 
-依存: step2（GET API）。step6 では実データのプロフィール本体のみ表示し、配信履歴 / バトル戦績は **空状態 UI** をプレースホルダで配置する（実 API は Phase 6 / Phase 7 で実装）。
+依存: step2（GET API）。step6 の `MatchingPreference` 取得 API は本ページでは使わない（フィルタは編集ページ専用）。配信履歴・バトル戦績は **空状態 UI** をプレースホルダで配置する（実 API は Phase 6 / Phase 7）。
+
+## 表示項目
+
+| セクション | 自分（is_self=true） | 他人（is_self=false） |
+|----------|--------------------|-----------------------|
+| カバー + アバター + 名前 + 年齢 | ◯ | ◯ |
+| bio | ◯ | ◯ |
+| **MBTI** | ◯（編集可） | ◯（表示のみ） |
+| **居住地域** | ◯ | ◯ |
+| **趣味** | ◯（chip 表示） | ◯（chip 表示） |
+| 配信履歴 | 空状態 UI | 空状態 UI |
+| バトル戦績 | 空状態 UI | 空状態 UI |
+| プロフィール編集ボタン | ◯ | × |
+| フォローボタン | × | ◯（disabled） |
 
 ## 対応内容
 
@@ -13,13 +27,14 @@ UI 仕様は `docs/spec/profile/README.md` の [プロフィール表示（/prof
 ```
 apps/web/src/app/profile/
 ├── [id]/
-│   └── page.tsx                 ← Server Component（/profile/:id）
+│   └── page.tsx
 ├── me/
-│   └── page.tsx                 ← Server Component（/profile/me → /profile/{自分のid} に redirect）
+│   └── page.tsx                  ← /profile/me → /profile/{id} redirect
 └── _components/
-    ├── ProfileHeaderCard.tsx    ← Client（カバー + アバター + 名前 + 統計 + アクション）
-    ├── EmptyStreamHistory.tsx   ← Server（配信履歴の空状態）
-    └── EmptyBattleStats.tsx     ← Server（バトル戦績の空状態）
+    ├── ProfileHeaderCard.tsx     ← Client（カバー + アバター + 名前 + 年齢 + アクション）
+    ├── ProfileDetailSection.tsx  ← Server（MBTI / 居住地域 / 趣味の表示）
+    ├── EmptyStreamHistory.tsx    ← Server（配信履歴の空状態）
+    └── EmptyBattleStats.tsx      ← Server（戦績の空状態）
 ```
 
 ### `/profile/me/page.tsx`
@@ -49,6 +64,7 @@ import { getCurrentUser } from "@/libs/current-user"
 
 import { EmptyBattleStats } from "../_components/EmptyBattleStats"
 import { EmptyStreamHistory } from "../_components/EmptyStreamHistory"
+import { ProfileDetailSection } from "../_components/ProfileDetailSection"
 import { ProfileHeaderCard } from "../_components/ProfileHeaderCard"
 
 type Props = {
@@ -78,7 +94,6 @@ export default async function ProfileDetailPage({ params }: Props) {
 
   return (
     <div className="relative mx-auto max-w-2xl">
-      {/** 背景装飾: 左上のパープル blur オーブ */}
       <div
         aria-hidden
         className="pointer-events-none fixed -left-32 -top-32 h-[500px] w-[500px] rounded-full"
@@ -89,6 +104,8 @@ export default async function ProfileDetailPage({ params }: Props) {
       />
 
       <ProfileHeaderCard isMyProfile={profile.is_self} profile={profile} />
+
+      <ProfileDetailSection profile={profile} />
 
       <section className="mt-8">
         <SectionHeader emoji="📺" tone="error" title="ライブ配信履歴" />
@@ -116,7 +133,7 @@ function SectionHeader({ emoji, title, tone }: { emoji: string; title: string; t
 
 ### `_components/ProfileHeaderCard.tsx`（Client）
 
-カバーグラデ + アバター + 名前 + bio + アクションボタン。
+カバーグラデ + アバター + 名前 + 年齢 + bio + アクションボタン。step6 の元仕様 + 「マッチングフィルタ」リンクを追加。
 
 ```typescript
 "use client"
@@ -133,7 +150,6 @@ type Props = {
 export function ProfileHeaderCard({ isMyProfile, profile }: Props) {
   return (
     <article className="overflow-hidden rounded-2xl border border-dark-border bg-dark-surface/60 backdrop-blur">
-      {/** カバーグラデーション */}
       <div
         aria-hidden
         className="h-24 w-full"
@@ -174,18 +190,26 @@ export function ProfileHeaderCard({ isMyProfile, profile }: Props) {
 
         <div className="mt-5 flex items-center justify-between">
           <div className="flex gap-4 text-sm text-text-muted">
-            {/** Phase 5（social）まで実数なし。表示は仮値 */}
+            {/** Phase 5 まで実数なし */}
             <span><span className="font-semibold text-white">0</span> フォロワー</span>
             <span><span className="font-semibold text-white">0</span> フォロー中</span>
           </div>
 
           {isMyProfile ? (
-            <Link
-              className="rounded-lg border border-dark-border bg-dark-base px-4 py-2 text-sm text-white transition hover:bg-white/[0.03]"
-              href="/profile/edit"
-            >
-              プロフィール編集
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                className="rounded-lg border border-dark-border bg-dark-base px-4 py-2 text-sm text-white transition hover:bg-white/[0.03]"
+                href="/profile/edit"
+              >
+                プロフィール編集
+              </Link>
+              <Link
+                className="rounded-lg border border-dark-border bg-dark-base px-4 py-2 text-sm text-text-muted transition hover:text-white"
+                href="/matching/preferences"
+              >
+                マッチングフィルタ
+              </Link>
+            </div>
           ) : (
             <button
               className="rounded-lg px-4 py-2 text-sm font-semibold text-dark-base transition"
@@ -203,9 +227,70 @@ export function ProfileHeaderCard({ isMyProfile, profile }: Props) {
 }
 ```
 
-フォロー / 解除動作は Phase 5 で配線するため `disabled` の見た目だけ。
+### `_components/ProfileDetailSection.tsx`（Server）
 
-### `_components/EmptyStreamHistory.tsx`（Server）
+MBTI / 居住地域 / 趣味の表示。値が無いセクションは「未設定」と表示。
+
+```typescript
+import type { GetUserResponse } from "@repo/api-schema"
+
+type Props = {
+  profile: GetUserResponse
+}
+
+export function ProfileDetailSection({ profile }: Props) {
+  const hasAny = profile.mbti || profile.location || profile.hobbies.length > 0
+  if (!hasAny && !profile.is_self) return null
+
+  return (
+    <section className="mt-6 space-y-4 rounded-2xl border border-dark-border bg-dark-surface/60 p-5 backdrop-blur">
+      <DetailRow label="MBTI" value={profile.mbti ? <Pill text={profile.mbti} /> : <Empty />} />
+      <DetailRow label="居住地域" value={profile.location ? <span>{profile.location}</span> : <Empty />} />
+      <DetailRow
+        label="趣味"
+        value={
+          profile.hobbies.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {profile.hobbies.map((h) => (
+                <Pill key={h.id} text={h.name} />
+              ))}
+            </div>
+          ) : (
+            <Empty />
+          )
+        }
+      />
+    </section>
+  )
+}
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:gap-4">
+      <span className="w-20 flex-shrink-0 text-xs uppercase tracking-widest text-text-disabled">
+        {label}
+      </span>
+      <div className="flex-1 text-sm text-white">{value}</div>
+    </div>
+  )
+}
+
+function Pill({ text }: { text: string }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-primary-border bg-primary-glow px-3 py-1 text-xs text-primary">
+      {text}
+    </span>
+  )
+}
+
+function Empty() {
+  return <span className="text-xs text-text-disabled">未設定</span>
+}
+```
+
+### `_components/EmptyStreamHistory.tsx` / `EmptyBattleStats.tsx`
+
+step6 と同じ。Phase 6 / Phase 7 までは空状態 UI。
 
 ```typescript
 export function EmptyStreamHistory() {
@@ -218,11 +303,7 @@ export function EmptyStreamHistory() {
     </div>
   )
 }
-```
 
-### `_components/EmptyBattleStats.tsx`（Server）
-
-```typescript
 export function EmptyBattleStats() {
   return (
     <div className="rounded-xl border border-dashed border-dark-border bg-dark-base/50 px-4 py-8 text-center">
@@ -235,9 +316,9 @@ export function EmptyBattleStats() {
 }
 ```
 
-### サイドバーからの遷移確認
+### サイドバーからの遷移
 
-Phase 2 step3 で `/profile/me` へのリンクが Sidebar に既に含まれている。`/profile/me` → `/profile/{id}` のリダイレクト挙動を確認すること。
+Phase 2 step3 で `/profile/me` リンクが Sidebar にある。`/profile/me` → `/profile/{id}` のリダイレクト挙動を確認。
 
 ## 動作確認
 
@@ -247,31 +328,41 @@ Phase 2 step3 で `/profile/me` へのリンクが Sidebar に既に含まれて
 pnpm dev
 ```
 
-### シナリオ 1: 自分のプロフィール
+### シナリオ 1: 自分の全項目設定済プロフィール
 
-1. ログイン後 `/profile/me` にアクセス
-2. `/profile/{自分のid}` にリダイレクト
-3. ヘッダー右に「プロフィール編集」ボタンが表示される
-4. 配信履歴・戦績は空状態 UI が表示される
+1. オンボーディングで全項目設定したアカウントでログイン
+2. `/profile/me` → `/profile/{自分のid}`
+3. ヘッダー右に「プロフィール編集」「マッチングフィルタ」ボタン
+4. MBTI / 居住地域 / 趣味のセクションがそれぞれ Pill で表示
+5. 配信履歴・戦績は空状態 UI
 
-### シナリオ 2: 他人のプロフィール
+### シナリオ 2: 自分の必須項目のみ設定（任意は未設定）
 
-1. `/profile/2`（自分以外の id）にアクセス
-2. `is_self=false` のレスポンスでヘッダー右に「フォロー」ボタン（disabled）
-3. プライバシー情報（生年月日・mbti・location）はレスポンス上で null になっているため画面に出ない
+1. オンボーディングで必須のみ設定したアカウントで `/profile/me`
+2. MBTI / 居住地域 / 趣味のセクションは「未設定」表示
+3. プロフィール編集リンクから補完可能
 
-### シナリオ 3: 存在しない id
+### シナリオ 3: 他人のプロフィール
 
-1. `/profile/9999999` にアクセス → API が 404 → `notFound()` で Next.js の 404 ページ
+1. `/profile/2`（自分以外）にアクセス
+2. ヘッダー右に「フォロー」ボタン（disabled、Phase 5 で活性化）
+3. MBTI / 居住地域 / 趣味は表示される（公開仕様）
+4. birth_date / coin_balance はレスポンスで null（画面にも出ない）
 
-### シナリオ 4: 不正な id
+### シナリオ 4: 他人で全項目未設定
 
-1. `/profile/abc` → サーバー側で Number 変換失敗 → `notFound()`
+1. 他人で MBTI / 居住地域 / 趣味すべて未設定
+2. ProfileDetailSection 自体が非表示（`hasAny=false && !is_self`）
 
-### シナリオ 5: 未ログイン / 未オンボーディング
+### シナリオ 5: 存在しない / 不正な id
 
-1. ログアウト状態で `/profile/1` → `/sign-in` にリダイレクト
-2. `is_onboarded=false` の状態で `/profile/me` → `/onboarding` にリダイレクト
+1. `/profile/9999999` → 404
+2. `/profile/abc` → 404
+
+### シナリオ 6: 未ログイン / 未オンボーディング
+
+1. ログアウト → `/sign-in` リダイレクト
+2. `is_onboarded=false` で `/profile/me` → `/onboarding`
 
 ### Lint / Build
 
@@ -279,14 +370,9 @@ pnpm dev
 cd apps/web && pnpm lint && pnpm build
 ```
 
-### アクセシビリティ
-
-- アバター image 代替テキスト（背景画像なので alt 不要だが、aria-label で名前を案内する案も）
-- `<h1>` がページ内で 1 つだけ（プロフィール名）
-- 「プロフィール編集」/「フォロー」ボタンはキーボードで到達可能
-
 ## 既知の未対応 / 後続 step に持ち越し
 
-- フォロー / フォロー解除動作と数値表示は Phase 5（social）で配線。本 step では 0 固定 + disabled
-- 配信履歴・バトル戦績は Phase 6 / Phase 7 で実 API 接続。空状態 UI は残しつつデータ取得部分だけ後で差し替え
-- アバター画像表示で 404 になった場合のフォールバックは将来対応（現状はイニシャル文字を表示）
+- フォロー / フォロー解除動作と数値表示は Phase 5
+- 配信履歴・バトル戦績は Phase 6 / Phase 7
+- 趣味マスターを多言語化する場合は将来対応
+- アバター画像 404 のフォールバックは将来対応
