@@ -1,3 +1,4 @@
+export { ConfettiEffect } from "./confetti-effect"
 export { CountdownOverlay } from "./countdown-overlay"
 export { LiveBadge } from "./live-badge"
 export { TimerBar } from "./timer-bar"
