@@ -25,6 +25,7 @@
   - [共通レイアウト](#共通レイアウト)
   - [共通コンポーネント](#共通コンポーネント)
 - [Enum 定義（共通）](#enum-定義共通)
+- [実装ロードマップ（Phase 2）](#実装ロードマップphase-2)
 
 ---
 
@@ -458,3 +459,29 @@ enum TransactionType {
   REFUND
 }
 ```
+
+---
+
+## 実装ロードマップ（Phase 2）
+
+Phase 2 は本ファイルの「UI 設計」セクションで定義した共通レイアウトとコンポーネントを 1 コンポーネント = 1 step で実装する。各 step はテスト可能な最小単位として独立して PR を切る。
+
+実装順は依存関係に従う。AppShell（step1）が骨組みで、Navbar（step2）/ Sidebar（step3）はその差込スロットを埋める。LiveBadge（step4）以降の単発 UI コンポーネントは並列実装可。
+
+| step | 対象 | 内容 | 依存 | リンク |
+|------|------|------|------|------|
+| step1 | `<AppShell>` | パスごとに immersive / no-sidebar / default を切替 | - | [step1-web-app-shell.md](./step1-web-app-shell.md) |
+| step2 | `<Navbar>` | ロゴ、検索バー、マッチング開始 CTA、通知、アバター | step1 | [step2-web-navbar.md](./step2-web-navbar.md) |
+| step3 | `<Sidebar>` | ナビ + フォロー中ユーザー + 折りたたみ + プロフィールカード | step1 | [step3-web-sidebar.md](./step3-web-sidebar.md) |
+| step4 | `<LiveBadge>` | LIVE 表示用バッジ | - | [step4-web-live-badge.md](./step4-web-live-badge.md) |
+| step5 | `<VideoChatOverlay>` | コメント + スタンプパレット + 入力欄 | - | [step5-web-video-chat-overlay.md](./step5-web-video-chat-overlay.md) |
+| step6 | `<CountdownOverlay>` | 3-2-1-START の全画面オーバーレイ | - | [step6-web-countdown-overlay.md](./step6-web-countdown-overlay.md) |
+| step7 | `<TimerBar>` | 上部固定の進行度バー（色分け付き） | - | [step7-web-timer-bar.md](./step7-web-timer-bar.md) |
+| step8 | `<ConfettiEffect>` | `canvas-confetti` ラッパー | - | [step8-web-confetti-effect.md](./step8-web-confetti-effect.md) |
+
+### 全 step 共通の方針
+
+- すべての step は `apps/web` 配下のみを変更（API 側の変更なし）
+- 動作確認用の一時プレビューページ（`apps/web/src/app/dev/<component>/page.tsx`）は **当該 step の確認後に削除する**。Phase 2 完了時点で `dev/` ディレクトリ自体が存在しないこと
+- Lint（`cd apps/web && pnpm lint`）が通ること
+- `<StampPalette>` / `<StampFloatLayer>` は VideoChatOverlay（step5）の内蔵 / 配信ページ実装時（Phase 6）に切り出すため Phase 2 では独立 step を立てない
