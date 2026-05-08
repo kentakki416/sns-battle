@@ -15,6 +15,7 @@ import { MemoDetailController } from "./controller/memo/detail"
 import { MemoListController } from "./controller/memo/list"
 import { MemoUpdateController } from "./controller/memo/update"
 import { UserGetController } from "./controller/user/get"
+import { UserUpdateController } from "./controller/user/update"
 import { logger } from "./log"
 import { authMiddleware } from "./middleware/auth"
 import { errorHandler } from "./middleware/error-handler"
@@ -23,6 +24,7 @@ import { prisma } from "./prisma/prisma.client"
 import {
   PrismaAuthAccountRepository,
   PrismaDatabaseHealthRepository,
+  PrismaHobbyRepository,
   PrismaMemoRepository,
   PrismaUserRepository,
   PrismaUserRegistrationRepository
@@ -46,6 +48,7 @@ const userRepository = new PrismaUserRepository(prisma)
 const authAccountRepository = new PrismaAuthAccountRepository(prisma)
 const userRegistrationRepository = new PrismaUserRegistrationRepository(prisma)
 const memoRepository = new PrismaMemoRepository(prisma)
+const hobbyRepository = new PrismaHobbyRepository(prisma)
 const databaseHealthRepository = new PrismaDatabaseHealthRepository(prisma)
 const redisHealthRepository = new IoRedisHealthRepository(redis)
 const refreshTokenRepository = new IoRedisRefreshTokenRepository(redis)
@@ -77,6 +80,7 @@ const memoDeleteController = new MemoDeleteController(memoRepository)
 
 // User Controller のインスタンス化
 const userGetController = new UserGetController(userRepository)
+const userUpdateController = new UserUpdateController(userRepository, hobbyRepository)
 
 // cors設定のミドルウェア
 app.use(
@@ -126,6 +130,7 @@ app.use(
   "/api/users",
   userRouter({
     get: userGetController,
+    update: userUpdateController,
   })
 )
 

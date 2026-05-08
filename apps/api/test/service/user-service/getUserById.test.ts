@@ -10,6 +10,7 @@ const mockUserRepository: UserRepository = {
   findByEmail: jest.fn(),
   findById: mockFindById,
   findProfileById: jest.fn(),
+  update: jest.fn(),
 }
 
 describe("getUserById", () => {
