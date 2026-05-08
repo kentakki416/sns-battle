@@ -20,11 +20,11 @@
 
 すべての画面の入口。
 
-- [ ] DB: `users` に `bio`、`is_onboarded` 追加
-- [ ] API: `POST /api/auth/google`、`POST /api/auth/refresh`、`POST /api/auth/logout`、`GET /api/auth/me`
-- [ ] Next.js: Google OAuth コールバック Route Handler + Cookie ベースのセッション管理
-- [ ] Frontend: `/sign-in` ページ（フローティングオーブ背景、左ブランド + 右カード）
-- [ ] Frontend: 認証ミドルウェア（未ログイン時は `/sign-in` へリダイレクト）
+- [x] DB: `users` に `bio`、`is_onboarded` 追加
+- [x] API: `POST /api/auth/google`、`POST /api/auth/refresh`、`POST /api/auth/logout`、`GET /api/auth/me`
+- [x] Next.js: Google OAuth コールバック Route Handler + Cookie ベースのセッション管理
+- [x] Frontend: `/sign-in` ページ（フローティングオーブ背景、左ブランド + 右カード）
+- [x] Frontend: 認証ミドルウェア（未ログイン時は `/sign-in` へリダイレクト）
 
 ---
 
@@ -32,15 +32,15 @@
 
 ほぼすべての機能で使うレイアウトとコンポーネント。
 
-- [ ] `globals.css` のデザイントークンが適用されていることを確認（既存）
-- [ ] `<AppShell>`: パスごとに immersive / no-sidebar / default を切替
-- [ ] `<Navbar>`: ロゴ、検索バー、マッチング開始 CTA、通知、アバター
-- [ ] `<Sidebar>`: ナビ + フォロー中ユーザー + 折りたたみ + プロフィールカード
-- [ ] `<LiveBadge>`: LIVE 表示用バッジ
-- [ ] `<VideoChatOverlay>`: コメント + スタンプパレット + 入力欄
-- [ ] `<CountdownOverlay>`: 3-2-1-START の全画面オーバーレイ
-- [ ] `<TimerBar>`: 上部固定の進行度バー（色分け付き）
-- [ ] `<ConfettiEffect>`: `canvas-confetti` ラッパー
+- [x] `globals.css` のデザイントークンが適用されていることを確認（既存）
+- [x] `<AppShell>`: パスごとに immersive / no-sidebar / default を切替
+- [x] `<Navbar>`: ロゴ、検索バー、マッチング開始 CTA、通知、アバター
+- [x] `<Sidebar>`: ナビ + フォロー中ユーザー + 折りたたみ + プロフィールカード
+- [x] `<LiveBadge>`: LIVE 表示用バッジ
+- [x] `<VideoChatOverlay>`: コメント + スタンプパレット + 入力欄
+- [x] `<CountdownOverlay>`: 3-2-1-START の全画面オーバーレイ
+- [x] `<TimerBar>`: 上部固定の進行度バー（色分け付き）
+- [x] `<ConfettiEffect>`: `canvas-confetti` ラッパー
 
 ---
 
@@ -48,12 +48,15 @@
 
 認証直後のオンボーディング + 自他のプロフィール表示。
 
-- [ ] DB: `users` に `birth_date`、`gender`、`mbti`、`location`、`coin_balance` 追加 / `matching_preferences` テーブル作成
-- [ ] API: `GET /api/users/:id`、`PUT /api/users/:id`、`PUT /api/users/:id/onboarding`
+- [x] DB: `users` に `birth_date`、`gender`、`mbti`、`location`、`coin_balance` 追加 / `hobby_masters` / `user_hobbies` / `matching_preferences` テーブル作成
+- [x] API: `GET /api/users/:id`、`PUT /api/users/:id`、`PUT /api/users/:id/onboarding`
+- [ ] API: `GET /api/hobbies`（趣味マスター一覧）
+- [ ] API: `GET /api/users/:id/matching-preferences`、`PUT /api/users/:id/matching-preferences`
 - [ ] Frontend: `/onboarding` ページ（生年月日 + 性別 必須）
 - [ ] Frontend: `/profile/:id` 表示ページ（カバー、ヘッダー、配信履歴、バトル戦績）
 - [ ] Frontend: `/profile/edit` 編集ページ
-- [ ] バリデーション: 18 歳以上チェックをサーバー側で実施
+- [ ] Frontend: `/matching/preferences`（マッチングフィルタ設定 UI）
+- [x] バリデーション: 18 歳以上チェックをサーバー側で実施
 
 ---
 
