@@ -3,6 +3,11 @@
 ## 目次
 
 - [概要](#概要)
+- [アーキテクチャ](#アーキテクチャ)
+  - [3 サービス分離構成](#3-サービス分離構成)
+  - [BullMQ ジョブ設計](#bullmq-ジョブ設計)
+  - [スケール戦略](#スケール戦略)
+  - [依存サービス](#依存サービス)
 - [機能一覧](#機能一覧)
 - [DB 設計](#db-設計)
   - [ER 図](#er-図)
@@ -53,6 +58,144 @@
 - ユーザー2: 1名（Publish + Subscribe + DataPublish）
 
 **LiveKit Room**: `matching:{sessionId}`
+
+**スケール要件**: 同時 **1 万人** マッチング待機 / 進行を捌けること。具体的には待機 5,000 / アクティブセッション 2,500（5,000 ユーザー）程度を想定する。
+
+---
+
+## アーキテクチャ
+
+### 3 サービス分離構成
+
+スケール要件（同時 1 万人）から、マッチング機能は **3 つの独立した Node.js サービス** に分離する。各サービスは ECS Fargate（または同等の k8s）に独立 deploy され、独立スケールする。
+
+```
+                 Browser / LiveKit Cloud
+                          │
+                          │ HTTPS
+                          ▼
+                  ┌───────────────┐
+                  │      ALB       │
+                  └────────┬───────┘
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ▼                  ▼                  ▼
+   ┌─────────┐        ┌─────────┐        ┌─────────────┐
+   │ api     │ ...N   │ api     │        │ webhook     │
+   │ (REST + │        │ (REST + │        │ (LiveKit    │
+   │  SSE)   │        │  SSE)   │        │  Webhook)   │
+   │stateless│        │stateless│        │ stateless   │
+   └────┬────┘        └────┬────┘        └──────┬──────┘
+        │                  │                    │
+        └──────────────────┼────────────────────┘
+                           │ Redis Pub/Sub +
+                           │ BullMQ enqueue +
+                           │ Postgres
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ▼                  ▼                  ▼
+   ┌─────────┐        ┌──────────┐        ┌─────────────────┐
+   │  Redis  │        │   RDS    │        │  BullMQ Queue   │
+   │ Cluster │        │ Postgres │        │ (Redis backed)  │
+   │         │        │ Primary  │        │                 │
+   │ - PubSub│        │ + Reader │        │ - theme-progress│
+   │ - SortedSet│     └──────────┘        │ - session-end   │
+   │ - Cache │                            │ - webhook-events│
+   └─────────┘                            └─────┬───────────┘
+                                                │ delayed jobs
+                                                ▼
+                                       ┌─────────────────┐
+                                       │ matching-worker │
+                                       │   (N replicas)  │
+                                       │ ・テーマ進行     │
+                                       │ ・session 終了   │
+                                       │ ・LiveKit publish│
+                                       └─────────────────┘
+```
+
+#### サービス責務
+
+| サービス | パッケージ | 役割 | 状態 | スケール |
+|---------|-----------|------|------|---------|
+| **api** | `apps/api` | REST + SSE エントリポイント。マッチングキュー操作（join/leave/status）、token 発行、reactions / stamp の REST 受け口、SSE 配信 | **完全 stateless** | 水平スケール（5〜30 レプリカ） |
+| **matching-worker** | `apps/matching-worker`（**新規**） | BullMQ delayed job を消化。テーマ進行、session 終了処理、LiveKit Data Channel 配信 | **stateless**（状態は Redis / RDS） | 水平スケール（2〜10 レプリカ） |
+| **webhook** | `apps/api` 内に同居（または将来 `apps/webhook` 分離） | LiveKit Webhook 受信。signature 検証 → BullMQ enqueue して即 200 返却 | **完全 stateless** | api と同居なので同じスケール |
+
+**Spec1 リリース時点では `webhook` は `apps/api` 内のルート（`/api/matching/livekit-webhook`）として相乗りする**。負荷ピーク特性が違うので将来 `apps/webhook` に分離する余地を残す。
+
+### BullMQ ジョブ設計
+
+`setTimeout` を一切使わない。すべて **BullMQ の delayed job** で表現する。worker が落ちても他の worker が拾うため耐障害性が高く、setTimeout のように「特定インスタンスのメモリに依存」しない。
+
+#### キュー一覧
+
+| Queue 名 | ジョブ種別 | 説明 |
+|---------|-----------|------|
+| `theme-progress` | `advance-theme` | 各テーマ duration 経過後に発火。次テーマを Data Channel `matching:theme` で配信 + 次の delayed job を enqueue |
+| `theme-progress` | `publish-timer` | 30 秒ごとに残り時間を Data Channel `matching:timer` で配信。次回の publish-timer を 30 秒 delayed で enqueue |
+| `theme-progress` | `session-timeout` | session 開始から 600 秒後に発火。`matching:ended` 配信 + `endMatchingSession(TIMEOUT)` |
+| `webhook-events` | `livekit-event` | LiveKit Webhook を受けた時に enqueue。worker が participant_left / room_finished を処理 |
+
+#### ジョブの冪等性
+
+すべて idempotent に設計する:
+
+- `advance-theme` ジョブは `currentRound` が既に進んでいたら no-op
+- `session-timeout` は session が既に ENDED なら no-op
+- ジョブ ID に `${sessionId}:${roundNumber}` のような決定的 ID を使い、重複 enqueue を防ぐ（BullMQ の `jobId` オプション）
+
+#### Job ID 命名規則
+
+```typescript
+// theme-progress queue
+`session:${sessionId}:advance:${nextRoundNumber}`
+`session:${sessionId}:timer:${tickIndex}`
+`session:${sessionId}:timeout`
+
+// webhook-events queue
+`livekit:${event.id}`  // Webhook event の id を使う
+```
+
+### スケール戦略
+
+| 局面 | 対応 |
+|------|------|
+| 待機ユーザー増加（SSE 接続増） | api を水平スケール。Redis Pub/Sub fanout で全インスタンスに通知が届くので問題なし |
+| アクティブセッション増加（テーマ進行ジョブ増） | matching-worker を水平スケール。BullMQ がジョブを worker 群に自然分配する |
+| マッチング照合の頻度増加 | Redis 単一インスタンスでも秒間数千 op を捌けるが、限界が見えたら Redis Cluster で sharding |
+| LiveKit Cloud のスケール | LiveKit Cloud 側にお任せ。料金は同時 publisher 数で課金 |
+| Postgres の write pressure | matching_reactions が累積で大きくなれば `created_at` で range partitioning。Spec1 では未対応 |
+
+**SPOF の排除**:
+- api / matching-worker / webhook はすべて 2 レプリカ以上で起動
+- Redis は ElastiCache Multi-AZ（または Redis Cloud）
+- RDS は Multi-AZ + read replica
+
+### 依存サービス
+
+| サービス | 用途 | Spec1 推奨構成 | 将来構成 |
+|---------|------|--------------|---------|
+| Redis | Pub/Sub + Sorted Set + BullMQ + Cache | ElastiCache Single Node 1 台 | Cluster mode + Multi-AZ |
+| Postgres | matching_queue / matching_sessions / matching_reactions の永続化 | RDS db.t4g.medium Single-AZ | Multi-AZ + read replica |
+| LiveKit Cloud | Room + Data Channel + Webhook 配信 | Sandbox / 開発プラン | Production プラン（同時 publisher 数で課金） |
+
+### dev 環境
+
+`turborepo` の `pnpm dev` で 3 サービス + Redis + Postgres を並行起動する。
+
+```
+[turbo dev]
+├── apps/api         (port 8080)
+├── apps/matching-worker (port なし、ジョブ消化のみ)
+├── apps/web         (port 3000)
+└── docker-compose
+    ├── postgres     (port 5432)
+    └── redis        (port 6379)
+```
+
+LiveKit Cloud は外部サービスなのでローカル不要。Webhook 受信は `ngrok` 等のトンネリングを使って LiveKit Cloud から API に到達させる。
 
 ---
 
@@ -906,10 +1049,11 @@ enum RelationshipRequestStatus { PENDING, ACCEPTED, REJECTED, EXPIRED }
 
 ## 実装ステップ
 
-Phase 4 マッチング機能は以下の 12 step に分割して実装する。各 step は単独で PR にできる粒度。
+Phase 4 マッチング機能は以下の 13 step に分割して実装する。各 step は単独で PR にできる粒度。**step0 でサービス分離 + BullMQ 基盤を整備してから step1 以降に進む。**
 
 | step | ファイル | 概要 |
 |------|---------|------|
+| 0 | [step0-prereq-services-and-queue.md](./step0-prereq-services-and-queue.md) | apps/matching-worker パッケージ新設 + packages/queue 新設 + BullMQ 導入 + dev / ECS 構成ドラフト |
 | 1 | [step1-db-matching.md](./step1-db-matching.md) | matching_queue / matching_sessions / matching_reactions の Prisma スキーマ + マイグレーション |
 | 2 | [step2-api-matching-join-leave-status.md](./step2-api-matching-join-leave-status.md) | 待機キュー基本 API + Redis Sorted Set。Pub/Sub 抜きで join/leave/status |
 | 3 | [step3-api-matching-events-sse.md](./step3-api-matching-events-sse.md) | SSE エンドポイント + Pub/Sub 連携 + heartbeat |
@@ -917,14 +1061,26 @@ Phase 4 マッチング機能は以下の 12 step に分割して実装する。
 | 5 | [step5-api-matching-sessions.md](./step5-api-matching-sessions.md) | GET sessions/:id + POST sessions/:id/end（5 分制約） |
 | 6 | [step6-api-matching-reactions.md](./step6-api-matching-reactions.md) | 回答送信 + 一致判定 + Data Channel reaction_match |
 | 7 | [step7-api-matching-stamp.md](./step7-api-matching-stamp.md) | スタンプ送信（items 参照 + Data Channel + レート制限） |
-| 8 | [step8-server-theme-timer.md](./step8-server-theme-timer.md) | サーバーサイドのテーマ進行タイマー + theme/hype/timer 配信 |
-| 9 | [step9-server-livekit-webhook.md](./step9-server-livekit-webhook.md) | LiveKit Webhook（participant_left / room_finished） |
+| 8 | [step8-server-theme-timer.md](./step8-server-theme-timer.md) | matching-worker の BullMQ delayed job でテーマ進行 / timer / session-timeout（setTimeout 不使用） |
+| 9 | [step9-server-livekit-webhook.md](./step9-server-livekit-webhook.md) | API は signature 検証 + BullMQ enqueue のみ。matching-worker が webhook-events ジョブを消化 |
 | 10 | [step10-web-matching-lobby.md](./step10-web-matching-lobby.md) | /matching ロビーページ |
 | 11 | [step11-web-matching-session.md](./step11-web-matching-session.md) | /matching/session ページ（waiting → matched → countdown → active） |
 | 12 | [step12-web-matching-result.md](./step12-web-matching-result.md) | /matching/result 結果ページ |
 
 ### 推奨実装順
 
-DB → API（join/leave/status → SSE → token → sessions → reactions → stamp）→ サーバー（theme-timer → webhook）→ Frontend（lobby → session → result）の順。step8（theme-timer）は step5（sessions）と step4（token）に依存するため、フロント着手前にサーバー側の Data Channel 基盤を完成させる。
+```
+step0（サービス + queue 基盤）
+  ↓
+step1（DB）
+  ↓
+step2〜7（API: join/leave/status → SSE → token → sessions → reactions → stamp）
+  ↓
+step8〜9（matching-worker: theme-progress + webhook-events ジョブ）
+  ↓
+step10〜12（Frontend: lobby → session → result）
+```
+
+step8 / step9 は step0 の queue 基盤に依存。フロント step は API + worker が揃ってから着手する。
 
 LiveKit Cloud の API key / secret は step4 の前に整備する。dev では LiveKit Cloud の無料枠を利用、Webhook 受信は ngrok 等で検証する。
