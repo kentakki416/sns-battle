@@ -1,5 +1,5 @@
 import { Prisma as PrismaTypes, PrismaClient } from "../../prisma/generated/client"
-import { User } from "../../types/domain"
+import { Hobby, User } from "../../types/domain"
 
 /**
  * ユーザー作成時の入力
@@ -11,12 +11,21 @@ export type CreateUserInput = {
 }
 
 /**
+ * 趣味込みのユーザープロフィール
+ */
+export type UserProfileWithHobbies = {
+    hobbies: Hobby[]
+    user: User
+}
+
+/**
  * ユーザーリポジトリのインターフェース
  */
 export interface UserRepository {
     create(data: CreateUserInput): Promise<User>
     findByEmail(email: string): Promise<User | null>
     findById(id: number): Promise<User | null>
+    findProfileById(id: number): Promise<UserProfileWithHobbies | null>
 }
 
 /**
@@ -39,6 +48,27 @@ export class PrismaUserRepository implements UserRepository {
     const prismaUser = await this._prisma.user.findUnique({ where: { email } })
     if (!prismaUser) return null
     return this._toDomainUser(prismaUser)
+  }
+
+  async findProfileById(id: number): Promise<UserProfileWithHobbies | null> {
+    const prismaUser = await this._prisma.user.findUnique({
+      include: {
+        hobbies: {
+          include: { hobby: true },
+          orderBy: { hobby: { sortOrder: "asc" } },
+        },
+      },
+      where: { id },
+    })
+    if (!prismaUser) return null
+    return {
+      hobbies: prismaUser.hobbies.map((uh) => ({
+        id: uh.hobby.id,
+        name: uh.hobby.name,
+        sortOrder: uh.hobby.sortOrder,
+      })),
+      user: this._toDomainUser(prismaUser),
+    }
   }
 
   async create(data: CreateUserInput): Promise<User> {

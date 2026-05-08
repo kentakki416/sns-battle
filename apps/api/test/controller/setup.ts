@@ -12,7 +12,14 @@ export { redis as testRedis }
  * schema.prisma の @@map で定義されたテーブル名の一覧
  * モデル追加時はここにもテーブル名を追加すること
  */
-const TABLE_NAMES = ["users", "auth_accounts", "memos"]
+const TABLE_NAMES = [
+  "users",
+  "auth_accounts",
+  "memos",
+  "hobby_masters",
+  "user_hobbies",
+  "matching_preferences",
+]
 
 /**
  * テスト間でデータをクリーンアップする（全テーブルを TRUNCATE CASCADE する）
