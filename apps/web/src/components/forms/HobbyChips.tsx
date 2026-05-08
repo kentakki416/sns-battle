@@ -7,13 +7,19 @@ import type { HobbyMaster } from "@repo/api-schema"
 type Props = {
   defaultSelectedIds?: number[]
   hobbies: HobbyMaster[]
+  /**
+   * form 送信時の name 属性。
+   * onboarding / プロフィール編集は "hobby_ids"（デフォルト）、
+   * マッチングフィルタは "preferred_hobby_ids"。
+   */
+  name?: string
 }
 
 /**
  * 趣味マスターを chip として複数選択する。
- * 選択された hobby は name="hobby_ids" の hidden checkbox として送信される。
+ * 選択された hobby は hidden checkbox として送信される。
  */
-export function HobbyChips({ defaultSelectedIds = [], hobbies }: Props) {
+export function HobbyChips({ defaultSelectedIds = [], hobbies, name = "hobby_ids" }: Props) {
   const [selected, setSelected] = useState<Set<number>>(new Set(defaultSelectedIds))
 
   if (hobbies.length === 0) {
@@ -48,7 +54,7 @@ export function HobbyChips({ defaultSelectedIds = [], hobbies }: Props) {
             <input
               checked={isSelected}
               className="sr-only"
-              name="hobby_ids"
+              name={name}
               onChange={() => toggle(hobby.id)}
               type="checkbox"
               value={hobby.id}

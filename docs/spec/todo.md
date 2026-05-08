@@ -55,7 +55,7 @@
 - [x] Frontend: `/onboarding` ページ（生年月日 + 性別 必須）
 - [x] Frontend: `/profile/:id` 表示ページ（カバー、ヘッダー、配信履歴、バトル戦績）
 - [x] Frontend: `/profile/edit` 編集ページ
-- [ ] Frontend: `/matching/preferences`（マッチングフィルタ設定 UI）
+- [x] Frontend: `/matching/preferences`（マッチングフィルタ設定 UI）
 - [x] バリデーション: 18 歳以上チェックをサーバー側で実施
 
 ---
