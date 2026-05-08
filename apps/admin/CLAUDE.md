@@ -24,3 +24,7 @@ API 側で `ADMIN_USE_DUMMY=true`（`apps/api/.env.local`）を設定すると D
 ## 動作確認（必須）
 
 UI コードを実装・修正したら **必ず Playwright MCP で実画面の動作確認** を行う（詳細は `apps/web/CLAUDE.md` の「動作確認（必須）」セクションを参照）。port は 3030。`pnpm build` だけで「動作確認済み」と報告するのは禁止。
+
+## PR 作成時の before/after スクショ（必須）
+
+見た目に影響する Admin の PR も `docs/screenshots/{feature}/{before,after}.png` を PR 本文に含める（詳細は `apps/web/CLAUDE.md` の「PR 作成時の before/after スクショ（必須）」セクションを参照）。
