@@ -57,6 +57,22 @@
 
 ---
 
+## Phase 3.5: アイテム DB 統合（Spec1 リリース前の前提）
+
+`stamp_masters` を `items` 親テーブル + 種別ごとの詳細テーブルに統合する。Phase 4 マッチングのスタンプ送信 API（`POST /api/matching/sessions/:id/stamp`）が `items` を参照するため、**Phase 4 着手前に必ず完了**させる。
+
+設計詳細は [common/README.md - アイテム・課金系テーブル設計方針](./common/README.md#アイテム課金系テーブル設計方針) と [common/step9-db-migrate-stamp-to-items.md](./common/step9-db-migrate-stamp-to-items.md) を参照。
+
+- [ ] DB: `items`、`item_scopes`、`stamp_details`、`effect_details`、`boost_details`、`user_inventory`、`coin_transactions` を新設
+- [ ] DB: `stamp_masters` テーブルと `StampCategory` enum を削除
+- [ ] DB: `User` モデルに `inventories` / `coinTransactions` リレーション追加
+- [ ] enum: `ItemType` / `Scope` / `EffectType` / `BoostType` / `TransactionType` を追加
+- [ ] migration: `migrate_stamp_to_items` を発行（drop → create のクリーン構成）
+- [ ] seed: 既存スタンプを `items` + `stamp_details` + `item_scopes` で再投入。`GENERAL` は MATCHING / BATTLE / STREAMING の3 scope に展開
+- [ ] `pnpm prisma generate` と `pnpm test` がグリーン
+
+---
+
 ## Phase 4: マッチング（matching）
 
 Spec1 のメイン機能。
@@ -138,19 +154,24 @@ Spec4。
 
 ## Phase 9: 課金・ショップ（Spec6）
 
-将来フェーズ。
+将来フェーズ。アイテム DB のテーブル本体は **Phase 3.5 で先行作成済み** のため、本フェーズでは API・ビジネスロジック・UI を実装する。
 
-- [ ] DB: `effects`、`user_inventory`、`coin_transactions` テーブル作成
-- [ ] API: コイン購入（IAP / Stripe）、スタンプ・エフェクト購入、所持品取得
-- [ ] Frontend: `/shop` 画面（カテゴリ別スタンプ・エフェクト購入）
-- [ ] Frontend: コイン残高表示、購入確認モーダル
+- [ ] API: `GET /api/items`、`GET /api/items/:id`、`POST /api/items/:id/purchase`
+- [ ] API: `GET /api/me/inventory`、`GET /api/me/coin-balance`、`GET /api/me/coin-transactions`
+- [ ] API: `POST /api/coins/purchase`（IAP / Stripe レシート検証）
+- [ ] API: マッチング・バトル・配信のスタンプ送信時に `user_inventory` を所持確認するガード追加
+- [ ] seed: `EFFECT` / `BOOST` 系アイテムのシード追加
+- [ ] Frontend: `/shop` 画面（type タブ + scope フィルタ）
+- [ ] Frontend: コイン残高表示、購入確認モーダル、所持品ページ
 - [ ] スタンプアニメーション種別（FLOAT / BOUNCE / EXPLODE / SHAKE）の実装
+- [ ] BOOST 系アイテム（マッチング優先券等）のサーバー側消費ロジック
 
 ---
 
 ## メモ
 
-- **依存関係**: Phase 0 → 1 → 2 が前提。Phase 3〜7 は Phase 1+2 が完了していれば並列実装可能だが、Phase 4（マッチング）が Spec1 のメインなので優先する
+- **依存関係**: Phase 0 → 1 → 2 が前提。Phase 3 と Phase 3.5 は並列可能だが、**Phase 4 着手前に Phase 3.5 が完了していること**が必須（マッチングのスタンプ送信 API が `items` を参照するため）。Phase 5〜7 は Phase 1+2+3.5 完了後に並列実装可能
+- **Spec1 リリース範囲**: Phase 0 / 1 / 2 / 3 / 3.5 / 4 が完了した時点
 - **LiveKit が絡む機能**: Phase 4（マッチング）、Phase 6（配信）、Phase 7（バトル）。先にマッチングで LiveKit 連携の基本パターンを確立すると後続が楽
 - **Redis が絡む機能**: マッチングキュー、バトルスタンプカウント、テーマタイマー
 - **テスト方針**: Service 層はユニットテスト（`jest.fn()` モック）、Controller 層は実 DB を使ったインテグレーションテスト
