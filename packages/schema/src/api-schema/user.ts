@@ -113,3 +113,38 @@ export const updateUserResponseSchema = getUserResponseSchema
 export type UpdateUserPathParam = z.infer<typeof updateUserPathParamSchema>
 export type UpdateUserRequest = z.infer<typeof updateUserRequestSchema>
 export type UpdateUserResponse = z.infer<typeof updateUserResponseSchema>
+
+// ========================================================
+// PUT /api/users/:id/onboarding - オンボーディング完了
+// ========================================================
+
+/**
+ * PUT /api/users/:id/onboarding のパスパラメータ
+ */
+export const completeOnboardingPathParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+})
+
+/**
+ * オンボーディング完了 API のリクエストボディ。
+ * 必須: name / birth_date / gender。
+ * 任意: bio / mbti / location / hobby_ids（オンボーディング時に未入力でも OK）。
+ */
+export const completeOnboardingRequestSchema = z.object({
+  bio: z.string().max(500).nullable().optional(),
+  birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  gender: genderSchema,
+  hobby_ids: z.array(z.number().int().positive()).max(20).optional(),
+  location: z.string().max(100).nullable().optional(),
+  mbti: mbtiSchema.nullable().optional(),
+  name: z.string().min(1).max(30),
+})
+
+/**
+ * レスポンスは getUserResponse と同形式
+ */
+export const completeOnboardingResponseSchema = getUserResponseSchema
+
+export type CompleteOnboardingPathParam = z.infer<typeof completeOnboardingPathParamSchema>
+export type CompleteOnboardingRequest = z.infer<typeof completeOnboardingRequestSchema>
+export type CompleteOnboardingResponse = z.infer<typeof completeOnboardingResponseSchema>

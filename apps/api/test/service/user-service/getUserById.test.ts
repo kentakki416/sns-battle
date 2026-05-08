@@ -6,6 +6,7 @@ import { User } from "../../../src/types/domain"
 const mockFindById = jest.fn<Promise<User | null>, [number]>()
 
 const mockUserRepository: UserRepository = {
+  completeOnboarding: jest.fn(),
   create: jest.fn(),
   findByEmail: jest.fn(),
   findById: mockFindById,

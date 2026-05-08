@@ -15,6 +15,7 @@ import { MemoDetailController } from "./controller/memo/detail"
 import { MemoListController } from "./controller/memo/list"
 import { MemoUpdateController } from "./controller/memo/update"
 import { UserGetController } from "./controller/user/get"
+import { UserOnboardingController } from "./controller/user/onboarding"
 import { UserUpdateController } from "./controller/user/update"
 import { logger } from "./log"
 import { authMiddleware } from "./middleware/auth"
@@ -81,6 +82,7 @@ const memoDeleteController = new MemoDeleteController(memoRepository)
 // User Controller のインスタンス化
 const userGetController = new UserGetController(userRepository)
 const userUpdateController = new UserUpdateController(userRepository, hobbyRepository)
+const userOnboardingController = new UserOnboardingController(userRepository, hobbyRepository)
 
 // cors設定のミドルウェア
 app.use(
@@ -130,6 +132,7 @@ app.use(
   "/api/users",
   userRouter({
     get: userGetController,
+    onboarding: userOnboardingController,
     update: userUpdateController,
   })
 )
