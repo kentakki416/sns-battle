@@ -9,6 +9,7 @@ import { AuthMeController } from "./controller/auth/me"
 import { AuthRefreshController } from "./controller/auth/refresh"
 import { HealthLivenessController } from "./controller/health/liveness"
 import { HealthReadinessController } from "./controller/health/readiness"
+import { HobbyListController } from "./controller/hobby/list"
 import { MemoCreateController } from "./controller/memo/create"
 import { MemoDeleteController } from "./controller/memo/delete"
 import { MemoDetailController } from "./controller/memo/detail"
@@ -33,6 +34,7 @@ import {
 import { IoRedisHealthRepository, IoRedisRefreshTokenRepository } from "./repository/redis"
 import { authRouter } from "./routes/auth-router"
 import { healthRouter } from "./routes/health-router"
+import { hobbyRouter } from "./routes/hobby-router"
 import { memoRouter } from "./routes/memo-router"
 import { userRouter } from "./routes/user-router"
 
@@ -84,6 +86,9 @@ const userGetController = new UserGetController(userRepository)
 const userUpdateController = new UserUpdateController(userRepository, hobbyRepository)
 const userOnboardingController = new UserOnboardingController(userRepository, hobbyRepository)
 
+// Hobby Controller のインスタンス化
+const hobbyListController = new HobbyListController(hobbyRepository)
+
 // cors設定のミドルウェア
 app.use(
   cors({
@@ -134,6 +139,12 @@ app.use(
     get: userGetController,
     onboarding: userOnboardingController,
     update: userUpdateController,
+  })
+)
+app.use(
+  "/api/hobbies",
+  hobbyRouter({
+    list: hobbyListController,
   })
 )
 
