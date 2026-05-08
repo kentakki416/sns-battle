@@ -82,3 +82,12 @@ export const unauthorizedError = (message: string): ApiError => ({
   statusCode: 401,
   type: "UNAUTHORIZED",
 })
+
+/**
+ * 403 Forbidden のエラーを生成する
+ */
+export const forbiddenError = (message: string): ApiError => ({
+  message,
+  statusCode: 403,
+  type: "FORBIDDEN",
+})

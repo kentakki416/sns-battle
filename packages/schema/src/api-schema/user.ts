@@ -76,3 +76,40 @@ export const getUserResponseSchema = z.object({
 
 export type GetUserPathParam = z.infer<typeof getUserPathParamSchema>
 export type GetUserResponse = z.infer<typeof getUserResponseSchema>
+
+// ========================================================
+// PUT /api/users/:id - プロフィール更新
+// ========================================================
+
+/**
+ * PUT /api/users/:id のパスパラメータ
+ */
+export const updateUserPathParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+})
+
+/**
+ * PUT /api/users/:id のリクエストボディ。
+ * すべて optional。指定されたフィールドのみ更新する。
+ * hobby_ids は配列を渡すと、その内容で完全置換（指定外は削除）。
+ * mbti は null 指定で解除、未指定なら現状維持。
+ */
+export const updateUserRequestSchema = z.object({
+  avatar_url: z.string().url().nullable().optional(),
+  bio: z.string().max(500).nullable().optional(),
+  birth_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  gender: genderSchema.optional(),
+  hobby_ids: z.array(z.number().int().positive()).max(20).optional(),
+  location: z.string().max(100).nullable().optional(),
+  mbti: mbtiSchema.nullable().optional(),
+  name: z.string().min(1).max(30).optional(),
+})
+
+/**
+ * レスポンスは getUserResponse と同形式
+ */
+export const updateUserResponseSchema = getUserResponseSchema
+
+export type UpdateUserPathParam = z.infer<typeof updateUserPathParamSchema>
+export type UpdateUserRequest = z.infer<typeof updateUserRequestSchema>
+export type UpdateUserResponse = z.infer<typeof updateUserResponseSchema>

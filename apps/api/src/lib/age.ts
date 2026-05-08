@@ -12,3 +12,13 @@ export const calculateAge = (birthDate: Date | null, today: Date = new Date()): 
   }
   return age
 }
+
+/**
+ * 生年月日が成人（18 歳以上 120 歳以下）かを判定する。
+ * birthDate から年齢を算出し範囲内であれば true を返す。
+ */
+export const isValidAdultAge = (birthDate: Date, today: Date = new Date()): boolean => {
+  const age = calculateAge(birthDate, today)
+  if (age === null) return false
+  return age >= 18 && age <= 120
+}

@@ -19,6 +19,22 @@ export type UserProfileWithHobbies = {
 }
 
 /**
+ * プロフィール更新時の入力。
+ * undefined のフィールドは現状維持、null は明示的なクリア。
+ * hobbyIds は配列を渡すと全削除→再作成で完全置換、undefined なら現状維持。
+ */
+export type UpdateUserInput = {
+    avatarUrl?: string | null
+    bio?: string | null
+    birthDate?: Date
+    gender?: "MALE" | "FEMALE" | "OTHER"
+    hobbyIds?: number[]
+    location?: string | null
+    mbti?: string | null
+    name?: string
+}
+
+/**
  * ユーザーリポジトリのインターフェース
  */
 export interface UserRepository {
@@ -26,6 +42,7 @@ export interface UserRepository {
     findByEmail(email: string): Promise<User | null>
     findById(id: number): Promise<User | null>
     findProfileById(id: number): Promise<UserProfileWithHobbies | null>
+    update(id: number, data: UpdateUserInput): Promise<void>
 }
 
 /**
@@ -80,6 +97,38 @@ export class PrismaUserRepository implements UserRepository {
       },
     })
     return this._toDomainUser(prismaUser)
+  }
+
+  async update(id: number, data: UpdateUserInput): Promise<void> {
+    await this._prisma.$transaction(async (tx) => {
+      /**
+       * users 本体の更新（指定されたフィールドのみ）
+       */
+      const userUpdateData: PrismaTypes.UserUpdateInput = {
+        ...(data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
+        ...(data.bio !== undefined ? { bio: data.bio } : {}),
+        ...(data.birthDate !== undefined ? { birthDate: data.birthDate } : {}),
+        ...(data.gender !== undefined ? { gender: data.gender } : {}),
+        ...(data.location !== undefined ? { location: data.location } : {}),
+        ...(data.mbti !== undefined ? { mbti: data.mbti } : {}),
+        ...(data.name !== undefined ? { name: data.name } : {}),
+      }
+      if (Object.keys(userUpdateData).length > 0) {
+        await tx.user.update({ data: userUpdateData, where: { id } })
+      }
+
+      /**
+       * 趣味は配列指定があれば全削除→再作成で完全置換
+       */
+      if (data.hobbyIds !== undefined) {
+        await tx.userHobby.deleteMany({ where: { userId: id } })
+        if (data.hobbyIds.length > 0) {
+          await tx.userHobby.createMany({
+            data: data.hobbyIds.map((hobbyId) => ({ hobbyId, userId: id })),
+          })
+        }
+      }
+    })
   }
 
   /**
