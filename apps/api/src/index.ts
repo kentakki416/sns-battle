@@ -14,6 +14,7 @@ import { MemoDeleteController } from "./controller/memo/delete"
 import { MemoDetailController } from "./controller/memo/detail"
 import { MemoListController } from "./controller/memo/list"
 import { MemoUpdateController } from "./controller/memo/update"
+import { UserGetController } from "./controller/user/get"
 import { logger } from "./log"
 import { authMiddleware } from "./middleware/auth"
 import { errorHandler } from "./middleware/error-handler"
@@ -30,6 +31,7 @@ import { IoRedisHealthRepository, IoRedisRefreshTokenRepository } from "./reposi
 import { authRouter } from "./routes/auth-router"
 import { healthRouter } from "./routes/health-router"
 import { memoRouter } from "./routes/memo-router"
+import { userRouter } from "./routes/user-router"
 
 const app = express()
 const PORT = process.env.PORT || 8080
@@ -73,6 +75,9 @@ const memoCreateController = new MemoCreateController(memoRepository)
 const memoUpdateController = new MemoUpdateController(memoRepository)
 const memoDeleteController = new MemoDeleteController(memoRepository)
 
+// User Controller のインスタンス化
+const userGetController = new UserGetController(userRepository)
+
 // cors設定のミドルウェア
 app.use(
   cors({
@@ -115,6 +120,12 @@ app.use(
     detail: memoDetailController,
     list: memoListController,
     update: memoUpdateController,
+  })
+)
+app.use(
+  "/api/users",
+  userRouter({
+    get: userGetController,
   })
 )
 
