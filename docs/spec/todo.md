@@ -54,7 +54,7 @@
 - [x] API: `GET /api/matching/preferences`、`PUT /api/matching/preferences`
 - [x] Frontend: `/onboarding` ページ（生年月日 + 性別 必須）
 - [x] Frontend: `/profile/:id` 表示ページ（カバー、ヘッダー、配信履歴、バトル戦績）
-- [ ] Frontend: `/profile/edit` 編集ページ
+- [x] Frontend: `/profile/edit` 編集ページ
 - [ ] Frontend: `/matching/preferences`（マッチングフィルタ設定 UI）
 - [x] バリデーション: 18 歳以上チェックをサーバー側で実施
 
