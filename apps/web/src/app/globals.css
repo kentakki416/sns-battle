@@ -25,6 +25,9 @@
   --color-pink-light: #F9A8D4;
   --color-pink-glow: rgba(236, 72, 153, 0.15);
 
+  /* Accent: Orange */
+  --color-accent-orange: #F97316;
+
   /* Accent: Green */
   --color-success: #22C55E;
   --color-success-glow: rgba(34, 197, 94, 0.15);
