@@ -164,7 +164,20 @@ Step 0 と同じ `<feature>` ディレクトリに保存する。
 ```bash
 git add docs/screenshots/<feature>/
 # 既に他の変更を commit する流れの中で一緒に add してよい
+git push
 ```
+
+#### ⚠️ 画像 URL は必ず絶対 URL を使う
+
+**PR 本文では相対パス（`docs/screenshots/...`）は表示されない**。GitHub は PR description / issue 本文の中で相対パスを repo の blob URL に解決しないため。必ず以下のテンプレ形式の絶対 URL を使う:
+
+```
+https://github.com/<owner>/<repo>/raw/<branch>/<path>
+```
+
+ブランチ名は今 push したブランチ（例: `feat/phase3-step10-web-matching-preferences`）。マージ後にブランチを削除すると URL は壊れるが、その時点では PR は閉じてレビューも完了しているので実害はない。長期保存が必要な場合は branch 名の代わりに commit SHA を使うと永続化できる。
+
+URL は `gh repo view --json nameWithOwner -q .nameWithOwner` で `<owner>/<repo>` を、`git branch --show-current` で `<branch>` を取得して組み立てる。
 
 `gh pr create --body` の本文に以下のテンプレを含める:
 
@@ -175,7 +188,7 @@ git add docs/screenshots/<feature>/
 
 | Before | After |
 |---|---|
-| ![before](docs/screenshots/<feature>/before.png) | ![after](docs/screenshots/<feature>/after.png) |
+| ![before](https://github.com/<owner>/<repo>/raw/<branch>/docs/screenshots/<feature>/before.png) | ![after](https://github.com/<owner>/<repo>/raw/<branch>/docs/screenshots/<feature>/after.png) |
 ```
 
 #### 新規ページ作成（after のみ）
@@ -183,7 +196,7 @@ git add docs/screenshots/<feature>/
 ```markdown
 ## Screenshot
 
-![after](docs/screenshots/<feature>/after.png)
+![after](https://github.com/<owner>/<repo>/raw/<branch>/docs/screenshots/<feature>/after.png)
 
 > 新規ページのため before はなし
 ```
@@ -201,6 +214,7 @@ PR 作成後にスクショを足したい場合は、追加コミットで `doc
 - console error を確認せず snapshot だけで OK 判定する（hydration error など UI 上は見えない不具合を見逃す）
 - before スクショを撮らずに実装に着手する（既存ページ修正の場合）
 - スクショを撮ったが commit せず PR を作る（PR の画像が表示されない）
+- PR 本文で **相対パス** `![](docs/screenshots/...)` を使う（GitHub は PR 本文の相対パスを解決しないため画像が見えない。必ず絶対 URL `https://github.com/<owner>/<repo>/raw/<branch>/<path>` を使う）
 
 ## ユーザー向け報告フォーマット
 
