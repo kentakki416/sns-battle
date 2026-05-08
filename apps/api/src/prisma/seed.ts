@@ -1,14 +1,18 @@
 /* eslint-disable no-console */
-import type { AnimationType, StampCategory, TalkThemeCategory, TalkThemeType } from "./generated/enums"
+import type { AnimationType, Scope, TalkThemeCategory, TalkThemeType } from "./generated/enums"
 import { prisma } from "./prisma.client"
 
-type StampMasterSeed = {
+/**
+ * スタンプ（Item の type=STAMP）のシード型。
+ * 旧 StampCategory は scopes 配列に展開される。GENERAL は MATCHING/BATTLE/STREAMING の 3 scope。
+ */
+type StampSeed = {
   animationType: AnimationType
-  category: StampCategory
   emoji: string
   isPremium: boolean
   name: string
   price: number
+  scopes: Scope[]
   sortOrder: number
 }
 
@@ -33,26 +37,27 @@ type HobbyMasterSeed = {
 }
 
 /**
- * スタンプマスターのシードデータ
- * GENERAL（汎用）/ BATTLE / MATCHING の各カテゴリに最小セットを用意
+ * スタンプ（Item の type=STAMP）のシードデータ。
+ * 旧 GENERAL は scopes に MATCHING/BATTLE/STREAMING を全て持つ。
+ * BATTLE / MATCHING 専用は対応する単一 scope のみ。
  */
-const stampMasters: StampMasterSeed[] = [
-  /** GENERAL（ライブ配信などで共通利用） */
-  { animationType: "FLOAT", category: "GENERAL", emoji: "👏", isPremium: false, name: "拍手", price: 0, sortOrder: 1 },
-  { animationType: "FLOAT", category: "GENERAL", emoji: "❤️", isPremium: false, name: "ハート", price: 0, sortOrder: 2 },
-  { animationType: "BOUNCE", category: "GENERAL", emoji: "✨", isPremium: false, name: "キラキラ", price: 0, sortOrder: 3 },
-  { animationType: "FLOAT", category: "GENERAL", emoji: "🎉", isPremium: false, name: "クラッカー", price: 0, sortOrder: 4 },
+const stamps: StampSeed[] = [
+  /** 全シーン共通（旧 GENERAL） */
+  { animationType: "FLOAT", emoji: "👏", isPremium: false, name: "拍手", price: 0, scopes: ["MATCHING", "BATTLE", "STREAMING"], sortOrder: 1 },
+  { animationType: "FLOAT", emoji: "❤️", isPremium: false, name: "ハート", price: 0, scopes: ["MATCHING", "BATTLE", "STREAMING"], sortOrder: 2 },
+  { animationType: "BOUNCE", emoji: "✨", isPremium: false, name: "キラキラ", price: 0, scopes: ["MATCHING", "BATTLE", "STREAMING"], sortOrder: 3 },
+  { animationType: "FLOAT", emoji: "🎉", isPremium: false, name: "クラッカー", price: 0, scopes: ["MATCHING", "BATTLE", "STREAMING"], sortOrder: 4 },
 
-  /** BATTLE（バトルルーム専用） */
-  { animationType: "EXPLODE", category: "BATTLE", emoji: "🔥", isPremium: false, name: "ファイア", price: 0, sortOrder: 1 },
-  { animationType: "BOUNCE", category: "BATTLE", emoji: "💯", isPremium: false, name: "100点", price: 0, sortOrder: 2 },
-  { animationType: "SHAKE", category: "BATTLE", emoji: "⚡", isPremium: false, name: "稲妻", price: 0, sortOrder: 3 },
-  { animationType: "EXPLODE", category: "BATTLE", emoji: "💥", isPremium: false, name: "爆発", price: 0, sortOrder: 4 },
+  /** バトル専用 */
+  { animationType: "EXPLODE", emoji: "🔥", isPremium: false, name: "ファイア", price: 0, scopes: ["BATTLE"], sortOrder: 10 },
+  { animationType: "BOUNCE", emoji: "💯", isPremium: false, name: "100点", price: 0, scopes: ["BATTLE"], sortOrder: 11 },
+  { animationType: "SHAKE", emoji: "⚡", isPremium: false, name: "稲妻", price: 0, scopes: ["BATTLE"], sortOrder: 12 },
+  { animationType: "EXPLODE", emoji: "💥", isPremium: false, name: "爆発", price: 0, scopes: ["BATTLE"], sortOrder: 13 },
 
-  /** MATCHING（マッチング中の控えめなリアクション） */
-  { animationType: "FLOAT", category: "MATCHING", emoji: "😄", isPremium: false, name: "笑顔", price: 0, sortOrder: 1 },
-  { animationType: "FLOAT", category: "MATCHING", emoji: "👍", isPremium: false, name: "いいね", price: 0, sortOrder: 2 },
-  { animationType: "FLOAT", category: "MATCHING", emoji: "🤝", isPremium: false, name: "ナイス", price: 0, sortOrder: 3 },
+  /** マッチング専用 */
+  { animationType: "FLOAT", emoji: "😄", isPremium: false, name: "笑顔", price: 0, scopes: ["MATCHING"], sortOrder: 20 },
+  { animationType: "FLOAT", emoji: "👍", isPremium: false, name: "いいね", price: 0, scopes: ["MATCHING"], sortOrder: 21 },
+  { animationType: "FLOAT", emoji: "🤝", isPremium: false, name: "ナイス", price: 0, scopes: ["MATCHING"], sortOrder: 22 },
 ]
 
 /**
@@ -140,17 +145,47 @@ const upsertHobbyMaster = async (hobby: HobbyMasterSeed): Promise<void> => {
   })
 }
 
-const upsertStampMaster = async (stamp: StampMasterSeed): Promise<void> => {
-  const existing = await prisma.stampMaster.findFirst({
-    where: { category: stamp.category, name: stamp.name },
+/**
+ * スタンプを items + stamp_details に upsert し、scopes は冪等性のため一旦削除して再投入する。
+ * name + type=STAMP でユニーク照合。
+ */
+const upsertStamp = async (stamp: StampSeed): Promise<void> => {
+  const existing = await prisma.item.findFirst({
+    where: { name: stamp.name, type: "STAMP" },
   })
 
-  if (existing) {
-    await prisma.stampMaster.update({ data: stamp, where: { id: existing.id } })
-    return
+  const itemData = {
+    isPremium: stamp.isPremium,
+    name: stamp.name,
+    price: stamp.price,
+    sortOrder: stamp.sortOrder,
+    type: "STAMP" as const,
+  }
+  const stampDetailData = {
+    animationType: stamp.animationType,
+    emoji: stamp.emoji,
   }
 
-  await prisma.stampMaster.create({ data: stamp })
+  const persisted = existing
+    ? await prisma.item.update({
+      data: {
+        ...itemData,
+        stampDetail: { update: stampDetailData },
+      },
+      where: { id: existing.id },
+    })
+    : await prisma.item.create({
+      data: {
+        ...itemData,
+        stampDetail: { create: stampDetailData },
+      },
+    })
+
+  /** scopes は冪等性のため一旦削除して再投入 */
+  await prisma.itemScope.deleteMany({ where: { itemId: persisted.id } })
+  await prisma.itemScope.createMany({
+    data: stamp.scopes.map((scope) => ({ itemId: persisted.id, scope })),
+  })
 }
 
 const upsertTalkTheme = async (theme: TalkThemeSeed): Promise<void> => {
@@ -185,9 +220,9 @@ const upsertTalkTheme = async (theme: TalkThemeSeed): Promise<void> => {
 }
 
 const main = async (): Promise<void> => {
-  console.log("Seeding stamp_masters...")
-  for (const stamp of stampMasters) {
-    await upsertStampMaster(stamp)
+  console.log("Seeding items (stamps)...")
+  for (const stamp of stamps) {
+    await upsertStamp(stamp)
   }
 
   console.log("Seeding talk_themes...")

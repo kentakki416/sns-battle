@@ -75,10 +75,40 @@ export type Follow = Prisma.FollowModel
  */
 export type Block = Prisma.BlockModel
 /**
- * Model StampMaster
+ * Model Item
  * 
  */
-export type StampMaster = Prisma.StampMasterModel
+export type Item = Prisma.ItemModel
+/**
+ * Model ItemScope
+ * 
+ */
+export type ItemScope = Prisma.ItemScopeModel
+/**
+ * Model StampDetail
+ * 
+ */
+export type StampDetail = Prisma.StampDetailModel
+/**
+ * Model EffectDetail
+ * 
+ */
+export type EffectDetail = Prisma.EffectDetailModel
+/**
+ * Model BoostDetail
+ * 
+ */
+export type BoostDetail = Prisma.BoostDetailModel
+/**
+ * Model UserInventory
+ * 
+ */
+export type UserInventory = Prisma.UserInventoryModel
+/**
+ * Model CoinTransaction
+ * 
+ */
+export type CoinTransaction = Prisma.CoinTransactionModel
 /**
  * Model TalkTheme
  * 

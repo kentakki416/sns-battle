@@ -291,6 +291,8 @@ export type UserWhereInput = {
   blockedBy?: Prisma.BlockListRelationFilter
   hobbies?: Prisma.UserHobbyListRelationFilter
   matchingPreference?: Prisma.XOR<Prisma.MatchingPreferenceNullableScalarRelationFilter, Prisma.MatchingPreferenceWhereInput> | null
+  inventories?: Prisma.UserInventoryListRelationFilter
+  coinTransactions?: Prisma.CoinTransactionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -314,6 +316,8 @@ export type UserOrderByWithRelationInput = {
   blockedBy?: Prisma.BlockOrderByRelationAggregateInput
   hobbies?: Prisma.UserHobbyOrderByRelationAggregateInput
   matchingPreference?: Prisma.MatchingPreferenceOrderByWithRelationInput
+  inventories?: Prisma.UserInventoryOrderByRelationAggregateInput
+  coinTransactions?: Prisma.CoinTransactionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -340,6 +344,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   blockedBy?: Prisma.BlockListRelationFilter
   hobbies?: Prisma.UserHobbyListRelationFilter
   matchingPreference?: Prisma.XOR<Prisma.MatchingPreferenceNullableScalarRelationFilter, Prisma.MatchingPreferenceWhereInput> | null
+  inventories?: Prisma.UserInventoryListRelationFilter
+  coinTransactions?: Prisma.CoinTransactionListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -402,6 +408,8 @@ export type UserCreateInput = {
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -425,6 +433,8 @@ export type UserUncheckedCreateInput = {
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -447,6 +457,8 @@ export type UserUpdateInput = {
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -470,6 +482,8 @@ export type UserUncheckedUpdateInput = {
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -708,6 +722,34 @@ export type UserUpdateOneRequiredWithoutBlockedByNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBlockedByInput, Prisma.UserUpdateWithoutBlockedByInput>, Prisma.UserUncheckedUpdateWithoutBlockedByInput>
 }
 
+export type UserCreateNestedOneWithoutInventoriesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInventoriesInput, Prisma.UserUncheckedCreateWithoutInventoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInventoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutInventoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInventoriesInput, Prisma.UserUncheckedCreateWithoutInventoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInventoriesInput
+  upsert?: Prisma.UserUpsertWithoutInventoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutInventoriesInput, Prisma.UserUpdateWithoutInventoriesInput>, Prisma.UserUncheckedUpdateWithoutInventoriesInput>
+}
+
+export type UserCreateNestedOneWithoutCoinTransactionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCoinTransactionsInput, Prisma.UserUncheckedCreateWithoutCoinTransactionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCoinTransactionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCoinTransactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCoinTransactionsInput, Prisma.UserUncheckedCreateWithoutCoinTransactionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCoinTransactionsInput
+  upsert?: Prisma.UserUpsertWithoutCoinTransactionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCoinTransactionsInput, Prisma.UserUpdateWithoutCoinTransactionsInput>, Prisma.UserUncheckedUpdateWithoutCoinTransactionsInput>
+}
+
 export type UserCreateWithoutHobbiesInput = {
   email?: string | null
   name?: string | null
@@ -727,6 +769,8 @@ export type UserCreateWithoutHobbiesInput = {
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutHobbiesInput = {
@@ -749,6 +793,8 @@ export type UserUncheckedCreateWithoutHobbiesInput = {
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutHobbiesInput = {
@@ -786,6 +832,8 @@ export type UserUpdateWithoutHobbiesInput = {
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutHobbiesInput = {
@@ -808,6 +856,8 @@ export type UserUncheckedUpdateWithoutHobbiesInput = {
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMatchingPreferenceInput = {
@@ -829,6 +879,8 @@ export type UserCreateWithoutMatchingPreferenceInput = {
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMatchingPreferenceInput = {
@@ -851,6 +903,8 @@ export type UserUncheckedCreateWithoutMatchingPreferenceInput = {
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMatchingPreferenceInput = {
@@ -888,6 +942,8 @@ export type UserUpdateWithoutMatchingPreferenceInput = {
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMatchingPreferenceInput = {
@@ -910,6 +966,8 @@ export type UserUncheckedUpdateWithoutMatchingPreferenceInput = {
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -931,6 +989,8 @@ export type UserCreateWithoutAccountsInput = {
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -953,6 +1013,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -990,6 +1052,8 @@ export type UserUpdateWithoutAccountsInput = {
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -1012,6 +1076,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFollowingInput = {
@@ -1033,6 +1099,8 @@ export type UserCreateWithoutFollowingInput = {
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowingInput = {
@@ -1055,6 +1123,8 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowingInput = {
@@ -1081,6 +1151,8 @@ export type UserCreateWithoutFollowersInput = {
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowersInput = {
@@ -1103,6 +1175,8 @@ export type UserUncheckedCreateWithoutFollowersInput = {
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowersInput = {
@@ -1140,6 +1214,8 @@ export type UserUpdateWithoutFollowingInput = {
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowingInput = {
@@ -1162,6 +1238,8 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutFollowersInput = {
@@ -1194,6 +1272,8 @@ export type UserUpdateWithoutFollowersInput = {
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowersInput = {
@@ -1216,6 +1296,8 @@ export type UserUncheckedUpdateWithoutFollowersInput = {
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBlockedInput = {
@@ -1237,6 +1319,8 @@ export type UserCreateWithoutBlockedInput = {
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBlockedInput = {
@@ -1259,6 +1343,8 @@ export type UserUncheckedCreateWithoutBlockedInput = {
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBlockedInput = {
@@ -1285,6 +1371,8 @@ export type UserCreateWithoutBlockedByInput = {
   blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBlockedByInput = {
@@ -1307,6 +1395,8 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBlockedByInput = {
@@ -1344,6 +1434,8 @@ export type UserUpdateWithoutBlockedInput = {
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockedInput = {
@@ -1366,6 +1458,8 @@ export type UserUncheckedUpdateWithoutBlockedInput = {
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutBlockedByInput = {
@@ -1398,6 +1492,8 @@ export type UserUpdateWithoutBlockedByInput = {
   blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockedByInput = {
@@ -1420,6 +1516,228 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
   matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutInventoriesInput = {
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
+  isOnboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AuthAccountCreateNestedManyWithoutUserInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
+  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
+  blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutInventoriesInput = {
+  id?: number
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
+  isOnboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AuthAccountUncheckedCreateNestedManyWithoutUserInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
+  blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutInventoriesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutInventoriesInput, Prisma.UserUncheckedCreateWithoutInventoriesInput>
+}
+
+export type UserUpsertWithoutInventoriesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutInventoriesInput, Prisma.UserUncheckedUpdateWithoutInventoriesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutInventoriesInput, Prisma.UserUncheckedCreateWithoutInventoriesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutInventoriesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutInventoriesInput, Prisma.UserUncheckedUpdateWithoutInventoriesInput>
+}
+
+export type UserUpdateWithoutInventoriesInput = {
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AuthAccountUpdateManyWithoutUserNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
+  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
+  blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutInventoriesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AuthAccountUncheckedUpdateManyWithoutUserNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCoinTransactionsInput = {
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
+  isOnboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AuthAccountCreateNestedManyWithoutUserInput
+  followers?: Prisma.FollowCreateNestedManyWithoutFolloweeInput
+  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
+  blocked?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCoinTransactionsInput = {
+  id?: number
+  email?: string | null
+  name?: string | null
+  avatarUrl?: string | null
+  bio?: string | null
+  birthDate?: Date | string | null
+  gender?: $Enums.Gender | null
+  mbti?: string | null
+  location?: string | null
+  coinBalance?: number
+  isOnboarded?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  accounts?: Prisma.AuthAccountUncheckedCreateNestedManyWithoutUserInput
+  followers?: Prisma.FollowUncheckedCreateNestedManyWithoutFolloweeInput
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
+  blocked?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  hobbies?: Prisma.UserHobbyUncheckedCreateNestedManyWithoutUserInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedCreateNestedOneWithoutUserInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCoinTransactionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCoinTransactionsInput, Prisma.UserUncheckedCreateWithoutCoinTransactionsInput>
+}
+
+export type UserUpsertWithoutCoinTransactionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCoinTransactionsInput, Prisma.UserUncheckedUpdateWithoutCoinTransactionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCoinTransactionsInput, Prisma.UserUncheckedCreateWithoutCoinTransactionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCoinTransactionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCoinTransactionsInput, Prisma.UserUncheckedUpdateWithoutCoinTransactionsInput>
+}
+
+export type UserUpdateWithoutCoinTransactionsInput = {
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AuthAccountUpdateManyWithoutUserNestedInput
+  followers?: Prisma.FollowUpdateManyWithoutFolloweeNestedInput
+  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
+  blocked?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCoinTransactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  mbti?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coinBalance?: Prisma.IntFieldUpdateOperationsInput | number
+  isOnboarded?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accounts?: Prisma.AuthAccountUncheckedUpdateManyWithoutUserNestedInput
+  followers?: Prisma.FollowUncheckedUpdateManyWithoutFolloweeNestedInput
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  blocked?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  hobbies?: Prisma.UserHobbyUncheckedUpdateManyWithoutUserNestedInput
+  matchingPreference?: Prisma.MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1434,6 +1752,8 @@ export type UserCountOutputType = {
   blocked: number
   blockedBy: number
   hobbies: number
+  inventories: number
+  coinTransactions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1443,6 +1763,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   blocked?: boolean | UserCountOutputTypeCountBlockedArgs
   blockedBy?: boolean | UserCountOutputTypeCountBlockedByArgs
   hobbies?: boolean | UserCountOutputTypeCountHobbiesArgs
+  inventories?: boolean | UserCountOutputTypeCountInventoriesArgs
+  coinTransactions?: boolean | UserCountOutputTypeCountCoinTransactionsArgs
 }
 
 /**
@@ -1497,6 +1819,20 @@ export type UserCountOutputTypeCountHobbiesArgs<ExtArgs extends runtime.Types.Ex
   where?: Prisma.UserHobbyWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountInventoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserInventoryWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCoinTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CoinTransactionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1519,6 +1855,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   hobbies?: boolean | Prisma.User$hobbiesArgs<ExtArgs>
   matchingPreference?: boolean | Prisma.User$matchingPreferenceArgs<ExtArgs>
+  inventories?: boolean | Prisma.User$inventoriesArgs<ExtArgs>
+  coinTransactions?: boolean | Prisma.User$coinTransactionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1579,6 +1917,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   hobbies?: boolean | Prisma.User$hobbiesArgs<ExtArgs>
   matchingPreference?: boolean | Prisma.User$matchingPreferenceArgs<ExtArgs>
+  inventories?: boolean | Prisma.User$inventoriesArgs<ExtArgs>
+  coinTransactions?: boolean | Prisma.User$coinTransactionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1594,6 +1934,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     blockedBy: Prisma.$BlockPayload<ExtArgs>[]
     hobbies: Prisma.$UserHobbyPayload<ExtArgs>[]
     matchingPreference: Prisma.$MatchingPreferencePayload<ExtArgs> | null
+    inventories: Prisma.$UserInventoryPayload<ExtArgs>[]
+    coinTransactions: Prisma.$CoinTransactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2031,6 +2373,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   blockedBy<T extends Prisma.User$blockedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   hobbies<T extends Prisma.User$hobbiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$hobbiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserHobbyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   matchingPreference<T extends Prisma.User$matchingPreferenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$matchingPreferenceArgs<ExtArgs>>): Prisma.Prisma__MatchingPreferenceClient<runtime.Types.Result.GetResult<Prisma.$MatchingPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  inventories<T extends Prisma.User$inventoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$inventoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserInventoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  coinTransactions<T extends Prisma.User$coinTransactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$coinTransactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CoinTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2626,6 +2970,54 @@ export type User$matchingPreferenceArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.MatchingPreferenceInclude<ExtArgs> | null
   where?: Prisma.MatchingPreferenceWhereInput
+}
+
+/**
+ * User.inventories
+ */
+export type User$inventoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserInventory
+   */
+  select?: Prisma.UserInventorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserInventory
+   */
+  omit?: Prisma.UserInventoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInventoryInclude<ExtArgs> | null
+  where?: Prisma.UserInventoryWhereInput
+  orderBy?: Prisma.UserInventoryOrderByWithRelationInput | Prisma.UserInventoryOrderByWithRelationInput[]
+  cursor?: Prisma.UserInventoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserInventoryScalarFieldEnum | Prisma.UserInventoryScalarFieldEnum[]
+}
+
+/**
+ * User.coinTransactions
+ */
+export type User$coinTransactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CoinTransaction
+   */
+  select?: Prisma.CoinTransactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CoinTransaction
+   */
+  omit?: Prisma.CoinTransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CoinTransactionInclude<ExtArgs> | null
+  where?: Prisma.CoinTransactionWhereInput
+  orderBy?: Prisma.CoinTransactionOrderByWithRelationInput | Prisma.CoinTransactionOrderByWithRelationInput[]
+  cursor?: Prisma.CoinTransactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CoinTransactionScalarFieldEnum | Prisma.CoinTransactionScalarFieldEnum[]
 }
 
 /**

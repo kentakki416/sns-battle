@@ -47,6 +47,8 @@ model User {
     blockedBy          Block[]             @relation("UserBlocked")
     hobbies            UserHobby[]
     matchingPreference MatchingPreference?
+    inventories        UserInventory[]
+    coinTransactions   CoinTransaction[]
 
     @@map("users")
 }
@@ -168,13 +170,6 @@ model Block {
     @@map("blocks")
 }
 
-// スタンプカテゴリ
-enum StampCategory {
-    GENERAL
-    BATTLE
-    MATCHING
-}
-
 // スタンプアニメーション種別
 enum AnimationType {
     NONE
@@ -184,23 +179,157 @@ enum AnimationType {
     SHAKE
 }
 
-// スタンプマスター（管理画面で管理）
-model StampMaster {
-    id            Int           @id @default(autoincrement())
-    name          String        @db.VarChar(100)
-    imageUrl      String?       @map("image_url") @db.VarChar(500)
-    emoji         String        @db.VarChar(10)
-    category      StampCategory
-    animationType AnimationType @default(FLOAT) @map("animation_type")
-    isPremium     Boolean       @default(false) @map("is_premium")
-    price         Int           @default(0)
-    sortOrder     Int           @default(0) @map("sort_order")
-    isActive      Boolean       @default(true) @map("is_active")
-    createdAt     DateTime      @default(now()) @map("created_at")
-    updatedAt     DateTime      @updatedAt @map("updated_at")
+// アイテムの種別。新カテゴリは *_details テーブルを追加するだけで拡張可能
+enum ItemType {
+    STAMP
+    EFFECT
+    BOOST
+    DECORATION
+    SUBSCRIPTION
+}
 
-    @@index([category, isActive, sortOrder])
-    @@map("stamp_masters")
+// アイテムが使用可能なシーン。item_scopes で多対多管理
+enum Scope {
+    MATCHING
+    BATTLE
+    STREAMING
+    PROFILE
+}
+
+// エフェクト種別
+enum EffectType {
+    CONFETTI
+    FIREWORKS
+    HEARTS
+    CUSTOM
+}
+
+// ブースト種別
+enum BoostType {
+    MATCH_PRIORITY
+    EXTEND_TIME
+    SKIP_QUEUE
+}
+
+// コイン取引種別
+enum TransactionType {
+    PURCHASE
+    SPEND
+    BONUS
+    REFUND
+}
+
+// 全アイテムの親エンティティ。ショップ表示・所持品・取引履歴の単一参照点
+model Item {
+    id          Int      @id @default(autoincrement())
+    type        ItemType
+    name        String   @db.VarChar(100)
+    description String?  @db.Text
+    /// 価格（コイン単位、0=無料）
+    price       Int      @default(0)
+    isPremium   Boolean  @default(false) @map("is_premium")
+    isActive    Boolean  @default(true) @map("is_active")
+    sortOrder   Int      @default(0) @map("sort_order")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    scopes           ItemScope[]
+    stampDetail      StampDetail?
+    effectDetail     EffectDetail?
+    boostDetail      BoostDetail?
+    inventories      UserInventory[]
+    coinTransactions CoinTransaction[]
+
+    @@index([type, isActive, sortOrder])
+    @@map("items")
+}
+
+// アイテムが使用可能なシーンの多対多 join テーブル
+model ItemScope {
+    itemId Int   @map("item_id")
+    scope  Scope
+
+    item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+    @@id([itemId, scope])
+    @@index([scope, itemId])
+    @@map("item_scopes")
+}
+
+// items.type = STAMP の詳細
+model StampDetail {
+    itemId        Int           @id @map("item_id")
+    emoji         String        @db.VarChar(10)
+    imageUrl      String?       @map("image_url") @db.VarChar(500)
+    animationType AnimationType @default(FLOAT) @map("animation_type")
+
+    item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+    @@map("stamp_details")
+}
+
+// items.type = EFFECT の詳細（将来フェーズ）
+model EffectDetail {
+    itemId     Int        @id @map("item_id")
+    effectType EffectType @map("effect_type")
+    previewUrl String?    @map("preview_url") @db.VarChar(500)
+    durationMs Int        @default(3000) @map("duration_ms")
+
+    item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+    @@map("effect_details")
+}
+
+// items.type = BOOST の詳細（将来フェーズ）
+model BoostDetail {
+    itemId          Int       @id @map("item_id")
+    boostType       BoostType @map("boost_type")
+    /// 効果持続時間（秒）。null は即時消費型
+    durationSeconds Int?      @map("duration_seconds")
+
+    item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+    @@map("boost_details")
+}
+
+// ユーザーの所持アイテム（将来フェーズ）。items.id への単一 FK で全種別を統一管理
+model UserInventory {
+    id         Int       @id @default(autoincrement())
+    userId     Int       @map("user_id")
+    itemId     Int       @map("item_id")
+    /// 所持数（消費型は >1 になりうる、永続型は常に 1）
+    quantity   Int       @default(1)
+    acquiredAt DateTime  @default(now()) @map("acquired_at")
+    /// 失効日時（サブスク・期間限定アイテム用、永続型は null）
+    expiresAt  DateTime? @map("expires_at")
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    item Item @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+    @@unique([userId, itemId])
+    @@index([userId])
+    @@index([expiresAt])
+    @@map("user_inventory")
+}
+
+// コインの取引履歴（将来フェーズ）。アイテム購入時は relatedItemId で対象を参照
+model CoinTransaction {
+    id            Int             @id @default(autoincrement())
+    userId        Int             @map("user_id")
+    /// コイン数（正=購入/付与、負=消費）
+    amount        Int
+    type          TransactionType
+    /// 消費取引のときの対象アイテム（PURCHASE のコイン購入時は null）
+    relatedItemId Int?            @map("related_item_id")
+    description   String?         @db.VarChar(255)
+    createdAt     DateTime        @default(now()) @map("created_at")
+
+    user        User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+    relatedItem Item? @relation(fields: [relatedItemId], references: [id], onDelete: SetNull)
+
+    @@index([userId, createdAt])
+    @@index([relatedItemId])
+    @@map("coin_transactions")
 }
 
 // トークテーマカテゴリ

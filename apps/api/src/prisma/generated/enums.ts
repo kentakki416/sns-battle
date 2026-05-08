@@ -27,15 +27,6 @@ export const Provider = {
 export type Provider = (typeof Provider)[keyof typeof Provider]
 
 
-export const StampCategory = {
-  GENERAL: 'GENERAL',
-  BATTLE: 'BATTLE',
-  MATCHING: 'MATCHING'
-} as const
-
-export type StampCategory = (typeof StampCategory)[keyof typeof StampCategory]
-
-
 export const AnimationType = {
   NONE: 'NONE',
   FLOAT: 'FLOAT',
@@ -45,6 +36,56 @@ export const AnimationType = {
 } as const
 
 export type AnimationType = (typeof AnimationType)[keyof typeof AnimationType]
+
+
+export const ItemType = {
+  STAMP: 'STAMP',
+  EFFECT: 'EFFECT',
+  BOOST: 'BOOST',
+  DECORATION: 'DECORATION',
+  SUBSCRIPTION: 'SUBSCRIPTION'
+} as const
+
+export type ItemType = (typeof ItemType)[keyof typeof ItemType]
+
+
+export const Scope = {
+  MATCHING: 'MATCHING',
+  BATTLE: 'BATTLE',
+  STREAMING: 'STREAMING',
+  PROFILE: 'PROFILE'
+} as const
+
+export type Scope = (typeof Scope)[keyof typeof Scope]
+
+
+export const EffectType = {
+  CONFETTI: 'CONFETTI',
+  FIREWORKS: 'FIREWORKS',
+  HEARTS: 'HEARTS',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type EffectType = (typeof EffectType)[keyof typeof EffectType]
+
+
+export const BoostType = {
+  MATCH_PRIORITY: 'MATCH_PRIORITY',
+  EXTEND_TIME: 'EXTEND_TIME',
+  SKIP_QUEUE: 'SKIP_QUEUE'
+} as const
+
+export type BoostType = (typeof BoostType)[keyof typeof BoostType]
+
+
+export const TransactionType = {
+  PURCHASE: 'PURCHASE',
+  SPEND: 'SPEND',
+  BONUS: 'BONUS',
+  REFUND: 'REFUND'
+} as const
+
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
 
 
 export const TalkThemeCategory = {
