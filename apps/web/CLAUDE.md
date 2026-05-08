@@ -36,3 +36,16 @@ pnpm start        # 本番サーバー起動
 ### Server Action の配置
 
 対応するページと同じディレクトリに `actions.ts` として配置する（例: `app/(dashboard)/categories/actions.ts`）。`app/actions/` のような共通ディレクトリには置かない。
+
+## 動作確認（必須）
+
+UI コード（`page.tsx` / Client Component / Server Action / 認証フロー等）を**実装・修正したら必ず Playwright MCP で実画面の動作確認**を行う。`pnpm build` の通過は型・ルート登録のチェックでしかなく、レンダリング不具合・hydration error・コンソールエラー・認証フローの動作は検出できない。
+
+最低限の確認:
+- `mcp__playwright__browser_navigate` で目的の URL のまま着地している（middleware による `/sign-in` リダイレクトに気付かず OK 判定しない）
+- `mcp__playwright__browser_console_messages` の `level: "error"` が 0 件
+- `mcp__playwright__browser_snapshot` で意図した要素（見出し / フォーム項目 / アクションボタン）が表示される
+
+認証必須ページの検証は `pnpm --filter api issue-test-token <userId>` で発行した JWT を `sb_access_token` / `sb_refresh_token` cookie に注入する。手順は `verify-web-page` skill にまとめてあるので、UI 実装直後に自発的に呼び出すこと。
+
+`pnpm build` だけで「動作確認済み」と報告するのは禁止。

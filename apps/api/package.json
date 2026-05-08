@@ -11,6 +11,7 @@
     "db:seed": "dotenvx run -f .env.local -- prisma db seed --config=src/prisma/prisma.config.ts",
     "db:studio": "dotenvx run -f .env.local -- prisma studio --config=src/prisma/prisma.config.ts",
     "dev": "dotenvx run -f .env.local -- tsx watch src/index.ts",
+    "issue-test-token": "dotenvx run -f .env.local -- tsx scripts/issue-test-token.ts",
     "lint": "eslint 'src/**/*.ts' 'test/**/*.ts'",
     "lint:fix": "eslint 'src/**/*.ts' 'test/**/*.ts' --fix",
     "start": "dotenvx run -f .env.local -- node dist/index.js",
