@@ -39,6 +39,7 @@
 - [フロー図](#フロー図)
 - [マッチングフィルタリング（将来フェーズ）](#マッチングフィルタリング将来フェーズ)
 - [注意事項](#注意事項)
+- [実装ステップ](#実装ステップ)
 
 ---
 
@@ -778,3 +779,30 @@ DB 設計は `docs/spec/profile/README.md` を参照。
 - 同時離脱: `room_finished` → 終了
 - サーバー再起動: Redis から復元
 - テーマ10個未満: 重複選択（シャッフル順変更）
+
+---
+
+## 実装ステップ
+
+Phase 4 マッチング機能は以下の 12 step に分割して実装する。各 step は単独で PR にできる粒度。
+
+| step | ファイル | 概要 |
+|------|---------|------|
+| 1 | [step1-db-matching.md](./step1-db-matching.md) | matching_queue / matching_sessions / matching_reactions の Prisma スキーマ + マイグレーション |
+| 2 | [step2-api-matching-join-leave-status.md](./step2-api-matching-join-leave-status.md) | 待機キュー基本 API + Redis Sorted Set。Pub/Sub 抜きで join/leave/status |
+| 3 | [step3-api-matching-events-sse.md](./step3-api-matching-events-sse.md) | SSE エンドポイント + Pub/Sub 連携 + heartbeat |
+| 4 | [step4-api-matching-token.md](./step4-api-matching-token.md) | LiveKit Room トークン発行 |
+| 5 | [step5-api-matching-sessions.md](./step5-api-matching-sessions.md) | GET sessions/:id + POST sessions/:id/end（5 分制約） |
+| 6 | [step6-api-matching-reactions.md](./step6-api-matching-reactions.md) | 回答送信 + 一致判定 + Data Channel reaction_match |
+| 7 | [step7-api-matching-stamp.md](./step7-api-matching-stamp.md) | スタンプ送信（items 参照 + Data Channel + レート制限） |
+| 8 | [step8-server-theme-timer.md](./step8-server-theme-timer.md) | サーバーサイドのテーマ進行タイマー + theme/hype/timer 配信 |
+| 9 | [step9-server-livekit-webhook.md](./step9-server-livekit-webhook.md) | LiveKit Webhook（participant_left / room_finished） |
+| 10 | [step10-web-matching-lobby.md](./step10-web-matching-lobby.md) | /matching ロビーページ |
+| 11 | [step11-web-matching-session.md](./step11-web-matching-session.md) | /matching/session ページ（waiting → matched → countdown → active） |
+| 12 | [step12-web-matching-result.md](./step12-web-matching-result.md) | /matching/result 結果ページ |
+
+### 推奨実装順
+
+DB → API（join/leave/status → SSE → token → sessions → reactions → stamp）→ サーバー（theme-timer → webhook）→ Frontend（lobby → session → result）の順。step8（theme-timer）は step5（sessions）と step4（token）に依存するため、フロント着手前にサーバー側の Data Channel 基盤を完成させる。
+
+LiveKit Cloud の API key / secret は step4 の前に整備する。dev では LiveKit Cloud の無料枠を利用、Webhook 受信は ngrok 等で検証する。
