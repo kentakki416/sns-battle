@@ -50,8 +50,8 @@
 
 - [x] DB: `users` に `birth_date`、`gender`、`mbti`、`location`、`coin_balance` 追加 / `hobby_masters` / `user_hobbies` / `matching_preferences` テーブル作成
 - [x] API: `GET /api/users/:id`、`PUT /api/users/:id`、`PUT /api/users/:id/onboarding`
-- [ ] API: `GET /api/hobbies`（趣味マスター一覧）
-- [ ] API: `GET /api/users/:id/matching-preferences`、`PUT /api/users/:id/matching-preferences`
+- [x] API: `GET /api/hobbies`（趣味マスター一覧）
+- [x] API: `GET /api/matching/preferences`、`PUT /api/matching/preferences`
 - [ ] Frontend: `/onboarding` ページ（生年月日 + 性別 必須）
 - [ ] Frontend: `/profile/:id` 表示ページ（カバー、ヘッダー、配信履歴、バトル戦績）
 - [ ] Frontend: `/profile/edit` 編集ページ
