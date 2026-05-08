@@ -10,6 +10,8 @@ import { AuthRefreshController } from "./controller/auth/refresh"
 import { HealthLivenessController } from "./controller/health/liveness"
 import { HealthReadinessController } from "./controller/health/readiness"
 import { HobbyListController } from "./controller/hobby/list"
+import { MatchingPreferenceGetController } from "./controller/matching-preference/get"
+import { MatchingPreferenceUpdateController } from "./controller/matching-preference/update"
 import { MemoCreateController } from "./controller/memo/create"
 import { MemoDeleteController } from "./controller/memo/delete"
 import { MemoDetailController } from "./controller/memo/detail"
@@ -27,6 +29,7 @@ import {
   PrismaAuthAccountRepository,
   PrismaDatabaseHealthRepository,
   PrismaHobbyRepository,
+  PrismaMatchingPreferenceRepository,
   PrismaMemoRepository,
   PrismaUserRepository,
   PrismaUserRegistrationRepository
@@ -35,6 +38,7 @@ import { IoRedisHealthRepository, IoRedisRefreshTokenRepository } from "./reposi
 import { authRouter } from "./routes/auth-router"
 import { healthRouter } from "./routes/health-router"
 import { hobbyRouter } from "./routes/hobby-router"
+import { matchingPreferenceRouter } from "./routes/matching-preference-router"
 import { memoRouter } from "./routes/memo-router"
 import { userRouter } from "./routes/user-router"
 
@@ -52,6 +56,7 @@ const authAccountRepository = new PrismaAuthAccountRepository(prisma)
 const userRegistrationRepository = new PrismaUserRegistrationRepository(prisma)
 const memoRepository = new PrismaMemoRepository(prisma)
 const hobbyRepository = new PrismaHobbyRepository(prisma)
+const matchingPreferenceRepository = new PrismaMatchingPreferenceRepository(prisma)
 const databaseHealthRepository = new PrismaDatabaseHealthRepository(prisma)
 const redisHealthRepository = new IoRedisHealthRepository(redis)
 const refreshTokenRepository = new IoRedisRefreshTokenRepository(redis)
@@ -88,6 +93,15 @@ const userOnboardingController = new UserOnboardingController(userRepository, ho
 
 // Hobby Controller のインスタンス化
 const hobbyListController = new HobbyListController(hobbyRepository)
+
+// MatchingPreference Controller のインスタンス化
+const matchingPreferenceGetController = new MatchingPreferenceGetController(
+  matchingPreferenceRepository,
+)
+const matchingPreferenceUpdateController = new MatchingPreferenceUpdateController(
+  matchingPreferenceRepository,
+  hobbyRepository,
+)
 
 // cors設定のミドルウェア
 app.use(
@@ -145,6 +159,13 @@ app.use(
   "/api/hobbies",
   hobbyRouter({
     list: hobbyListController,
+  })
+)
+app.use(
+  "/api/matching/preferences",
+  matchingPreferenceRouter({
+    get: matchingPreferenceGetController,
+    update: matchingPreferenceUpdateController,
   })
 )
 
