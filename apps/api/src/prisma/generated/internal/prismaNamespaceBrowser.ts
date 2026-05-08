@@ -58,7 +58,13 @@ export const ModelName = {
   AuthAccount: 'AuthAccount',
   Follow: 'Follow',
   Block: 'Block',
-  StampMaster: 'StampMaster',
+  Item: 'Item',
+  ItemScope: 'ItemScope',
+  StampDetail: 'StampDetail',
+  EffectDetail: 'EffectDetail',
+  BoostDetail: 'BoostDetail',
+  UserInventory: 'UserInventory',
+  CoinTransaction: 'CoinTransaction',
   TalkTheme: 'TalkTheme',
   TalkThemeChoice: 'TalkThemeChoice',
   Memo: 'Memo'
@@ -175,22 +181,82 @@ export const BlockScalarFieldEnum = {
 export type BlockScalarFieldEnum = (typeof BlockScalarFieldEnum)[keyof typeof BlockScalarFieldEnum]
 
 
-export const StampMasterScalarFieldEnum = {
+export const ItemScalarFieldEnum = {
   id: 'id',
+  type: 'type',
   name: 'name',
-  imageUrl: 'imageUrl',
-  emoji: 'emoji',
-  category: 'category',
-  animationType: 'animationType',
-  isPremium: 'isPremium',
+  description: 'description',
   price: 'price',
-  sortOrder: 'sortOrder',
+  isPremium: 'isPremium',
   isActive: 'isActive',
+  sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type StampMasterScalarFieldEnum = (typeof StampMasterScalarFieldEnum)[keyof typeof StampMasterScalarFieldEnum]
+export type ItemScalarFieldEnum = (typeof ItemScalarFieldEnum)[keyof typeof ItemScalarFieldEnum]
+
+
+export const ItemScopeScalarFieldEnum = {
+  itemId: 'itemId',
+  scope: 'scope'
+} as const
+
+export type ItemScopeScalarFieldEnum = (typeof ItemScopeScalarFieldEnum)[keyof typeof ItemScopeScalarFieldEnum]
+
+
+export const StampDetailScalarFieldEnum = {
+  itemId: 'itemId',
+  emoji: 'emoji',
+  imageUrl: 'imageUrl',
+  animationType: 'animationType'
+} as const
+
+export type StampDetailScalarFieldEnum = (typeof StampDetailScalarFieldEnum)[keyof typeof StampDetailScalarFieldEnum]
+
+
+export const EffectDetailScalarFieldEnum = {
+  itemId: 'itemId',
+  effectType: 'effectType',
+  previewUrl: 'previewUrl',
+  durationMs: 'durationMs'
+} as const
+
+export type EffectDetailScalarFieldEnum = (typeof EffectDetailScalarFieldEnum)[keyof typeof EffectDetailScalarFieldEnum]
+
+
+export const BoostDetailScalarFieldEnum = {
+  itemId: 'itemId',
+  boostType: 'boostType',
+  durationSeconds: 'durationSeconds'
+} as const
+
+export type BoostDetailScalarFieldEnum = (typeof BoostDetailScalarFieldEnum)[keyof typeof BoostDetailScalarFieldEnum]
+
+
+export const UserInventoryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  itemId: 'itemId',
+  quantity: 'quantity',
+  acquiredAt: 'acquiredAt',
+  expiresAt: 'expiresAt'
+} as const
+
+export type UserInventoryScalarFieldEnum = (typeof UserInventoryScalarFieldEnum)[keyof typeof UserInventoryScalarFieldEnum]
+
+
+export const CoinTransactionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  amount: 'amount',
+  type: 'type',
+  relatedItemId: 'relatedItemId',
+  description: 'description',
+  createdAt: 'createdAt'
+} as const
+
+export type CoinTransactionScalarFieldEnum = (typeof CoinTransactionScalarFieldEnum)[keyof typeof CoinTransactionScalarFieldEnum]
 
 
 export const TalkThemeScalarFieldEnum = {

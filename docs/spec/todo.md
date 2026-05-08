@@ -66,13 +66,13 @@
 
 設計詳細は [common/README.md - アイテム・課金系テーブル設計方針](./common/README.md#アイテム課金系テーブル設計方針) と [common/step9-db-migrate-stamp-to-items.md](./common/step9-db-migrate-stamp-to-items.md) を参照。
 
-- [ ] DB: `items`、`item_scopes`、`stamp_details`、`effect_details`、`boost_details`、`user_inventory`、`coin_transactions` を新設
-- [ ] DB: `stamp_masters` テーブルと `StampCategory` enum を削除
-- [ ] DB: `User` モデルに `inventories` / `coinTransactions` リレーション追加
-- [ ] enum: `ItemType` / `Scope` / `EffectType` / `BoostType` / `TransactionType` を追加
-- [ ] migration: `migrate_stamp_to_items` を発行（drop → create のクリーン構成）
-- [ ] seed: 既存スタンプを `items` + `stamp_details` + `item_scopes` で再投入。`GENERAL` は MATCHING / BATTLE / STREAMING の3 scope に展開
-- [ ] `pnpm prisma generate` と `pnpm test` がグリーン
+- [x] DB: `items`、`item_scopes`、`stamp_details`、`effect_details`、`boost_details`、`user_inventory`、`coin_transactions` を新設
+- [x] DB: `stamp_masters` テーブルと `StampCategory` enum を削除
+- [x] DB: `User` モデルに `inventories` / `coinTransactions` リレーション追加
+- [x] enum: `ItemType` / `Scope` / `EffectType` / `BoostType` / `TransactionType` を追加
+- [x] migration: `migrate_stamp_to_items` を発行（drop → create のクリーン構成）
+- [x] seed: 既存スタンプを `items` + `stamp_details` + `item_scopes` で再投入。`GENERAL` は MATCHING / BATTLE / STREAMING の3 scope に展開
+- [x] `pnpm prisma generate` と `pnpm test` がグリーン
 
 ---
 
