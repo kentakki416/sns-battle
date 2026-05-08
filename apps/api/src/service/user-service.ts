@@ -4,6 +4,7 @@ import { HobbyRepository, UserRepository } from "../repository/prisma"
 import { Hobby, User } from "../types/domain"
 import {
   badRequestError,
+  conflictError,
   err,
   forbiddenError,
   notFoundError,
@@ -162,6 +163,97 @@ export const updateUserProfile = async (
     ...(data.location !== undefined ? { location: data.location } : {}),
     ...(data.mbti !== undefined ? { mbti: data.mbti } : {}),
     ...(data.name !== undefined ? { name: data.name } : {}),
+  })
+
+  const fresh = await repo.userRepository.findProfileById(targetUserId)
+  if (!fresh) {
+    return err(notFoundError("User not found"))
+  }
+
+  const profile: UserProfile = {
+    age: calculateAge(fresh.user.birthDate),
+    avatarUrl: fresh.user.avatarUrl,
+    bio: fresh.user.bio,
+    birthDate: fresh.user.birthDate,
+    coinBalance: fresh.user.coinBalance,
+    createdAt: fresh.user.createdAt,
+    gender: fresh.user.gender,
+    hobbies: fresh.hobbies,
+    id: fresh.user.id,
+    isOnboarded: fresh.user.isOnboarded,
+    isSelf: true,
+    location: fresh.user.location,
+    mbti: fresh.user.mbti,
+    name: fresh.user.name,
+  }
+  return ok(profile)
+}
+
+/**
+ * オンボーディング完了入力。
+ * 必須: name / birthDate / gender。任意項目（mbti / location / bio）は null、hobbyIds は空配列を許容。
+ */
+export type CompleteOnboardingServiceInput = {
+  bio: string | null
+  birthDate: Date
+  gender: "MALE" | "FEMALE" | "OTHER"
+  hobbyIds: number[]
+  location: string | null
+  mbti: string | null
+  name: string
+}
+
+/**
+ * オンボーディングを完了する。
+ * - targetUserId !== viewerUserId は 403 FORBIDDEN
+ * - 対象ユーザー不在は 404 NOT_FOUND
+ * - 既に is_onboarded=true は 409 CONFLICT
+ * - 18 歳未満 / 120 歳超は 400 BAD_REQUEST
+ * - hobby_ids が指定された場合は hobby_masters の有効 id のみ
+ * 完了後は is_onboarded=true にし、findProfileById で fresh プロフィールを返す。
+ */
+export const completeOnboarding = async (
+  input: { data: CompleteOnboardingServiceInput; targetUserId: number; viewerUserId: number },
+  repo: { hobbyRepository: HobbyRepository; userRepository: UserRepository }
+): Promise<Result<UserProfile>> => {
+  const { data, targetUserId, viewerUserId } = input
+  logger.debug("UserService: Completing onboarding", {
+    targetUserId,
+    viewerUserId,
+  })
+
+  if (targetUserId !== viewerUserId) {
+    return err(forbiddenError("Cannot complete onboarding for other user"))
+  }
+
+  const user = await repo.userRepository.findById(targetUserId)
+  if (!user) {
+    return err(notFoundError("User not found"))
+  }
+
+  if (user.isOnboarded) {
+    return err(conflictError("Onboarding already completed"))
+  }
+
+  if (!isValidAdultAge(data.birthDate)) {
+    return err(badRequestError("Age must be between 18 and 120"))
+  }
+
+  if (data.hobbyIds.length > 0) {
+    const found = await repo.hobbyRepository.findActiveByIds(data.hobbyIds)
+    if (found.length !== data.hobbyIds.length) {
+      return err(badRequestError("Invalid hobby_id"))
+    }
+  }
+
+  await repo.userRepository.completeOnboarding(targetUserId, {
+    bio: data.bio,
+    birthDate: data.birthDate,
+    gender: data.gender,
+    hobbyIds: data.hobbyIds,
+    location: data.location,
+    mbti: data.mbti,
+    name: data.name,
   })
 
   const fresh = await repo.userRepository.findProfileById(targetUserId)

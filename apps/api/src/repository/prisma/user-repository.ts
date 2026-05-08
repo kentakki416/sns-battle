@@ -35,9 +35,25 @@ export type UpdateUserInput = {
 }
 
 /**
+ * オンボーディング完了時の入力。
+ * 必須: name / birthDate / gender / hobbyIds（空配列許容）/ bio / mbti / location（null 許容）。
+ * Service 層で未指定を null / [] に正規化してから渡すこと。
+ */
+export type CompleteOnboardingInput = {
+    bio: string | null
+    birthDate: Date
+    gender: "MALE" | "FEMALE" | "OTHER"
+    hobbyIds: number[]
+    location: string | null
+    mbti: string | null
+    name: string
+}
+
+/**
  * ユーザーリポジトリのインターフェース
  */
 export interface UserRepository {
+    completeOnboarding(id: number, data: CompleteOnboardingInput): Promise<void>
     create(data: CreateUserInput): Promise<User>
     findByEmail(email: string): Promise<User | null>
     findById(id: number): Promise<User | null>
@@ -97,6 +113,32 @@ export class PrismaUserRepository implements UserRepository {
       },
     })
     return this._toDomainUser(prismaUser)
+  }
+
+  async completeOnboarding(id: number, data: CompleteOnboardingInput): Promise<void> {
+    await this._prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        data: {
+          bio: data.bio,
+          birthDate: data.birthDate,
+          gender: data.gender,
+          isOnboarded: true,
+          location: data.location,
+          mbti: data.mbti,
+          name: data.name,
+        },
+        where: { id },
+      })
+      /**
+       * 趣味は新規ユーザー想定だが、念のため一旦削除して入れ直し
+       */
+      await tx.userHobby.deleteMany({ where: { userId: id } })
+      if (data.hobbyIds.length > 0) {
+        await tx.userHobby.createMany({
+          data: data.hobbyIds.map((hobbyId) => ({ hobbyId, userId: id })),
+        })
+      }
+    })
   }
 
   async update(id: number, data: UpdateUserInput): Promise<void> {

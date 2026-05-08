@@ -12,6 +12,7 @@ const mockFindProfileById = jest.fn<Promise<UserProfileWithHobbies | null>, [num
 const mockUpdate = jest.fn<Promise<void>, [number, UpdateUserInput]>()
 
 const mockUserRepository: UserRepository = {
+  completeOnboarding: jest.fn(),
   create: jest.fn(),
   findByEmail: jest.fn(),
   findById: mockFindById,
