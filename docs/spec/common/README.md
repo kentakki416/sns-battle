@@ -8,24 +8,30 @@
   - [auth_accounts（既存）](#auth_accounts既存)
   - [follows](#follows)
   - [blocks](#blocks)
-  - [stamp_masters](#stamp_masters)
-  - [effects（将来フェーズ）](#effects将来フェーズ)
+  - [アイテム・課金系テーブル設計方針](#アイテム課金系テーブル設計方針)
+  - [items](#items)
+  - [item_scopes](#item_scopes)
+  - [stamp_details](#stamp_details)
+  - [effect_details（将来フェーズ）](#effect_details将来フェーズ)
+  - [boost_details（将来フェーズ）](#boost_details将来フェーズ)
   - [user_inventory（将来フェーズ）](#user_inventory将来フェーズ)
   - [coin_transactions（将来フェーズ）](#coin_transactions将来フェーズ)
   - [talk_themes](#talk_themes)
   - [talk_theme_choices](#talk_theme_choices)
+  - [Phase 0 からの migration 方針](#phase-0-からの-migration-方針)
 - [API 設計](#api-設計)
   - [共通仕様](#共通仕様)
   - [認証 API](#認証-api)
   - [ユーザー API](#ユーザー-api)
-  - [マスターデータ API](#マスターデータ-api)
+  - [アイテム・マスターデータ API](#アイテムマスターデータ-api)
+  - [課金 API（将来フェーズ）](#課金-api将来フェーズ)
   - [Webhook API](#webhook-api)
   - [Admin API](#admin-api)
 - [UI 設計](#ui-設計)
   - [共通レイアウト](#共通レイアウト)
   - [共通コンポーネント](#共通コンポーネント)
 - [Enum 定義（共通）](#enum-定義共通)
-- [実装ロードマップ（Phase 2）](#実装ロードマップphase-2)
+- [実装ロードマップ](#実装ロードマップ)
 
 ---
 
@@ -83,59 +89,108 @@
 制約: `@@unique([blocker_id, blocked_id])`
 インデックス: `blocker_id`, `blocked_id`
 
-### stamp_masters
+### アイテム・課金系テーブル設計方針
 
-スタンプのマスターデータ。Admin 画面から管理。
+スタンプ・エフェクト・ブースト・装飾アイテム等、ショップで売る/配布する全アイテムを単一の `items` 親テーブルに集約し、種別固有のデータは `*_details` テーブルに 1対1 で持たせる **Class Table Inheritance** パターンを採用する。
+
+**設計上のポイント**:
+
+1. **拡張性**: 新しい種別（例: `DECORATION` プロフィール装飾）を追加する場合、`*_details` テーブル1つと `ItemType` enum に1行追加するだけで済む。`items` / `user_inventory` / `coin_transactions` はスキーマ無変更。
+2. **使用シーンの多重化**: アイテムが「マッチングとバトル両方で使えるスタンプ」のように複数シーンで利用可能な場合、`item_scopes` join テーブルで多対多を表現する。配列カラムではなく正規化することで B-tree インデックスによる高速フィルタ（「マッチング用アイテム一覧」）を可能にする。
+3. **負荷対策**: マスター系テーブル（`items` + `*_details` + `item_scopes`）は数百〜数千行規模で安定するため、**Redis に全件キャッシュ前提**。ホットパスである `user_inventory` は単一 FK 構造で複合インデックスを2カラムに抑える。
+4. **取引履歴のスケーラビリティ**: `coin_transactions` は時系列で線形増加するため、将来 `created_at` での range partitioning と古いデータのアーカイブを見据えた設計とする。
+
+### items
+
+全アイテムの親エンティティ。ショップ表示・所持品・取引履歴の単一参照点。
 
 | カラム | 型 | 制約 | 説明 |
 |--------|------|------|------|
-| id | int | PK, auto_increment | スタンプID |
-| name | varchar(100) | NOT NULL | スタンプ名 |
-| image_url | varchar(500) | nullable | スタンプ画像URL |
-| emoji | varchar(10) | NOT NULL | 絵文字（画像フォールバック） |
-| category | StampCategory | NOT NULL | GENERAL / BATTLE / MATCHING |
-| animation_type | AnimationType | NOT NULL, default: FLOAT | アニメーション種別（NONE / FLOAT / BOUNCE / EXPLODE / SHAKE） |
-| is_premium | boolean | NOT NULL, default: false | 有料スタンプか |
+| id | int | PK, auto_increment | アイテムID |
+| type | ItemType | NOT NULL | STAMP / EFFECT / BOOST / DECORATION / SUBSCRIPTION |
+| name | varchar(100) | NOT NULL | アイテム名 |
+| description | text | nullable | 説明文（ショップ用） |
 | price | int | NOT NULL, default: 0 | 価格（コイン単位、0=無料） |
+| is_premium | boolean | NOT NULL, default: false | 有料アイテムか |
+| is_active | boolean | NOT NULL, default: true | 有効フラグ（論理削除） |
 | sort_order | int | NOT NULL, default: 0 | 表示順 |
-| is_active | boolean | NOT NULL, default: true | 有効フラグ |
 | created_at | timestamp | NOT NULL | 作成日時 |
 | updated_at | timestamp | NOT NULL | 更新日時 |
 
-### effects（将来フェーズ）
+インデックス: `(type, is_active, sort_order)`（ショップ一覧用）
 
-エフェクトのマスターデータ。マッチング・バトル中に使用できる視覚エフェクト。
+### item_scopes
+
+アイテムが使用可能なシーンを表現する多対多 join テーブル。
 
 | カラム | 型 | 制約 | 説明 |
 |--------|------|------|------|
-| id | int | PK, auto_increment | エフェクトID |
-| name | varchar(100) | NOT NULL | エフェクト名（紙吹雪、花火等） |
-| type | EffectType | NOT NULL | CONFETTI / FIREWORKS / HEARTS / CUSTOM |
+| item_id | int | FK → items, NOT NULL, ON DELETE CASCADE | アイテムID |
+| scope | Scope | NOT NULL | MATCHING / BATTLE / STREAMING / PROFILE |
+
+制約: `@@id([item_id, scope])`（複合主キー）
+インデックス: `(scope, item_id)`（シーン別フィルタ用 B-tree）
+
+**運用ルール**:
+- すべてのシーンで使えるスタンプ（旧 `category=GENERAL`）は `MATCHING` / `BATTLE` / `STREAMING` の3行を挿入する
+- `PROFILE` は将来の装飾アイテム用（フレーム、背景等）
+- 複数シーン横断のクエリは `WHERE scope = 'MATCHING'` の単純条件で済むため B-tree で O(log n) アクセス
+
+### stamp_details
+
+`items.type = 'STAMP'` のアイテムに紐づく種別固有データ。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|------|------|------|
+| item_id | int | PK, FK → items, ON DELETE CASCADE | アイテムID（1対1） |
+| emoji | varchar(10) | NOT NULL | 絵文字（画像フォールバック） |
+| image_url | varchar(500) | nullable | スタンプ画像URL |
+| animation_type | AnimationType | NOT NULL, default: FLOAT | アニメーション種別（NONE / FLOAT / BOUNCE / EXPLODE / SHAKE） |
+
+### effect_details（将来フェーズ）
+
+`items.type = 'EFFECT'` のアイテムに紐づく種別固有データ。マッチング・バトル中に使用できる視覚エフェクト（紙吹雪、花火等）。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|------|------|------|
+| item_id | int | PK, FK → items, ON DELETE CASCADE | アイテムID（1対1） |
+| effect_type | EffectType | NOT NULL | CONFETTI / FIREWORKS / HEARTS / CUSTOM |
 | preview_url | varchar(500) | nullable | プレビュー動画/画像URL |
-| is_premium | boolean | NOT NULL, default: false | 有料か |
-| price | int | NOT NULL, default: 0 | 価格（コイン単位） |
 | duration_ms | int | NOT NULL, default: 3000 | エフェクト再生時間（ms） |
-| is_active | boolean | NOT NULL, default: true | 有効フラグ |
-| created_at | timestamp | NOT NULL | 作成日時 |
-| updated_at | timestamp | NOT NULL | 更新日時 |
+
+### boost_details（将来フェーズ）
+
+`items.type = 'BOOST'` のアイテムに紐づく種別固有データ。マッチング優先券、時間延長券等の消費型アイテム。
+
+| カラム | 型 | 制約 | 説明 |
+|--------|------|------|------|
+| item_id | int | PK, FK → items, ON DELETE CASCADE | アイテムID（1対1） |
+| boost_type | BoostType | NOT NULL | MATCH_PRIORITY / EXTEND_TIME / SKIP_QUEUE |
+| duration_seconds | int | nullable | 効果持続時間（秒）。null は即時消費型 |
 
 ### user_inventory（将来フェーズ）
 
-ユーザーが購入した有料スタンプ・エフェクトの所持品。
+ユーザーが購入・所持しているアイテム。`items.id` への単一 FK で全種別を統一管理。
 
 | カラム | 型 | 制約 | 説明 |
 |--------|------|------|------|
 | id | int | PK, auto_increment | ID |
 | user_id | int | FK → users, NOT NULL | ユーザー |
-| item_type | ItemType | NOT NULL | STAMP / EFFECT |
-| item_id | int | NOT NULL | stamp_masters.id or effects.id |
-| purchased_at | timestamp | NOT NULL | 購入日時 |
+| item_id | int | FK → items, NOT NULL | アイテム |
+| quantity | int | NOT NULL, default: 1 | 所持数（消費型は >1 になりうる、永続型は常に1） |
+| acquired_at | timestamp | NOT NULL | 取得日時 |
+| expires_at | timestamp | nullable | 失効日時（サブスク・期間限定アイテム用、永続型は null） |
 
-制約: `@@unique([user_id, item_type, item_id])`
+制約: `@@unique([user_id, item_id])`
+インデックス: `user_id`、`expires_at`（失効バッチ用）
+
+**永続型（STAMP / EFFECT / DECORATION）**: `quantity = 1`、`expires_at = null`
+**消費型（BOOST）**: `quantity` を都度デクリメント。0 になったら行削除
+**期間型（SUBSCRIPTION）**: `quantity = 1`、`expires_at` に失効日時設定。再購入時は `expires_at` を延長
 
 ### coin_transactions（将来フェーズ）
 
-コインの取引履歴。購入・消費・ボーナス付与を記録。
+コインの取引履歴。購入・消費・ボーナス付与を記録。アイテム購入時は `related_item_id` で対象を参照。
 
 | カラム | 型 | 制約 | 説明 |
 |--------|------|------|------|
@@ -143,10 +198,13 @@
 | user_id | int | FK → users, NOT NULL | ユーザー |
 | amount | int | NOT NULL | コイン数（正=購入/付与、負=消費） |
 | type | TransactionType | NOT NULL | PURCHASE / SPEND / BONUS / REFUND |
-| description | varchar(255) | nullable | 取引内容 |
+| related_item_id | int | FK → items, nullable | 消費取引のときの対象アイテム（PURCHASE のコイン購入時は null） |
+| description | varchar(255) | nullable | 取引内容（補足メモ） |
 | created_at | timestamp | NOT NULL | 取引日時 |
 
-インデックス: `(user_id, created_at)`
+インデックス: `(user_id, created_at)`、`related_item_id`
+
+**将来の運用**: 行数が大きくなる想定のため、`created_at` の月単位 range partitioning でスケールさせる。1年以上前のデータはコールドストレージへアーカイブ。
 
 ### talk_themes
 
@@ -172,6 +230,24 @@
 | emoji | varchar(10) | NOT NULL | 選択肢の絵文字 |
 | sort_order | int | NOT NULL, default: 0 | 表示順 |
 | created_at | timestamp | NOT NULL | 作成日時 |
+
+### Phase 0 からの migration 方針
+
+Phase 0 で作成済みの `stamp_masters` テーブルを `items` + `stamp_details` + `item_scopes` に分解する。Spec1 リリース前であり実データがほぼ無いため、**ダウンタイム不要のクリーン移行**を採用する。
+
+**実施時期**: **Spec1 リリース前（Phase 4 マッチング実装に先行）**。マッチング機能でスタンプ送信 API が `items` を参照するため、Phase 4 着手前に統合を完了させる必要がある。実装手順の詳細は [step9-db-migrate-stamp-to-items.md](./step9-db-migrate-stamp-to-items.md) を参照。
+
+**migration 手順サマリ**（単一トランザクション）:
+
+1. `items`、`item_scopes`、`stamp_details`、`effect_details`、`boost_details`、`user_inventory`、`coin_transactions` を新規作成
+2. `stamp_masters` の既存行を `items`（type=STAMP）と `stamp_details` に分割コピー
+3. `stamp_masters.category` を `item_scopes` の対応する `scope` 行に変換
+   - `GENERAL` → `MATCHING` / `BATTLE` / `STREAMING` の3行
+   - `MATCHING` / `BATTLE` → 同名 `scope` 1行
+4. `stamp_masters` テーブルを drop
+5. `StampCategory` enum を削除し、`Scope` enum を追加
+
+`coin_transactions` は Spec6 着手時に追加してもよいが、`users.coin_balance` の整合性を取るため初期から空テーブルを用意しておくことを推奨。
 
 ---
 
@@ -209,13 +285,49 @@
 | GET | `/api/users/:id/followers` | Access Token | フォロワー一覧を取得する |
 | GET | `/api/users/:id/following` | Access Token | フォロー中一覧を取得する |
 
-### マスターデータ API
+### アイテム・マスターデータ API
+
+アイテム関連は `items` テーブルに集約された設計のため、エンドポイントもアイテム単位で統一する。`type` と `scope` クエリで種別・シーンをフィルタ。
 
 | メソッド | パス | 認証 | 説明 |
 |---------|------|------|------|
-| GET | `/api/stamps` | Access Token | 有効なスタンプ一覧を取得する。`category` クエリでフィルタ可能 |
+| GET | `/api/items` | Access Token | 有効なアイテム一覧を取得する。`type=STAMP\|EFFECT\|...` と `scope=MATCHING\|BATTLE\|...` でフィルタ。レスポンスは type に応じて該当 details が展開される |
+| GET | `/api/items/:id` | Access Token | アイテム詳細（type 別 details と scopes 含む）を取得する |
 | GET | `/api/talk-themes` | Access Token | 有効なトークテーマ一覧を取得する。`category` クエリでフィルタ |
 | GET | `/api/talk-themes/:id` | Access Token | トークテーマの詳細（タイトル + 選択肢一覧）を取得する |
+
+**`GET /api/items` レスポンス例**（`?type=STAMP&scope=MATCHING`）:
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "type": "STAMP",
+      "name": "ハート",
+      "description": null,
+      "price": 0,
+      "isPremium": false,
+      "scopes": ["MATCHING", "BATTLE", "STREAMING"],
+      "stampDetail": {
+        "emoji": "❤️",
+        "imageUrl": null,
+        "animationType": "FLOAT"
+      }
+    }
+  ]
+}
+```
+
+### 課金 API（将来フェーズ）
+
+| メソッド | パス | 認証 | 説明 |
+|---------|------|------|------|
+| GET | `/api/me/inventory` | Access Token | 自分の所持アイテム一覧を取得する。`type` でフィルタ可能 |
+| GET | `/api/me/coin-balance` | Access Token | 自分のコイン残高を取得する |
+| GET | `/api/me/coin-transactions` | Access Token | コイン取引履歴をページネーションで取得する |
+| POST | `/api/items/:id/purchase` | Access Token | アイテムを購入する（コイン消費 + user_inventory 更新 + coin_transactions 記録をトランザクション内で実行） |
+| POST | `/api/coins/purchase` | Access Token | コインを購入する（IAP / Stripe レシート検証 → users.coin_balance 加算 + coin_transactions 記録） |
 
 ### Webhook API
 
@@ -227,16 +339,37 @@
 
 | メソッド | パス | 説明 |
 |---------|------|------|
-| GET | `/api/admin/stamps` | スタンプ一覧（無効なものも含む） |
-| POST | `/api/admin/stamps` | スタンプ新規登録 |
-| PUT | `/api/admin/stamps/:id` | スタンプ更新 |
-| DELETE | `/api/admin/stamps/:id` | スタンプ論理削除 |
+| GET | `/api/admin/items` | アイテム一覧（無効なものも含む）。`type` でフィルタ可能 |
+| POST | `/api/admin/items` | アイテム新規登録（type 別 details と scopes をリクエストボディに含める） |
+| PUT | `/api/admin/items/:id` | アイテム更新（details と scopes 含む） |
+| DELETE | `/api/admin/items/:id` | アイテム論理削除（`is_active = false`） |
 | GET | `/api/admin/talk-themes` | テーマ一覧（選択肢付き） |
 | POST | `/api/admin/talk-themes` | テーマ + 選択肢の新規登録 |
 | PUT | `/api/admin/talk-themes/:id` | テーマ + 選択肢の更新 |
 | DELETE | `/api/admin/talk-themes/:id` | テーマ論理削除 |
 | GET | `/api/admin/users` | ユーザー一覧 |
 | GET | `/api/admin/users/:id` | ユーザー詳細 |
+| GET | `/api/admin/coin-transactions` | コイン取引履歴（全ユーザー横断、`user_id` フィルタ可、不正検知用） |
+
+**`POST /api/admin/items` リクエストボディ例**（スタンプ）:
+
+```json
+{
+  "type": "STAMP",
+  "name": "ハート",
+  "description": null,
+  "price": 0,
+  "isPremium": false,
+  "isActive": true,
+  "sortOrder": 0,
+  "scopes": ["MATCHING", "BATTLE", "STREAMING"],
+  "stampDetail": {
+    "emoji": "❤️",
+    "imageUrl": null,
+    "animationType": "FLOAT"
+  }
+}
+```
 
 ---
 
@@ -373,7 +506,7 @@ LIVE 中であることを示すバッジ。
 ビデオチャット内（VideoChatOverlay 内蔵）または独立コンポーネント。
 
 - カテゴリタブ + 絵文字グリッド構成
-- マスターデータ API（`GET /api/stamps?category=...`）から取得した `stamp_masters` を表示
+- マスターデータ API（`GET /api/items?type=STAMP&scope=MATCHING\|BATTLE\|STREAMING`）から取得した `items` + `stamp_details` を表示
 - タップで即送信 → Data Channel 送信 + 親へ通知
 
 #### `<StampFloatLayer>`（受信スタンプの表示）
@@ -416,10 +549,25 @@ enum Gender {
   OTHER
 }
 
-enum StampCategory {
-  GENERAL
-  BATTLE
+/**
+ * アイテムの種別。新カテゴリを増やす場合は対応する *_details テーブルを追加する
+ */
+enum ItemType {
+  STAMP
+  EFFECT
+  BOOST
+  DECORATION
+  SUBSCRIPTION
+}
+
+/**
+ * アイテムが使用可能なシーン。item_scopes で多対多管理
+ */
+enum Scope {
   MATCHING
+  BATTLE
+  STREAMING
+  PROFILE
 }
 
 enum AnimationType {
@@ -428,6 +576,19 @@ enum AnimationType {
   BOUNCE
   EXPLODE
   SHAKE
+}
+
+enum EffectType {
+  CONFETTI
+  FIREWORKS
+  HEARTS
+  CUSTOM
+}
+
+enum BoostType {
+  MATCH_PRIORITY
+  EXTEND_TIME
+  SKIP_QUEUE
 }
 
 enum TalkThemeCategory {
@@ -440,18 +601,6 @@ enum TalkThemeType {
   FREE_TALK
 }
 
-enum EffectType {
-  CONFETTI
-  FIREWORKS
-  HEARTS
-  CUSTOM
-}
-
-enum ItemType {
-  STAMP
-  EFFECT
-}
-
 enum TransactionType {
   PURCHASE
   SPEND
@@ -462,11 +611,12 @@ enum TransactionType {
 
 ---
 
-## 実装ロードマップ（Phase 2）
+## 実装ロードマップ
 
-Phase 2 は本ファイルの「UI 設計」セクションで定義した共通レイアウトとコンポーネントを 1 コンポーネント = 1 step で実装する。各 step はテスト可能な最小単位として独立して PR を切る。
+共通基盤の実装は2ブロックに分かれる:
 
-実装順は依存関係に従う。AppShell（step1）が骨組みで、Navbar（step2）/ Sidebar（step3）はその差込スロットを埋める。LiveBadge（step4）以降の単発 UI コンポーネントは並列実装可。
+- **Phase 2（UI 基盤）**: `<AppShell>` を起点とした共通 UI コンポーネント群（step1-8）。`apps/web` 配下のみ
+- **Spec1 リリース前の DB 統合（step9）**: `stamp_masters` を `items` 系へ統合。Phase 4 マッチング着手前に必須
 
 | step | 対象 | 内容 | 依存 | リンク |
 |------|------|------|------|------|
@@ -478,10 +628,12 @@ Phase 2 は本ファイルの「UI 設計」セクションで定義した共通
 | step6 | `<CountdownOverlay>` | 3-2-1-START の全画面オーバーレイ | - | [step6-web-countdown-overlay.md](./step6-web-countdown-overlay.md) |
 | step7 | `<TimerBar>` | 上部固定の進行度バー（色分け付き） | - | [step7-web-timer-bar.md](./step7-web-timer-bar.md) |
 | step8 | `<ConfettiEffect>` | `canvas-confetti` ラッパー | - | [step8-web-confetti-effect.md](./step8-web-confetti-effect.md) |
+| step9 | DB: stamp_masters → items 統合 | Phase 0 の `stamp_masters` を `items` + `stamp_details` + `item_scopes` に再構成。`effect_details` / `boost_details` / `user_inventory` / `coin_transactions` も同時に空テーブルとして作成 | Phase 0 完了 | [step9-db-migrate-stamp-to-items.md](./step9-db-migrate-stamp-to-items.md) |
 
 ### 全 step 共通の方針
 
-- すべての step は `apps/web` 配下のみを変更（API 側の変更なし）
+- step1-8 はすべて `apps/web` 配下のみを変更（API 側の変更なし）
+- step9 は `apps/api/src/prisma/schema.prisma` と migration、seed、関連 TS コードのみを変更
 - 動作確認用の一時プレビューページ（`apps/web/src/app/dev/<component>/page.tsx`）は **当該 step の確認後に削除する**。Phase 2 完了時点で `dev/` ディレクトリ自体が存在しないこと
-- Lint（`cd apps/web && pnpm lint`）が通ること
+- Lint（`cd apps/web && pnpm lint` / `cd apps/api && pnpm lint`）が通ること
 - `<StampPalette>` / `<StampFloatLayer>` は VideoChatOverlay（step5）の内蔵 / 配信ページ実装時（Phase 6）に切り出すため Phase 2 では独立 step を立てない
