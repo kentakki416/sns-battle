@@ -52,7 +52,7 @@
 - [x] API: `GET /api/users/:id`、`PUT /api/users/:id`、`PUT /api/users/:id/onboarding`
 - [x] API: `GET /api/hobbies`（趣味マスター一覧）
 - [x] API: `GET /api/matching/preferences`、`PUT /api/matching/preferences`
-- [ ] Frontend: `/onboarding` ページ（生年月日 + 性別 必須）
+- [x] Frontend: `/onboarding` ページ（生年月日 + 性別 必須）
 - [ ] Frontend: `/profile/:id` 表示ページ（カバー、ヘッダー、配信履歴、バトル戦績）
 - [ ] Frontend: `/profile/edit` 編集ページ
 - [ ] Frontend: `/matching/preferences`（マッチングフィルタ設定 UI）
