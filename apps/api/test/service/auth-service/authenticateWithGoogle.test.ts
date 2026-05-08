@@ -57,10 +57,15 @@ describe("authenticateWithGoogle", () => {
     const mockExistingUser: User = {
       avatarUrl: "https://example.com/avatar.jpg",
       bio: null,
+      birthDate: null,
+      coinBalance: 0,
       createdAt: new Date(),
       email: "test@example.com",
+      gender: null,
       id: 1,
       isOnboarded: false,
+      location: null,
+      mbti: null,
       name: "Test User",
       updatedAt: new Date(),
     }
@@ -116,10 +121,15 @@ describe("authenticateWithGoogle", () => {
     const mockNewUser: User = {
       avatarUrl: "https://example.com/new-avatar.jpg",
       bio: null,
+      birthDate: null,
+      coinBalance: 0,
       createdAt: new Date(),
       email: "newuser@example.com",
+      gender: null,
       id: 2,
       isOnboarded: false,
+      location: null,
+      mbti: null,
       name: "New User",
       updatedAt: new Date(),
     }
