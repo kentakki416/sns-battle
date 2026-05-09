@@ -5,7 +5,7 @@ import { NODE_ENV, LOG_LEVEL } from "../const"
 import { logContext } from "./context"
 import type { ILogger, LogMetadata } from "./interface"
 
-type NodeEnv =  typeof NODE_ENV[keyof typeof NODE_ENV]
+type NodeEnv = typeof NODE_ENV[keyof typeof NODE_ENV]
 
 const { combine, timestamp, errors, json, simple, colorize } = format
 

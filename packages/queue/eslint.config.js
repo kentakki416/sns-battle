@@ -41,6 +41,7 @@ module.exports = defineConfig([
       "no-multiple-empty-lines": ["error", { max: 1, maxBOF: 0, maxEOF: 0 }],
       "padded-blocks": ["error", "never"],
       "no-trailing-spaces": "error",
+      "no-multi-spaces": "error",
       "import/order": [
         "error",
         {

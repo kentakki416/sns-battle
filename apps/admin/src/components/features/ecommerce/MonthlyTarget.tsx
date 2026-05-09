@@ -46,7 +46,7 @@ export default function MonthlyTarget() {
             offsetY: -40,
             color: "#1D2939",
             formatter: function (val) {
-              return `${val  }%`
+              return `${val }%`
             },
           },
         },
