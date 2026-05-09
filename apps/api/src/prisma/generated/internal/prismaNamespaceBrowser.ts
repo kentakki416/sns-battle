@@ -51,26 +51,26 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  User: 'User',
-  HobbyMaster: 'HobbyMaster',
-  UserHobby: 'UserHobby',
-  MatchingPreference: 'MatchingPreference',
   AuthAccount: 'AuthAccount',
-  Follow: 'Follow',
   Block: 'Block',
+  BoostDetail: 'BoostDetail',
+  CoinTransaction: 'CoinTransaction',
+  EffectDetail: 'EffectDetail',
+  Follow: 'Follow',
+  HobbyMaster: 'HobbyMaster',
   Item: 'Item',
   ItemScope: 'ItemScope',
+  MatchingPreference: 'MatchingPreference',
+  MatchingQueue: 'MatchingQueue',
+  MatchingReaction: 'MatchingReaction',
+  MatchingSession: 'MatchingSession',
+  Memo: 'Memo',
   StampDetail: 'StampDetail',
-  EffectDetail: 'EffectDetail',
-  BoostDetail: 'BoostDetail',
-  UserInventory: 'UserInventory',
-  CoinTransaction: 'CoinTransaction',
   TalkTheme: 'TalkTheme',
   TalkThemeChoice: 'TalkThemeChoice',
-  MatchingQueue: 'MatchingQueue',
-  MatchingSession: 'MatchingSession',
-  MatchingReaction: 'MatchingReaction',
-  Memo: 'Memo'
+  User: 'User',
+  UserHobby: 'UserHobby',
+  UserInventory: 'UserInventory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -87,63 +87,6 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
-
-
-export const UserScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  name: 'name',
-  avatarUrl: 'avatarUrl',
-  bio: 'bio',
-  birthDate: 'birthDate',
-  gender: 'gender',
-  mbti: 'mbti',
-  location: 'location',
-  coinBalance: 'coinBalance',
-  isOnboarded: 'isOnboarded',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const HobbyMasterScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  sortOrder: 'sortOrder',
-  isActive: 'isActive',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type HobbyMasterScalarFieldEnum = (typeof HobbyMasterScalarFieldEnum)[keyof typeof HobbyMasterScalarFieldEnum]
-
-
-export const UserHobbyScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  hobbyId: 'hobbyId',
-  createdAt: 'createdAt'
-} as const
-
-export type UserHobbyScalarFieldEnum = (typeof UserHobbyScalarFieldEnum)[keyof typeof UserHobbyScalarFieldEnum]
-
-
-export const MatchingPreferenceScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  preferredGenders: 'preferredGenders',
-  ageMin: 'ageMin',
-  ageMax: 'ageMax',
-  preferredLocations: 'preferredLocations',
-  preferredMbti: 'preferredMbti',
-  preferredHobbyIds: 'preferredHobbyIds',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type MatchingPreferenceScalarFieldEnum = (typeof MatchingPreferenceScalarFieldEnum)[keyof typeof MatchingPreferenceScalarFieldEnum]
 
 
 export const AuthAccountScalarFieldEnum = {
@@ -164,6 +107,48 @@ export const AuthAccountScalarFieldEnum = {
 export type AuthAccountScalarFieldEnum = (typeof AuthAccountScalarFieldEnum)[keyof typeof AuthAccountScalarFieldEnum]
 
 
+export const BlockScalarFieldEnum = {
+  id: 'id',
+  blockerId: 'blockerId',
+  blockedId: 'blockedId',
+  createdAt: 'createdAt'
+} as const
+
+export type BlockScalarFieldEnum = (typeof BlockScalarFieldEnum)[keyof typeof BlockScalarFieldEnum]
+
+
+export const BoostDetailScalarFieldEnum = {
+  itemId: 'itemId',
+  boostType: 'boostType',
+  durationSeconds: 'durationSeconds'
+} as const
+
+export type BoostDetailScalarFieldEnum = (typeof BoostDetailScalarFieldEnum)[keyof typeof BoostDetailScalarFieldEnum]
+
+
+export const CoinTransactionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  amount: 'amount',
+  type: 'type',
+  relatedItemId: 'relatedItemId',
+  description: 'description',
+  createdAt: 'createdAt'
+} as const
+
+export type CoinTransactionScalarFieldEnum = (typeof CoinTransactionScalarFieldEnum)[keyof typeof CoinTransactionScalarFieldEnum]
+
+
+export const EffectDetailScalarFieldEnum = {
+  itemId: 'itemId',
+  effectType: 'effectType',
+  previewUrl: 'previewUrl',
+  durationMs: 'durationMs'
+} as const
+
+export type EffectDetailScalarFieldEnum = (typeof EffectDetailScalarFieldEnum)[keyof typeof EffectDetailScalarFieldEnum]
+
+
 export const FollowScalarFieldEnum = {
   id: 'id',
   followerId: 'followerId',
@@ -174,14 +159,16 @@ export const FollowScalarFieldEnum = {
 export type FollowScalarFieldEnum = (typeof FollowScalarFieldEnum)[keyof typeof FollowScalarFieldEnum]
 
 
-export const BlockScalarFieldEnum = {
+export const HobbyMasterScalarFieldEnum = {
   id: 'id',
-  blockerId: 'blockerId',
-  blockedId: 'blockedId',
-  createdAt: 'createdAt'
+  name: 'name',
+  sortOrder: 'sortOrder',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type BlockScalarFieldEnum = (typeof BlockScalarFieldEnum)[keyof typeof BlockScalarFieldEnum]
+export type HobbyMasterScalarFieldEnum = (typeof HobbyMasterScalarFieldEnum)[keyof typeof HobbyMasterScalarFieldEnum]
 
 
 export const ItemScalarFieldEnum = {
@@ -208,6 +195,72 @@ export const ItemScopeScalarFieldEnum = {
 export type ItemScopeScalarFieldEnum = (typeof ItemScopeScalarFieldEnum)[keyof typeof ItemScopeScalarFieldEnum]
 
 
+export const MatchingPreferenceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  preferredGenders: 'preferredGenders',
+  ageMin: 'ageMin',
+  ageMax: 'ageMax',
+  preferredLocations: 'preferredLocations',
+  preferredMbti: 'preferredMbti',
+  preferredHobbyIds: 'preferredHobbyIds',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MatchingPreferenceScalarFieldEnum = (typeof MatchingPreferenceScalarFieldEnum)[keyof typeof MatchingPreferenceScalarFieldEnum]
+
+
+export const MatchingQueueScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MatchingQueueScalarFieldEnum = (typeof MatchingQueueScalarFieldEnum)[keyof typeof MatchingQueueScalarFieldEnum]
+
+
+export const MatchingReactionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  themeId: 'themeId',
+  choiceId: 'choiceId',
+  roundNumber: 'roundNumber',
+  createdAt: 'createdAt'
+} as const
+
+export type MatchingReactionScalarFieldEnum = (typeof MatchingReactionScalarFieldEnum)[keyof typeof MatchingReactionScalarFieldEnum]
+
+
+export const MatchingSessionScalarFieldEnum = {
+  id: 'id',
+  user1Id: 'user1Id',
+  user2Id: 'user2Id',
+  livekitRoomName: 'livekitRoomName',
+  status: 'status',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  endReason: 'endReason',
+  createdAt: 'createdAt'
+} as const
+
+export type MatchingSessionScalarFieldEnum = (typeof MatchingSessionScalarFieldEnum)[keyof typeof MatchingSessionScalarFieldEnum]
+
+
+export const MemoScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  body: 'body',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MemoScalarFieldEnum = (typeof MemoScalarFieldEnum)[keyof typeof MemoScalarFieldEnum]
+
+
 export const StampDetailScalarFieldEnum = {
   itemId: 'itemId',
   emoji: 'emoji',
@@ -216,50 +269,6 @@ export const StampDetailScalarFieldEnum = {
 } as const
 
 export type StampDetailScalarFieldEnum = (typeof StampDetailScalarFieldEnum)[keyof typeof StampDetailScalarFieldEnum]
-
-
-export const EffectDetailScalarFieldEnum = {
-  itemId: 'itemId',
-  effectType: 'effectType',
-  previewUrl: 'previewUrl',
-  durationMs: 'durationMs'
-} as const
-
-export type EffectDetailScalarFieldEnum = (typeof EffectDetailScalarFieldEnum)[keyof typeof EffectDetailScalarFieldEnum]
-
-
-export const BoostDetailScalarFieldEnum = {
-  itemId: 'itemId',
-  boostType: 'boostType',
-  durationSeconds: 'durationSeconds'
-} as const
-
-export type BoostDetailScalarFieldEnum = (typeof BoostDetailScalarFieldEnum)[keyof typeof BoostDetailScalarFieldEnum]
-
-
-export const UserInventoryScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  itemId: 'itemId',
-  quantity: 'quantity',
-  acquiredAt: 'acquiredAt',
-  expiresAt: 'expiresAt'
-} as const
-
-export type UserInventoryScalarFieldEnum = (typeof UserInventoryScalarFieldEnum)[keyof typeof UserInventoryScalarFieldEnum]
-
-
-export const CoinTransactionScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  amount: 'amount',
-  type: 'type',
-  relatedItemId: 'relatedItemId',
-  description: 'description',
-  createdAt: 'createdAt'
-} as const
-
-export type CoinTransactionScalarFieldEnum = (typeof CoinTransactionScalarFieldEnum)[keyof typeof CoinTransactionScalarFieldEnum]
 
 
 export const TalkThemeScalarFieldEnum = {
@@ -289,54 +298,45 @@ export const TalkThemeChoiceScalarFieldEnum = {
 export type TalkThemeChoiceScalarFieldEnum = (typeof TalkThemeChoiceScalarFieldEnum)[keyof typeof TalkThemeChoiceScalarFieldEnum]
 
 
-export const MatchingQueueScalarFieldEnum = {
+export const UserScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  status: 'status',
+  email: 'email',
+  name: 'name',
+  avatarUrl: 'avatarUrl',
+  bio: 'bio',
+  birthDate: 'birthDate',
+  gender: 'gender',
+  mbti: 'mbti',
+  location: 'location',
+  coinBalance: 'coinBalance',
+  isOnboarded: 'isOnboarded',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type MatchingQueueScalarFieldEnum = (typeof MatchingQueueScalarFieldEnum)[keyof typeof MatchingQueueScalarFieldEnum]
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
-export const MatchingSessionScalarFieldEnum = {
+export const UserHobbyScalarFieldEnum = {
   id: 'id',
-  user1Id: 'user1Id',
-  user2Id: 'user2Id',
-  livekitRoomName: 'livekitRoomName',
-  status: 'status',
-  startedAt: 'startedAt',
-  endedAt: 'endedAt',
-  endReason: 'endReason',
-  createdAt: 'createdAt'
-} as const
-
-export type MatchingSessionScalarFieldEnum = (typeof MatchingSessionScalarFieldEnum)[keyof typeof MatchingSessionScalarFieldEnum]
-
-
-export const MatchingReactionScalarFieldEnum = {
-  id: 'id',
-  sessionId: 'sessionId',
   userId: 'userId',
-  themeId: 'themeId',
-  choiceId: 'choiceId',
-  roundNumber: 'roundNumber',
+  hobbyId: 'hobbyId',
   createdAt: 'createdAt'
 } as const
 
-export type MatchingReactionScalarFieldEnum = (typeof MatchingReactionScalarFieldEnum)[keyof typeof MatchingReactionScalarFieldEnum]
+export type UserHobbyScalarFieldEnum = (typeof UserHobbyScalarFieldEnum)[keyof typeof UserHobbyScalarFieldEnum]
 
 
-export const MemoScalarFieldEnum = {
+export const UserInventoryScalarFieldEnum = {
   id: 'id',
-  title: 'title',
-  body: 'body',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  userId: 'userId',
+  itemId: 'itemId',
+  quantity: 'quantity',
+  acquiredAt: 'acquiredAt',
+  expiresAt: 'expiresAt'
 } as const
 
-export type MemoScalarFieldEnum = (typeof MemoScalarFieldEnum)[keyof typeof MemoScalarFieldEnum]
+export type UserInventoryScalarFieldEnum = (typeof UserInventoryScalarFieldEnum)[keyof typeof UserInventoryScalarFieldEnum]
 
 
 export const SortOrder = {

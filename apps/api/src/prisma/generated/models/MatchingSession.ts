@@ -409,14 +409,9 @@ export type MatchingSessionUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type MatchingSessionListRelationFilter = {
-  every?: Prisma.MatchingSessionWhereInput
-  some?: Prisma.MatchingSessionWhereInput
-  none?: Prisma.MatchingSessionWhereInput
-}
-
-export type MatchingSessionOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type MatchingSessionScalarRelationFilter = {
+  is?: Prisma.MatchingSessionWhereInput
+  isNot?: Prisma.MatchingSessionWhereInput
 }
 
 export type MatchingSessionCountOrderByAggregateInput = {
@@ -467,9 +462,40 @@ export type MatchingSessionSumOrderByAggregateInput = {
   user2Id?: Prisma.SortOrder
 }
 
-export type MatchingSessionScalarRelationFilter = {
-  is?: Prisma.MatchingSessionWhereInput
-  isNot?: Prisma.MatchingSessionWhereInput
+export type MatchingSessionListRelationFilter = {
+  every?: Prisma.MatchingSessionWhereInput
+  some?: Prisma.MatchingSessionWhereInput
+  none?: Prisma.MatchingSessionWhereInput
+}
+
+export type MatchingSessionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type MatchingSessionCreateNestedOneWithoutReactionsInput = {
+  create?: Prisma.XOR<Prisma.MatchingSessionCreateWithoutReactionsInput, Prisma.MatchingSessionUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.MatchingSessionCreateOrConnectWithoutReactionsInput
+  connect?: Prisma.MatchingSessionWhereUniqueInput
+}
+
+export type MatchingSessionUpdateOneRequiredWithoutReactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingSessionCreateWithoutReactionsInput, Prisma.MatchingSessionUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.MatchingSessionCreateOrConnectWithoutReactionsInput
+  upsert?: Prisma.MatchingSessionUpsertWithoutReactionsInput
+  connect?: Prisma.MatchingSessionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MatchingSessionUpdateToOneWithWhereWithoutReactionsInput, Prisma.MatchingSessionUpdateWithoutReactionsInput>, Prisma.MatchingSessionUncheckedUpdateWithoutReactionsInput>
+}
+
+export type EnumMatchingSessionStatusFieldUpdateOperationsInput = {
+  set?: $Enums.MatchingSessionStatus
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type NullableEnumMatchingEndReasonFieldUpdateOperationsInput = {
+  set?: $Enums.MatchingEndReason | null
 }
 
 export type MatchingSessionCreateNestedManyWithoutUser1Input = {
@@ -556,26 +582,66 @@ export type MatchingSessionUncheckedUpdateManyWithoutUser2NestedInput = {
   deleteMany?: Prisma.MatchingSessionScalarWhereInput | Prisma.MatchingSessionScalarWhereInput[]
 }
 
-export type EnumMatchingSessionStatusFieldUpdateOperationsInput = {
-  set?: $Enums.MatchingSessionStatus
+export type MatchingSessionCreateWithoutReactionsInput = {
+  livekitRoomName: string
+  status?: $Enums.MatchingSessionStatus
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  endReason?: $Enums.MatchingEndReason | null
+  createdAt?: Date | string
+  user1: Prisma.UserCreateNestedOneWithoutMatchingSessionsAs1Input
+  user2: Prisma.UserCreateNestedOneWithoutMatchingSessionsAs2Input
 }
 
-export type NullableEnumMatchingEndReasonFieldUpdateOperationsInput = {
-  set?: $Enums.MatchingEndReason | null
+export type MatchingSessionUncheckedCreateWithoutReactionsInput = {
+  id?: number
+  user1Id: number
+  user2Id: number
+  livekitRoomName: string
+  status?: $Enums.MatchingSessionStatus
+  startedAt?: Date | string | null
+  endedAt?: Date | string | null
+  endReason?: $Enums.MatchingEndReason | null
+  createdAt?: Date | string
 }
 
-export type MatchingSessionCreateNestedOneWithoutReactionsInput = {
-  create?: Prisma.XOR<Prisma.MatchingSessionCreateWithoutReactionsInput, Prisma.MatchingSessionUncheckedCreateWithoutReactionsInput>
-  connectOrCreate?: Prisma.MatchingSessionCreateOrConnectWithoutReactionsInput
-  connect?: Prisma.MatchingSessionWhereUniqueInput
+export type MatchingSessionCreateOrConnectWithoutReactionsInput = {
+  where: Prisma.MatchingSessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.MatchingSessionCreateWithoutReactionsInput, Prisma.MatchingSessionUncheckedCreateWithoutReactionsInput>
 }
 
-export type MatchingSessionUpdateOneRequiredWithoutReactionsNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchingSessionCreateWithoutReactionsInput, Prisma.MatchingSessionUncheckedCreateWithoutReactionsInput>
-  connectOrCreate?: Prisma.MatchingSessionCreateOrConnectWithoutReactionsInput
-  upsert?: Prisma.MatchingSessionUpsertWithoutReactionsInput
-  connect?: Prisma.MatchingSessionWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.MatchingSessionUpdateToOneWithWhereWithoutReactionsInput, Prisma.MatchingSessionUpdateWithoutReactionsInput>, Prisma.MatchingSessionUncheckedUpdateWithoutReactionsInput>
+export type MatchingSessionUpsertWithoutReactionsInput = {
+  update: Prisma.XOR<Prisma.MatchingSessionUpdateWithoutReactionsInput, Prisma.MatchingSessionUncheckedUpdateWithoutReactionsInput>
+  create: Prisma.XOR<Prisma.MatchingSessionCreateWithoutReactionsInput, Prisma.MatchingSessionUncheckedCreateWithoutReactionsInput>
+  where?: Prisma.MatchingSessionWhereInput
+}
+
+export type MatchingSessionUpdateToOneWithWhereWithoutReactionsInput = {
+  where?: Prisma.MatchingSessionWhereInput
+  data: Prisma.XOR<Prisma.MatchingSessionUpdateWithoutReactionsInput, Prisma.MatchingSessionUncheckedUpdateWithoutReactionsInput>
+}
+
+export type MatchingSessionUpdateWithoutReactionsInput = {
+  livekitRoomName?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumMatchingSessionStatusFieldUpdateOperationsInput | $Enums.MatchingSessionStatus
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endReason?: Prisma.NullableEnumMatchingEndReasonFieldUpdateOperationsInput | $Enums.MatchingEndReason | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user1?: Prisma.UserUpdateOneRequiredWithoutMatchingSessionsAs1NestedInput
+  user2?: Prisma.UserUpdateOneRequiredWithoutMatchingSessionsAs2NestedInput
+}
+
+export type MatchingSessionUncheckedUpdateWithoutReactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  user1Id?: Prisma.IntFieldUpdateOperationsInput | number
+  user2Id?: Prisma.IntFieldUpdateOperationsInput | number
+  livekitRoomName?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumMatchingSessionStatusFieldUpdateOperationsInput | $Enums.MatchingSessionStatus
+  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endReason?: Prisma.NullableEnumMatchingEndReasonFieldUpdateOperationsInput | $Enums.MatchingEndReason | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MatchingSessionCreateWithoutUser1Input = {
@@ -689,68 +755,6 @@ export type MatchingSessionUpdateWithWhereUniqueWithoutUser2Input = {
 export type MatchingSessionUpdateManyWithWhereWithoutUser2Input = {
   where: Prisma.MatchingSessionScalarWhereInput
   data: Prisma.XOR<Prisma.MatchingSessionUpdateManyMutationInput, Prisma.MatchingSessionUncheckedUpdateManyWithoutUser2Input>
-}
-
-export type MatchingSessionCreateWithoutReactionsInput = {
-  livekitRoomName: string
-  status?: $Enums.MatchingSessionStatus
-  startedAt?: Date | string | null
-  endedAt?: Date | string | null
-  endReason?: $Enums.MatchingEndReason | null
-  createdAt?: Date | string
-  user1: Prisma.UserCreateNestedOneWithoutMatchingSessionsAs1Input
-  user2: Prisma.UserCreateNestedOneWithoutMatchingSessionsAs2Input
-}
-
-export type MatchingSessionUncheckedCreateWithoutReactionsInput = {
-  id?: number
-  user1Id: number
-  user2Id: number
-  livekitRoomName: string
-  status?: $Enums.MatchingSessionStatus
-  startedAt?: Date | string | null
-  endedAt?: Date | string | null
-  endReason?: $Enums.MatchingEndReason | null
-  createdAt?: Date | string
-}
-
-export type MatchingSessionCreateOrConnectWithoutReactionsInput = {
-  where: Prisma.MatchingSessionWhereUniqueInput
-  create: Prisma.XOR<Prisma.MatchingSessionCreateWithoutReactionsInput, Prisma.MatchingSessionUncheckedCreateWithoutReactionsInput>
-}
-
-export type MatchingSessionUpsertWithoutReactionsInput = {
-  update: Prisma.XOR<Prisma.MatchingSessionUpdateWithoutReactionsInput, Prisma.MatchingSessionUncheckedUpdateWithoutReactionsInput>
-  create: Prisma.XOR<Prisma.MatchingSessionCreateWithoutReactionsInput, Prisma.MatchingSessionUncheckedCreateWithoutReactionsInput>
-  where?: Prisma.MatchingSessionWhereInput
-}
-
-export type MatchingSessionUpdateToOneWithWhereWithoutReactionsInput = {
-  where?: Prisma.MatchingSessionWhereInput
-  data: Prisma.XOR<Prisma.MatchingSessionUpdateWithoutReactionsInput, Prisma.MatchingSessionUncheckedUpdateWithoutReactionsInput>
-}
-
-export type MatchingSessionUpdateWithoutReactionsInput = {
-  livekitRoomName?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMatchingSessionStatusFieldUpdateOperationsInput | $Enums.MatchingSessionStatus
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endReason?: Prisma.NullableEnumMatchingEndReasonFieldUpdateOperationsInput | $Enums.MatchingEndReason | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user1?: Prisma.UserUpdateOneRequiredWithoutMatchingSessionsAs1NestedInput
-  user2?: Prisma.UserUpdateOneRequiredWithoutMatchingSessionsAs2NestedInput
-}
-
-export type MatchingSessionUncheckedUpdateWithoutReactionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  user1Id?: Prisma.IntFieldUpdateOperationsInput | number
-  user2Id?: Prisma.IntFieldUpdateOperationsInput | number
-  livekitRoomName?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.EnumMatchingSessionStatusFieldUpdateOperationsInput | $Enums.MatchingSessionStatus
-  startedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endReason?: Prisma.NullableEnumMatchingEndReasonFieldUpdateOperationsInput | $Enums.MatchingEndReason | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type MatchingSessionCreateManyUser1Input = {

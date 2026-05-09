@@ -320,11 +320,6 @@ export type MatchingQueueUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type MatchingQueueNullableScalarRelationFilter = {
-  is?: Prisma.MatchingQueueWhereInput | null
-  isNot?: Prisma.MatchingQueueWhereInput | null
-}
-
 export type MatchingQueueCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -359,6 +354,15 @@ export type MatchingQueueSumOrderByAggregateInput = {
   userId?: Prisma.SortOrder
 }
 
+export type MatchingQueueNullableScalarRelationFilter = {
+  is?: Prisma.MatchingQueueWhereInput | null
+  isNot?: Prisma.MatchingQueueWhereInput | null
+}
+
+export type EnumMatchingQueueStatusFieldUpdateOperationsInput = {
+  set?: $Enums.MatchingQueueStatus
+}
+
 export type MatchingQueueCreateNestedOneWithoutUserInput = {
   create?: Prisma.XOR<Prisma.MatchingQueueCreateWithoutUserInput, Prisma.MatchingQueueUncheckedCreateWithoutUserInput>
   connectOrCreate?: Prisma.MatchingQueueCreateOrConnectWithoutUserInput
@@ -389,10 +393,6 @@ export type MatchingQueueUncheckedUpdateOneWithoutUserNestedInput = {
   delete?: Prisma.MatchingQueueWhereInput | boolean
   connect?: Prisma.MatchingQueueWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.MatchingQueueUpdateToOneWithWhereWithoutUserInput, Prisma.MatchingQueueUpdateWithoutUserInput>, Prisma.MatchingQueueUncheckedUpdateWithoutUserInput>
-}
-
-export type EnumMatchingQueueStatusFieldUpdateOperationsInput = {
-  set?: $Enums.MatchingQueueStatus
 }
 
 export type MatchingQueueCreateWithoutUserInput = {

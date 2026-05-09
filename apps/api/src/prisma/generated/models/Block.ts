@@ -308,16 +308,6 @@ export type BlockUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type BlockListRelationFilter = {
-  every?: Prisma.BlockWhereInput
-  some?: Prisma.BlockWhereInput
-  none?: Prisma.BlockWhereInput
-}
-
-export type BlockOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type BlockBlockerIdBlockedIdCompoundUniqueInput = {
   blockerId: number
   blockedId: number
@@ -354,6 +344,16 @@ export type BlockSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   blockerId?: Prisma.SortOrder
   blockedId?: Prisma.SortOrder
+}
+
+export type BlockListRelationFilter = {
+  every?: Prisma.BlockWhereInput
+  some?: Prisma.BlockWhereInput
+  none?: Prisma.BlockWhereInput
+}
+
+export type BlockOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type BlockCreateNestedManyWithoutBlockerInput = {

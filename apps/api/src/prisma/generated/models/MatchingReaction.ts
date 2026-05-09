@@ -381,16 +381,6 @@ export type MatchingReactionUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type MatchingReactionListRelationFilter = {
-  every?: Prisma.MatchingReactionWhereInput
-  some?: Prisma.MatchingReactionWhereInput
-  none?: Prisma.MatchingReactionWhereInput
-}
-
-export type MatchingReactionOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type MatchingReactionSessionIdUserIdRoundNumberCompoundUniqueInput = {
   sessionId: number
   userId: number
@@ -445,45 +435,55 @@ export type MatchingReactionSumOrderByAggregateInput = {
   roundNumber?: Prisma.SortOrder
 }
 
-export type MatchingReactionCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput> | Prisma.MatchingReactionCreateWithoutUserInput[] | Prisma.MatchingReactionUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutUserInput | Prisma.MatchingReactionCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.MatchingReactionCreateManyUserInputEnvelope
+export type MatchingReactionListRelationFilter = {
+  every?: Prisma.MatchingReactionWhereInput
+  some?: Prisma.MatchingReactionWhereInput
+  none?: Prisma.MatchingReactionWhereInput
+}
+
+export type MatchingReactionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type MatchingReactionCreateNestedManyWithoutSessionInput = {
+  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput> | Prisma.MatchingReactionCreateWithoutSessionInput[] | Prisma.MatchingReactionUncheckedCreateWithoutSessionInput[]
+  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutSessionInput | Prisma.MatchingReactionCreateOrConnectWithoutSessionInput[]
+  createMany?: Prisma.MatchingReactionCreateManySessionInputEnvelope
   connect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
 }
 
-export type MatchingReactionUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput> | Prisma.MatchingReactionCreateWithoutUserInput[] | Prisma.MatchingReactionUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutUserInput | Prisma.MatchingReactionCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.MatchingReactionCreateManyUserInputEnvelope
+export type MatchingReactionUncheckedCreateNestedManyWithoutSessionInput = {
+  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput> | Prisma.MatchingReactionCreateWithoutSessionInput[] | Prisma.MatchingReactionUncheckedCreateWithoutSessionInput[]
+  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutSessionInput | Prisma.MatchingReactionCreateOrConnectWithoutSessionInput[]
+  createMany?: Prisma.MatchingReactionCreateManySessionInputEnvelope
   connect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
 }
 
-export type MatchingReactionUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput> | Prisma.MatchingReactionCreateWithoutUserInput[] | Prisma.MatchingReactionUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutUserInput | Prisma.MatchingReactionCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.MatchingReactionUpsertWithWhereUniqueWithoutUserInput | Prisma.MatchingReactionUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.MatchingReactionCreateManyUserInputEnvelope
+export type MatchingReactionUpdateManyWithoutSessionNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput> | Prisma.MatchingReactionCreateWithoutSessionInput[] | Prisma.MatchingReactionUncheckedCreateWithoutSessionInput[]
+  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutSessionInput | Prisma.MatchingReactionCreateOrConnectWithoutSessionInput[]
+  upsert?: Prisma.MatchingReactionUpsertWithWhereUniqueWithoutSessionInput | Prisma.MatchingReactionUpsertWithWhereUniqueWithoutSessionInput[]
+  createMany?: Prisma.MatchingReactionCreateManySessionInputEnvelope
   set?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   disconnect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   delete?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   connect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
-  update?: Prisma.MatchingReactionUpdateWithWhereUniqueWithoutUserInput | Prisma.MatchingReactionUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.MatchingReactionUpdateManyWithWhereWithoutUserInput | Prisma.MatchingReactionUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.MatchingReactionUpdateWithWhereUniqueWithoutSessionInput | Prisma.MatchingReactionUpdateWithWhereUniqueWithoutSessionInput[]
+  updateMany?: Prisma.MatchingReactionUpdateManyWithWhereWithoutSessionInput | Prisma.MatchingReactionUpdateManyWithWhereWithoutSessionInput[]
   deleteMany?: Prisma.MatchingReactionScalarWhereInput | Prisma.MatchingReactionScalarWhereInput[]
 }
 
-export type MatchingReactionUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput> | Prisma.MatchingReactionCreateWithoutUserInput[] | Prisma.MatchingReactionUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutUserInput | Prisma.MatchingReactionCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.MatchingReactionUpsertWithWhereUniqueWithoutUserInput | Prisma.MatchingReactionUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.MatchingReactionCreateManyUserInputEnvelope
+export type MatchingReactionUncheckedUpdateManyWithoutSessionNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput> | Prisma.MatchingReactionCreateWithoutSessionInput[] | Prisma.MatchingReactionUncheckedCreateWithoutSessionInput[]
+  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutSessionInput | Prisma.MatchingReactionCreateOrConnectWithoutSessionInput[]
+  upsert?: Prisma.MatchingReactionUpsertWithWhereUniqueWithoutSessionInput | Prisma.MatchingReactionUpsertWithWhereUniqueWithoutSessionInput[]
+  createMany?: Prisma.MatchingReactionCreateManySessionInputEnvelope
   set?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   disconnect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   delete?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   connect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
-  update?: Prisma.MatchingReactionUpdateWithWhereUniqueWithoutUserInput | Prisma.MatchingReactionUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.MatchingReactionUpdateManyWithWhereWithoutUserInput | Prisma.MatchingReactionUpdateManyWithWhereWithoutUserInput[]
+  update?: Prisma.MatchingReactionUpdateWithWhereUniqueWithoutSessionInput | Prisma.MatchingReactionUpdateWithWhereUniqueWithoutSessionInput[]
+  updateMany?: Prisma.MatchingReactionUpdateManyWithWhereWithoutSessionInput | Prisma.MatchingReactionUpdateManyWithWhereWithoutSessionInput[]
   deleteMany?: Prisma.MatchingReactionScalarWhereInput | Prisma.MatchingReactionScalarWhereInput[]
 }
 
@@ -571,89 +571,89 @@ export type MatchingReactionUncheckedUpdateManyWithoutChoiceNestedInput = {
   deleteMany?: Prisma.MatchingReactionScalarWhereInput | Prisma.MatchingReactionScalarWhereInput[]
 }
 
-export type MatchingReactionCreateNestedManyWithoutSessionInput = {
-  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput> | Prisma.MatchingReactionCreateWithoutSessionInput[] | Prisma.MatchingReactionUncheckedCreateWithoutSessionInput[]
-  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutSessionInput | Prisma.MatchingReactionCreateOrConnectWithoutSessionInput[]
-  createMany?: Prisma.MatchingReactionCreateManySessionInputEnvelope
+export type MatchingReactionCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput> | Prisma.MatchingReactionCreateWithoutUserInput[] | Prisma.MatchingReactionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutUserInput | Prisma.MatchingReactionCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.MatchingReactionCreateManyUserInputEnvelope
   connect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
 }
 
-export type MatchingReactionUncheckedCreateNestedManyWithoutSessionInput = {
-  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput> | Prisma.MatchingReactionCreateWithoutSessionInput[] | Prisma.MatchingReactionUncheckedCreateWithoutSessionInput[]
-  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutSessionInput | Prisma.MatchingReactionCreateOrConnectWithoutSessionInput[]
-  createMany?: Prisma.MatchingReactionCreateManySessionInputEnvelope
+export type MatchingReactionUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput> | Prisma.MatchingReactionCreateWithoutUserInput[] | Prisma.MatchingReactionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutUserInput | Prisma.MatchingReactionCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.MatchingReactionCreateManyUserInputEnvelope
   connect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
 }
 
-export type MatchingReactionUpdateManyWithoutSessionNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput> | Prisma.MatchingReactionCreateWithoutSessionInput[] | Prisma.MatchingReactionUncheckedCreateWithoutSessionInput[]
-  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutSessionInput | Prisma.MatchingReactionCreateOrConnectWithoutSessionInput[]
-  upsert?: Prisma.MatchingReactionUpsertWithWhereUniqueWithoutSessionInput | Prisma.MatchingReactionUpsertWithWhereUniqueWithoutSessionInput[]
-  createMany?: Prisma.MatchingReactionCreateManySessionInputEnvelope
+export type MatchingReactionUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput> | Prisma.MatchingReactionCreateWithoutUserInput[] | Prisma.MatchingReactionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutUserInput | Prisma.MatchingReactionCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.MatchingReactionUpsertWithWhereUniqueWithoutUserInput | Prisma.MatchingReactionUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.MatchingReactionCreateManyUserInputEnvelope
   set?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   disconnect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   delete?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   connect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
-  update?: Prisma.MatchingReactionUpdateWithWhereUniqueWithoutSessionInput | Prisma.MatchingReactionUpdateWithWhereUniqueWithoutSessionInput[]
-  updateMany?: Prisma.MatchingReactionUpdateManyWithWhereWithoutSessionInput | Prisma.MatchingReactionUpdateManyWithWhereWithoutSessionInput[]
+  update?: Prisma.MatchingReactionUpdateWithWhereUniqueWithoutUserInput | Prisma.MatchingReactionUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.MatchingReactionUpdateManyWithWhereWithoutUserInput | Prisma.MatchingReactionUpdateManyWithWhereWithoutUserInput[]
   deleteMany?: Prisma.MatchingReactionScalarWhereInput | Prisma.MatchingReactionScalarWhereInput[]
 }
 
-export type MatchingReactionUncheckedUpdateManyWithoutSessionNestedInput = {
-  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput> | Prisma.MatchingReactionCreateWithoutSessionInput[] | Prisma.MatchingReactionUncheckedCreateWithoutSessionInput[]
-  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutSessionInput | Prisma.MatchingReactionCreateOrConnectWithoutSessionInput[]
-  upsert?: Prisma.MatchingReactionUpsertWithWhereUniqueWithoutSessionInput | Prisma.MatchingReactionUpsertWithWhereUniqueWithoutSessionInput[]
-  createMany?: Prisma.MatchingReactionCreateManySessionInputEnvelope
+export type MatchingReactionUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput> | Prisma.MatchingReactionCreateWithoutUserInput[] | Prisma.MatchingReactionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.MatchingReactionCreateOrConnectWithoutUserInput | Prisma.MatchingReactionCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.MatchingReactionUpsertWithWhereUniqueWithoutUserInput | Prisma.MatchingReactionUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.MatchingReactionCreateManyUserInputEnvelope
   set?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   disconnect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   delete?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
   connect?: Prisma.MatchingReactionWhereUniqueInput | Prisma.MatchingReactionWhereUniqueInput[]
-  update?: Prisma.MatchingReactionUpdateWithWhereUniqueWithoutSessionInput | Prisma.MatchingReactionUpdateWithWhereUniqueWithoutSessionInput[]
-  updateMany?: Prisma.MatchingReactionUpdateManyWithWhereWithoutSessionInput | Prisma.MatchingReactionUpdateManyWithWhereWithoutSessionInput[]
+  update?: Prisma.MatchingReactionUpdateWithWhereUniqueWithoutUserInput | Prisma.MatchingReactionUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.MatchingReactionUpdateManyWithWhereWithoutUserInput | Prisma.MatchingReactionUpdateManyWithWhereWithoutUserInput[]
   deleteMany?: Prisma.MatchingReactionScalarWhereInput | Prisma.MatchingReactionScalarWhereInput[]
 }
 
-export type MatchingReactionCreateWithoutUserInput = {
+export type MatchingReactionCreateWithoutSessionInput = {
   roundNumber: number
   createdAt?: Date | string
-  session: Prisma.MatchingSessionCreateNestedOneWithoutReactionsInput
+  user: Prisma.UserCreateNestedOneWithoutMatchingReactionsInput
   theme: Prisma.TalkThemeCreateNestedOneWithoutReactionsInput
   choice?: Prisma.TalkThemeChoiceCreateNestedOneWithoutReactionsInput
 }
 
-export type MatchingReactionUncheckedCreateWithoutUserInput = {
+export type MatchingReactionUncheckedCreateWithoutSessionInput = {
   id?: number
-  sessionId: number
+  userId: number
   themeId: number
   choiceId?: number | null
   roundNumber: number
   createdAt?: Date | string
 }
 
-export type MatchingReactionCreateOrConnectWithoutUserInput = {
+export type MatchingReactionCreateOrConnectWithoutSessionInput = {
   where: Prisma.MatchingReactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput>
+  create: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput>
 }
 
-export type MatchingReactionCreateManyUserInputEnvelope = {
-  data: Prisma.MatchingReactionCreateManyUserInput | Prisma.MatchingReactionCreateManyUserInput[]
+export type MatchingReactionCreateManySessionInputEnvelope = {
+  data: Prisma.MatchingReactionCreateManySessionInput | Prisma.MatchingReactionCreateManySessionInput[]
   skipDuplicates?: boolean
 }
 
-export type MatchingReactionUpsertWithWhereUniqueWithoutUserInput = {
+export type MatchingReactionUpsertWithWhereUniqueWithoutSessionInput = {
   where: Prisma.MatchingReactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.MatchingReactionUpdateWithoutUserInput, Prisma.MatchingReactionUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput>
+  update: Prisma.XOR<Prisma.MatchingReactionUpdateWithoutSessionInput, Prisma.MatchingReactionUncheckedUpdateWithoutSessionInput>
+  create: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput>
 }
 
-export type MatchingReactionUpdateWithWhereUniqueWithoutUserInput = {
+export type MatchingReactionUpdateWithWhereUniqueWithoutSessionInput = {
   where: Prisma.MatchingReactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.MatchingReactionUpdateWithoutUserInput, Prisma.MatchingReactionUncheckedUpdateWithoutUserInput>
+  data: Prisma.XOR<Prisma.MatchingReactionUpdateWithoutSessionInput, Prisma.MatchingReactionUncheckedUpdateWithoutSessionInput>
 }
 
-export type MatchingReactionUpdateManyWithWhereWithoutUserInput = {
+export type MatchingReactionUpdateManyWithWhereWithoutSessionInput = {
   where: Prisma.MatchingReactionScalarWhereInput
-  data: Prisma.XOR<Prisma.MatchingReactionUpdateManyMutationInput, Prisma.MatchingReactionUncheckedUpdateManyWithoutUserInput>
+  data: Prisma.XOR<Prisma.MatchingReactionUpdateManyMutationInput, Prisma.MatchingReactionUncheckedUpdateManyWithoutSessionInput>
 }
 
 export type MatchingReactionScalarWhereInput = {
@@ -755,50 +755,15 @@ export type MatchingReactionUpdateManyWithWhereWithoutChoiceInput = {
   data: Prisma.XOR<Prisma.MatchingReactionUpdateManyMutationInput, Prisma.MatchingReactionUncheckedUpdateManyWithoutChoiceInput>
 }
 
-export type MatchingReactionCreateWithoutSessionInput = {
+export type MatchingReactionCreateWithoutUserInput = {
   roundNumber: number
   createdAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutMatchingReactionsInput
+  session: Prisma.MatchingSessionCreateNestedOneWithoutReactionsInput
   theme: Prisma.TalkThemeCreateNestedOneWithoutReactionsInput
   choice?: Prisma.TalkThemeChoiceCreateNestedOneWithoutReactionsInput
 }
 
-export type MatchingReactionUncheckedCreateWithoutSessionInput = {
-  id?: number
-  userId: number
-  themeId: number
-  choiceId?: number | null
-  roundNumber: number
-  createdAt?: Date | string
-}
-
-export type MatchingReactionCreateOrConnectWithoutSessionInput = {
-  where: Prisma.MatchingReactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput>
-}
-
-export type MatchingReactionCreateManySessionInputEnvelope = {
-  data: Prisma.MatchingReactionCreateManySessionInput | Prisma.MatchingReactionCreateManySessionInput[]
-  skipDuplicates?: boolean
-}
-
-export type MatchingReactionUpsertWithWhereUniqueWithoutSessionInput = {
-  where: Prisma.MatchingReactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.MatchingReactionUpdateWithoutSessionInput, Prisma.MatchingReactionUncheckedUpdateWithoutSessionInput>
-  create: Prisma.XOR<Prisma.MatchingReactionCreateWithoutSessionInput, Prisma.MatchingReactionUncheckedCreateWithoutSessionInput>
-}
-
-export type MatchingReactionUpdateWithWhereUniqueWithoutSessionInput = {
-  where: Prisma.MatchingReactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.MatchingReactionUpdateWithoutSessionInput, Prisma.MatchingReactionUncheckedUpdateWithoutSessionInput>
-}
-
-export type MatchingReactionUpdateManyWithWhereWithoutSessionInput = {
-  where: Prisma.MatchingReactionScalarWhereInput
-  data: Prisma.XOR<Prisma.MatchingReactionUpdateManyMutationInput, Prisma.MatchingReactionUncheckedUpdateManyWithoutSessionInput>
-}
-
-export type MatchingReactionCreateManyUserInput = {
+export type MatchingReactionUncheckedCreateWithoutUserInput = {
   id?: number
   sessionId: number
   themeId: number
@@ -807,26 +772,61 @@ export type MatchingReactionCreateManyUserInput = {
   createdAt?: Date | string
 }
 
-export type MatchingReactionUpdateWithoutUserInput = {
+export type MatchingReactionCreateOrConnectWithoutUserInput = {
+  where: Prisma.MatchingReactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput>
+}
+
+export type MatchingReactionCreateManyUserInputEnvelope = {
+  data: Prisma.MatchingReactionCreateManyUserInput | Prisma.MatchingReactionCreateManyUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type MatchingReactionUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.MatchingReactionWhereUniqueInput
+  update: Prisma.XOR<Prisma.MatchingReactionUpdateWithoutUserInput, Prisma.MatchingReactionUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.MatchingReactionCreateWithoutUserInput, Prisma.MatchingReactionUncheckedCreateWithoutUserInput>
+}
+
+export type MatchingReactionUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.MatchingReactionWhereUniqueInput
+  data: Prisma.XOR<Prisma.MatchingReactionUpdateWithoutUserInput, Prisma.MatchingReactionUncheckedUpdateWithoutUserInput>
+}
+
+export type MatchingReactionUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.MatchingReactionScalarWhereInput
+  data: Prisma.XOR<Prisma.MatchingReactionUpdateManyMutationInput, Prisma.MatchingReactionUncheckedUpdateManyWithoutUserInput>
+}
+
+export type MatchingReactionCreateManySessionInput = {
+  id?: number
+  userId: number
+  themeId: number
+  choiceId?: number | null
+  roundNumber: number
+  createdAt?: Date | string
+}
+
+export type MatchingReactionUpdateWithoutSessionInput = {
   roundNumber?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  session?: Prisma.MatchingSessionUpdateOneRequiredWithoutReactionsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutMatchingReactionsNestedInput
   theme?: Prisma.TalkThemeUpdateOneRequiredWithoutReactionsNestedInput
   choice?: Prisma.TalkThemeChoiceUpdateOneWithoutReactionsNestedInput
 }
 
-export type MatchingReactionUncheckedUpdateWithoutUserInput = {
+export type MatchingReactionUncheckedUpdateWithoutSessionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  sessionId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
   themeId?: Prisma.IntFieldUpdateOperationsInput | number
   choiceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roundNumber?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type MatchingReactionUncheckedUpdateManyWithoutUserInput = {
+export type MatchingReactionUncheckedUpdateManyWithoutSessionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  sessionId?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
   themeId?: Prisma.IntFieldUpdateOperationsInput | number
   choiceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roundNumber?: Prisma.IntFieldUpdateOperationsInput | number
@@ -903,35 +903,35 @@ export type MatchingReactionUncheckedUpdateManyWithoutChoiceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type MatchingReactionCreateManySessionInput = {
+export type MatchingReactionCreateManyUserInput = {
   id?: number
-  userId: number
+  sessionId: number
   themeId: number
   choiceId?: number | null
   roundNumber: number
   createdAt?: Date | string
 }
 
-export type MatchingReactionUpdateWithoutSessionInput = {
+export type MatchingReactionUpdateWithoutUserInput = {
   roundNumber?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutMatchingReactionsNestedInput
+  session?: Prisma.MatchingSessionUpdateOneRequiredWithoutReactionsNestedInput
   theme?: Prisma.TalkThemeUpdateOneRequiredWithoutReactionsNestedInput
   choice?: Prisma.TalkThemeChoiceUpdateOneWithoutReactionsNestedInput
 }
 
-export type MatchingReactionUncheckedUpdateWithoutSessionInput = {
+export type MatchingReactionUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  sessionId?: Prisma.IntFieldUpdateOperationsInput | number
   themeId?: Prisma.IntFieldUpdateOperationsInput | number
   choiceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roundNumber?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type MatchingReactionUncheckedUpdateManyWithoutSessionInput = {
+export type MatchingReactionUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  sessionId?: Prisma.IntFieldUpdateOperationsInput | number
   themeId?: Prisma.IntFieldUpdateOperationsInput | number
   choiceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   roundNumber?: Prisma.IntFieldUpdateOperationsInput | number

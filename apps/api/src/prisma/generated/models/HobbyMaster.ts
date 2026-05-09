@@ -386,8 +386,8 @@ export type HobbyMasterScalarRelationFilter = {
   isNot?: Prisma.HobbyMasterWhereInput
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type HobbyMasterCreateNestedOneWithoutUsersInput = {

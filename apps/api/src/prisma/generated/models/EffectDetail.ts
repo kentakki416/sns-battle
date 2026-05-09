@@ -304,11 +304,6 @@ export type EffectDetailUncheckedUpdateManyInput = {
   durationMs?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
-export type EffectDetailNullableScalarRelationFilter = {
-  is?: Prisma.EffectDetailWhereInput | null
-  isNot?: Prisma.EffectDetailWhereInput | null
-}
-
 export type EffectDetailCountOrderByAggregateInput = {
   itemId?: Prisma.SortOrder
   effectType?: Prisma.SortOrder
@@ -338,6 +333,15 @@ export type EffectDetailMinOrderByAggregateInput = {
 export type EffectDetailSumOrderByAggregateInput = {
   itemId?: Prisma.SortOrder
   durationMs?: Prisma.SortOrder
+}
+
+export type EffectDetailNullableScalarRelationFilter = {
+  is?: Prisma.EffectDetailWhereInput | null
+  isNot?: Prisma.EffectDetailWhereInput | null
+}
+
+export type EnumEffectTypeFieldUpdateOperationsInput = {
+  set?: $Enums.EffectType
 }
 
 export type EffectDetailCreateNestedOneWithoutItemInput = {
@@ -370,10 +374,6 @@ export type EffectDetailUncheckedUpdateOneWithoutItemNestedInput = {
   delete?: Prisma.EffectDetailWhereInput | boolean
   connect?: Prisma.EffectDetailWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.EffectDetailUpdateToOneWithWhereWithoutItemInput, Prisma.EffectDetailUpdateWithoutItemInput>, Prisma.EffectDetailUncheckedUpdateWithoutItemInput>
-}
-
-export type EnumEffectTypeFieldUpdateOperationsInput = {
-  set?: $Enums.EffectType
 }
 
 export type EffectDetailCreateWithoutItemInput = {

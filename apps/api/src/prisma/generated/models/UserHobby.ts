@@ -356,48 +356,6 @@ export type UserHobbySumOrderByAggregateInput = {
   hobbyId?: Prisma.SortOrder
 }
 
-export type UserHobbyCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput> | Prisma.UserHobbyCreateWithoutUserInput[] | Prisma.UserHobbyUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutUserInput | Prisma.UserHobbyCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.UserHobbyCreateManyUserInputEnvelope
-  connect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-}
-
-export type UserHobbyUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput> | Prisma.UserHobbyCreateWithoutUserInput[] | Prisma.UserHobbyUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutUserInput | Prisma.UserHobbyCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.UserHobbyCreateManyUserInputEnvelope
-  connect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-}
-
-export type UserHobbyUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput> | Prisma.UserHobbyCreateWithoutUserInput[] | Prisma.UserHobbyUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutUserInput | Prisma.UserHobbyCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.UserHobbyUpsertWithWhereUniqueWithoutUserInput | Prisma.UserHobbyUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.UserHobbyCreateManyUserInputEnvelope
-  set?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-  disconnect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-  delete?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-  connect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-  update?: Prisma.UserHobbyUpdateWithWhereUniqueWithoutUserInput | Prisma.UserHobbyUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.UserHobbyUpdateManyWithWhereWithoutUserInput | Prisma.UserHobbyUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
-}
-
-export type UserHobbyUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput> | Prisma.UserHobbyCreateWithoutUserInput[] | Prisma.UserHobbyUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutUserInput | Prisma.UserHobbyCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.UserHobbyUpsertWithWhereUniqueWithoutUserInput | Prisma.UserHobbyUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.UserHobbyCreateManyUserInputEnvelope
-  set?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-  disconnect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-  delete?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-  connect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
-  update?: Prisma.UserHobbyUpdateWithWhereUniqueWithoutUserInput | Prisma.UserHobbyUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.UserHobbyUpdateManyWithWhereWithoutUserInput | Prisma.UserHobbyUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
-}
-
 export type UserHobbyCreateNestedManyWithoutHobbyInput = {
   create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutHobbyInput, Prisma.UserHobbyUncheckedCreateWithoutHobbyInput> | Prisma.UserHobbyCreateWithoutHobbyInput[] | Prisma.UserHobbyUncheckedCreateWithoutHobbyInput[]
   connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutHobbyInput | Prisma.UserHobbyCreateOrConnectWithoutHobbyInput[]
@@ -440,51 +398,46 @@ export type UserHobbyUncheckedUpdateManyWithoutHobbyNestedInput = {
   deleteMany?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
 }
 
-export type UserHobbyCreateWithoutUserInput = {
-  createdAt?: Date | string
-  hobby: Prisma.HobbyMasterCreateNestedOneWithoutUsersInput
+export type UserHobbyCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput> | Prisma.UserHobbyCreateWithoutUserInput[] | Prisma.UserHobbyUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutUserInput | Prisma.UserHobbyCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.UserHobbyCreateManyUserInputEnvelope
+  connect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
 }
 
-export type UserHobbyUncheckedCreateWithoutUserInput = {
-  id?: number
-  hobbyId: number
-  createdAt?: Date | string
+export type UserHobbyUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput> | Prisma.UserHobbyCreateWithoutUserInput[] | Prisma.UserHobbyUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutUserInput | Prisma.UserHobbyCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.UserHobbyCreateManyUserInputEnvelope
+  connect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
 }
 
-export type UserHobbyCreateOrConnectWithoutUserInput = {
-  where: Prisma.UserHobbyWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput>
+export type UserHobbyUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput> | Prisma.UserHobbyCreateWithoutUserInput[] | Prisma.UserHobbyUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutUserInput | Prisma.UserHobbyCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.UserHobbyUpsertWithWhereUniqueWithoutUserInput | Prisma.UserHobbyUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.UserHobbyCreateManyUserInputEnvelope
+  set?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
+  disconnect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
+  delete?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
+  connect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
+  update?: Prisma.UserHobbyUpdateWithWhereUniqueWithoutUserInput | Prisma.UserHobbyUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.UserHobbyUpdateManyWithWhereWithoutUserInput | Prisma.UserHobbyUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
 }
 
-export type UserHobbyCreateManyUserInputEnvelope = {
-  data: Prisma.UserHobbyCreateManyUserInput | Prisma.UserHobbyCreateManyUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type UserHobbyUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.UserHobbyWhereUniqueInput
-  update: Prisma.XOR<Prisma.UserHobbyUpdateWithoutUserInput, Prisma.UserHobbyUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput>
-}
-
-export type UserHobbyUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.UserHobbyWhereUniqueInput
-  data: Prisma.XOR<Prisma.UserHobbyUpdateWithoutUserInput, Prisma.UserHobbyUncheckedUpdateWithoutUserInput>
-}
-
-export type UserHobbyUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.UserHobbyScalarWhereInput
-  data: Prisma.XOR<Prisma.UserHobbyUpdateManyMutationInput, Prisma.UserHobbyUncheckedUpdateManyWithoutUserInput>
-}
-
-export type UserHobbyScalarWhereInput = {
-  AND?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
-  OR?: Prisma.UserHobbyScalarWhereInput[]
-  NOT?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
-  id?: Prisma.IntFilter<"UserHobby"> | number
-  userId?: Prisma.IntFilter<"UserHobby"> | number
-  hobbyId?: Prisma.IntFilter<"UserHobby"> | number
-  createdAt?: Prisma.DateTimeFilter<"UserHobby"> | Date | string
+export type UserHobbyUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput> | Prisma.UserHobbyCreateWithoutUserInput[] | Prisma.UserHobbyUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserHobbyCreateOrConnectWithoutUserInput | Prisma.UserHobbyCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.UserHobbyUpsertWithWhereUniqueWithoutUserInput | Prisma.UserHobbyUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.UserHobbyCreateManyUserInputEnvelope
+  set?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
+  disconnect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
+  delete?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
+  connect?: Prisma.UserHobbyWhereUniqueInput | Prisma.UserHobbyWhereUniqueInput[]
+  update?: Prisma.UserHobbyUpdateWithWhereUniqueWithoutUserInput | Prisma.UserHobbyUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.UserHobbyUpdateManyWithWhereWithoutUserInput | Prisma.UserHobbyUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
 }
 
 export type UserHobbyCreateWithoutHobbyInput = {
@@ -524,27 +477,51 @@ export type UserHobbyUpdateManyWithWhereWithoutHobbyInput = {
   data: Prisma.XOR<Prisma.UserHobbyUpdateManyMutationInput, Prisma.UserHobbyUncheckedUpdateManyWithoutHobbyInput>
 }
 
-export type UserHobbyCreateManyUserInput = {
+export type UserHobbyScalarWhereInput = {
+  AND?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
+  OR?: Prisma.UserHobbyScalarWhereInput[]
+  NOT?: Prisma.UserHobbyScalarWhereInput | Prisma.UserHobbyScalarWhereInput[]
+  id?: Prisma.IntFilter<"UserHobby"> | number
+  userId?: Prisma.IntFilter<"UserHobby"> | number
+  hobbyId?: Prisma.IntFilter<"UserHobby"> | number
+  createdAt?: Prisma.DateTimeFilter<"UserHobby"> | Date | string
+}
+
+export type UserHobbyCreateWithoutUserInput = {
+  createdAt?: Date | string
+  hobby: Prisma.HobbyMasterCreateNestedOneWithoutUsersInput
+}
+
+export type UserHobbyUncheckedCreateWithoutUserInput = {
   id?: number
   hobbyId: number
   createdAt?: Date | string
 }
 
-export type UserHobbyUpdateWithoutUserInput = {
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  hobby?: Prisma.HobbyMasterUpdateOneRequiredWithoutUsersNestedInput
+export type UserHobbyCreateOrConnectWithoutUserInput = {
+  where: Prisma.UserHobbyWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput>
 }
 
-export type UserHobbyUncheckedUpdateWithoutUserInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  hobbyId?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type UserHobbyCreateManyUserInputEnvelope = {
+  data: Prisma.UserHobbyCreateManyUserInput | Prisma.UserHobbyCreateManyUserInput[]
+  skipDuplicates?: boolean
 }
 
-export type UserHobbyUncheckedUpdateManyWithoutUserInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  hobbyId?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type UserHobbyUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.UserHobbyWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserHobbyUpdateWithoutUserInput, Prisma.UserHobbyUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.UserHobbyCreateWithoutUserInput, Prisma.UserHobbyUncheckedCreateWithoutUserInput>
+}
+
+export type UserHobbyUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.UserHobbyWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserHobbyUpdateWithoutUserInput, Prisma.UserHobbyUncheckedUpdateWithoutUserInput>
+}
+
+export type UserHobbyUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.UserHobbyScalarWhereInput
+  data: Prisma.XOR<Prisma.UserHobbyUpdateManyMutationInput, Prisma.UserHobbyUncheckedUpdateManyWithoutUserInput>
 }
 
 export type UserHobbyCreateManyHobbyInput = {
@@ -567,6 +544,29 @@ export type UserHobbyUncheckedUpdateWithoutHobbyInput = {
 export type UserHobbyUncheckedUpdateManyWithoutHobbyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserHobbyCreateManyUserInput = {
+  id?: number
+  hobbyId: number
+  createdAt?: Date | string
+}
+
+export type UserHobbyUpdateWithoutUserInput = {
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  hobby?: Prisma.HobbyMasterUpdateOneRequiredWithoutUsersNestedInput
+}
+
+export type UserHobbyUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  hobbyId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserHobbyUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  hobbyId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 

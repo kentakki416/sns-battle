@@ -350,6 +350,11 @@ export type TalkThemeChoiceUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type TalkThemeChoiceNullableScalarRelationFilter = {
+  is?: Prisma.TalkThemeChoiceWhereInput | null
+  isNot?: Prisma.TalkThemeChoiceWhereInput | null
+}
+
 export type TalkThemeChoiceListRelationFilter = {
   every?: Prisma.TalkThemeChoiceWhereInput
   some?: Prisma.TalkThemeChoiceWhereInput
@@ -399,9 +404,20 @@ export type TalkThemeChoiceSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type TalkThemeChoiceNullableScalarRelationFilter = {
-  is?: Prisma.TalkThemeChoiceWhereInput | null
-  isNot?: Prisma.TalkThemeChoiceWhereInput | null
+export type TalkThemeChoiceCreateNestedOneWithoutReactionsInput = {
+  create?: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.TalkThemeChoiceCreateOrConnectWithoutReactionsInput
+  connect?: Prisma.TalkThemeChoiceWhereUniqueInput
+}
+
+export type TalkThemeChoiceUpdateOneWithoutReactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.TalkThemeChoiceCreateOrConnectWithoutReactionsInput
+  upsert?: Prisma.TalkThemeChoiceUpsertWithoutReactionsInput
+  disconnect?: Prisma.TalkThemeChoiceWhereInput | boolean
+  delete?: Prisma.TalkThemeChoiceWhereInput | boolean
+  connect?: Prisma.TalkThemeChoiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TalkThemeChoiceUpdateToOneWithWhereWithoutReactionsInput, Prisma.TalkThemeChoiceUpdateWithoutReactionsInput>, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
 }
 
 export type TalkThemeChoiceCreateNestedManyWithoutThemeInput = {
@@ -446,20 +462,54 @@ export type TalkThemeChoiceUncheckedUpdateManyWithoutThemeNestedInput = {
   deleteMany?: Prisma.TalkThemeChoiceScalarWhereInput | Prisma.TalkThemeChoiceScalarWhereInput[]
 }
 
-export type TalkThemeChoiceCreateNestedOneWithoutReactionsInput = {
-  create?: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
-  connectOrCreate?: Prisma.TalkThemeChoiceCreateOrConnectWithoutReactionsInput
-  connect?: Prisma.TalkThemeChoiceWhereUniqueInput
+export type TalkThemeChoiceCreateWithoutReactionsInput = {
+  label: string
+  emoji: string
+  sortOrder?: number
+  createdAt?: Date | string
+  theme: Prisma.TalkThemeCreateNestedOneWithoutChoicesInput
 }
 
-export type TalkThemeChoiceUpdateOneWithoutReactionsNestedInput = {
-  create?: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
-  connectOrCreate?: Prisma.TalkThemeChoiceCreateOrConnectWithoutReactionsInput
-  upsert?: Prisma.TalkThemeChoiceUpsertWithoutReactionsInput
-  disconnect?: Prisma.TalkThemeChoiceWhereInput | boolean
-  delete?: Prisma.TalkThemeChoiceWhereInput | boolean
-  connect?: Prisma.TalkThemeChoiceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.TalkThemeChoiceUpdateToOneWithWhereWithoutReactionsInput, Prisma.TalkThemeChoiceUpdateWithoutReactionsInput>, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
+export type TalkThemeChoiceUncheckedCreateWithoutReactionsInput = {
+  id?: number
+  themeId: number
+  label: string
+  emoji: string
+  sortOrder?: number
+  createdAt?: Date | string
+}
+
+export type TalkThemeChoiceCreateOrConnectWithoutReactionsInput = {
+  where: Prisma.TalkThemeChoiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
+}
+
+export type TalkThemeChoiceUpsertWithoutReactionsInput = {
+  update: Prisma.XOR<Prisma.TalkThemeChoiceUpdateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
+  create: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
+  where?: Prisma.TalkThemeChoiceWhereInput
+}
+
+export type TalkThemeChoiceUpdateToOneWithWhereWithoutReactionsInput = {
+  where?: Prisma.TalkThemeChoiceWhereInput
+  data: Prisma.XOR<Prisma.TalkThemeChoiceUpdateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
+}
+
+export type TalkThemeChoiceUpdateWithoutReactionsInput = {
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  theme?: Prisma.TalkThemeUpdateOneRequiredWithoutChoicesNestedInput
+}
+
+export type TalkThemeChoiceUncheckedUpdateWithoutReactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  themeId?: Prisma.IntFieldUpdateOperationsInput | number
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TalkThemeChoiceCreateWithoutThemeInput = {
@@ -515,56 +565,6 @@ export type TalkThemeChoiceScalarWhereInput = {
   emoji?: Prisma.StringFilter<"TalkThemeChoice"> | string
   sortOrder?: Prisma.IntFilter<"TalkThemeChoice"> | number
   createdAt?: Prisma.DateTimeFilter<"TalkThemeChoice"> | Date | string
-}
-
-export type TalkThemeChoiceCreateWithoutReactionsInput = {
-  label: string
-  emoji: string
-  sortOrder?: number
-  createdAt?: Date | string
-  theme: Prisma.TalkThemeCreateNestedOneWithoutChoicesInput
-}
-
-export type TalkThemeChoiceUncheckedCreateWithoutReactionsInput = {
-  id?: number
-  themeId: number
-  label: string
-  emoji: string
-  sortOrder?: number
-  createdAt?: Date | string
-}
-
-export type TalkThemeChoiceCreateOrConnectWithoutReactionsInput = {
-  where: Prisma.TalkThemeChoiceWhereUniqueInput
-  create: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
-}
-
-export type TalkThemeChoiceUpsertWithoutReactionsInput = {
-  update: Prisma.XOR<Prisma.TalkThemeChoiceUpdateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
-  create: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
-  where?: Prisma.TalkThemeChoiceWhereInput
-}
-
-export type TalkThemeChoiceUpdateToOneWithWhereWithoutReactionsInput = {
-  where?: Prisma.TalkThemeChoiceWhereInput
-  data: Prisma.XOR<Prisma.TalkThemeChoiceUpdateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
-}
-
-export type TalkThemeChoiceUpdateWithoutReactionsInput = {
-  label?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  theme?: Prisma.TalkThemeUpdateOneRequiredWithoutChoicesNestedInput
-}
-
-export type TalkThemeChoiceUncheckedUpdateWithoutReactionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  themeId?: Prisma.IntFieldUpdateOperationsInput | number
-  label?: Prisma.StringFieldUpdateOperationsInput | string
-  emoji?: Prisma.StringFieldUpdateOperationsInput | string
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TalkThemeChoiceCreateManyThemeInput = {

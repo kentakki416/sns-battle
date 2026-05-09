@@ -459,6 +459,16 @@ export type ItemUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type ItemScalarRelationFilter = {
+  is?: Prisma.ItemWhereInput
+  isNot?: Prisma.ItemWhereInput
+}
+
+export type ItemNullableScalarRelationFilter = {
+  is?: Prisma.ItemWhereInput | null
+  isNot?: Prisma.ItemWhereInput | null
+}
+
 export type ItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   type?: Prisma.SortOrder
@@ -510,14 +520,48 @@ export type ItemSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
-export type ItemScalarRelationFilter = {
-  is?: Prisma.ItemWhereInput
-  isNot?: Prisma.ItemWhereInput
+export type ItemCreateNestedOneWithoutBoostDetailInput = {
+  create?: Prisma.XOR<Prisma.ItemCreateWithoutBoostDetailInput, Prisma.ItemUncheckedCreateWithoutBoostDetailInput>
+  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutBoostDetailInput
+  connect?: Prisma.ItemWhereUniqueInput
 }
 
-export type ItemNullableScalarRelationFilter = {
-  is?: Prisma.ItemWhereInput | null
-  isNot?: Prisma.ItemWhereInput | null
+export type ItemUpdateOneRequiredWithoutBoostDetailNestedInput = {
+  create?: Prisma.XOR<Prisma.ItemCreateWithoutBoostDetailInput, Prisma.ItemUncheckedCreateWithoutBoostDetailInput>
+  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutBoostDetailInput
+  upsert?: Prisma.ItemUpsertWithoutBoostDetailInput
+  connect?: Prisma.ItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutBoostDetailInput, Prisma.ItemUpdateWithoutBoostDetailInput>, Prisma.ItemUncheckedUpdateWithoutBoostDetailInput>
+}
+
+export type ItemCreateNestedOneWithoutCoinTransactionsInput = {
+  create?: Prisma.XOR<Prisma.ItemCreateWithoutCoinTransactionsInput, Prisma.ItemUncheckedCreateWithoutCoinTransactionsInput>
+  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutCoinTransactionsInput
+  connect?: Prisma.ItemWhereUniqueInput
+}
+
+export type ItemUpdateOneWithoutCoinTransactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ItemCreateWithoutCoinTransactionsInput, Prisma.ItemUncheckedCreateWithoutCoinTransactionsInput>
+  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutCoinTransactionsInput
+  upsert?: Prisma.ItemUpsertWithoutCoinTransactionsInput
+  disconnect?: Prisma.ItemWhereInput | boolean
+  delete?: Prisma.ItemWhereInput | boolean
+  connect?: Prisma.ItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutCoinTransactionsInput, Prisma.ItemUpdateWithoutCoinTransactionsInput>, Prisma.ItemUncheckedUpdateWithoutCoinTransactionsInput>
+}
+
+export type ItemCreateNestedOneWithoutEffectDetailInput = {
+  create?: Prisma.XOR<Prisma.ItemCreateWithoutEffectDetailInput, Prisma.ItemUncheckedCreateWithoutEffectDetailInput>
+  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutEffectDetailInput
+  connect?: Prisma.ItemWhereUniqueInput
+}
+
+export type ItemUpdateOneRequiredWithoutEffectDetailNestedInput = {
+  create?: Prisma.XOR<Prisma.ItemCreateWithoutEffectDetailInput, Prisma.ItemUncheckedCreateWithoutEffectDetailInput>
+  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutEffectDetailInput
+  upsert?: Prisma.ItemUpsertWithoutEffectDetailInput
+  connect?: Prisma.ItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutEffectDetailInput, Prisma.ItemUpdateWithoutEffectDetailInput>, Prisma.ItemUncheckedUpdateWithoutEffectDetailInput>
 }
 
 export type EnumItemTypeFieldUpdateOperationsInput = {
@@ -552,34 +596,6 @@ export type ItemUpdateOneRequiredWithoutStampDetailNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutStampDetailInput, Prisma.ItemUpdateWithoutStampDetailInput>, Prisma.ItemUncheckedUpdateWithoutStampDetailInput>
 }
 
-export type ItemCreateNestedOneWithoutEffectDetailInput = {
-  create?: Prisma.XOR<Prisma.ItemCreateWithoutEffectDetailInput, Prisma.ItemUncheckedCreateWithoutEffectDetailInput>
-  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutEffectDetailInput
-  connect?: Prisma.ItemWhereUniqueInput
-}
-
-export type ItemUpdateOneRequiredWithoutEffectDetailNestedInput = {
-  create?: Prisma.XOR<Prisma.ItemCreateWithoutEffectDetailInput, Prisma.ItemUncheckedCreateWithoutEffectDetailInput>
-  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutEffectDetailInput
-  upsert?: Prisma.ItemUpsertWithoutEffectDetailInput
-  connect?: Prisma.ItemWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutEffectDetailInput, Prisma.ItemUpdateWithoutEffectDetailInput>, Prisma.ItemUncheckedUpdateWithoutEffectDetailInput>
-}
-
-export type ItemCreateNestedOneWithoutBoostDetailInput = {
-  create?: Prisma.XOR<Prisma.ItemCreateWithoutBoostDetailInput, Prisma.ItemUncheckedCreateWithoutBoostDetailInput>
-  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutBoostDetailInput
-  connect?: Prisma.ItemWhereUniqueInput
-}
-
-export type ItemUpdateOneRequiredWithoutBoostDetailNestedInput = {
-  create?: Prisma.XOR<Prisma.ItemCreateWithoutBoostDetailInput, Prisma.ItemUncheckedCreateWithoutBoostDetailInput>
-  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutBoostDetailInput
-  upsert?: Prisma.ItemUpsertWithoutBoostDetailInput
-  connect?: Prisma.ItemWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutBoostDetailInput, Prisma.ItemUpdateWithoutBoostDetailInput>, Prisma.ItemUncheckedUpdateWithoutBoostDetailInput>
-}
-
 export type ItemCreateNestedOneWithoutInventoriesInput = {
   create?: Prisma.XOR<Prisma.ItemCreateWithoutInventoriesInput, Prisma.ItemUncheckedCreateWithoutInventoriesInput>
   connectOrCreate?: Prisma.ItemCreateOrConnectWithoutInventoriesInput
@@ -594,20 +610,262 @@ export type ItemUpdateOneRequiredWithoutInventoriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutInventoriesInput, Prisma.ItemUpdateWithoutInventoriesInput>, Prisma.ItemUncheckedUpdateWithoutInventoriesInput>
 }
 
-export type ItemCreateNestedOneWithoutCoinTransactionsInput = {
-  create?: Prisma.XOR<Prisma.ItemCreateWithoutCoinTransactionsInput, Prisma.ItemUncheckedCreateWithoutCoinTransactionsInput>
-  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutCoinTransactionsInput
-  connect?: Prisma.ItemWhereUniqueInput
+export type ItemCreateWithoutBoostDetailInput = {
+  type: $Enums.ItemType
+  name: string
+  description?: string | null
+  price?: number
+  isPremium?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scopes?: Prisma.ItemScopeCreateNestedManyWithoutItemInput
+  stampDetail?: Prisma.StampDetailCreateNestedOneWithoutItemInput
+  effectDetail?: Prisma.EffectDetailCreateNestedOneWithoutItemInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutItemInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutRelatedItemInput
 }
 
-export type ItemUpdateOneWithoutCoinTransactionsNestedInput = {
-  create?: Prisma.XOR<Prisma.ItemCreateWithoutCoinTransactionsInput, Prisma.ItemUncheckedCreateWithoutCoinTransactionsInput>
-  connectOrCreate?: Prisma.ItemCreateOrConnectWithoutCoinTransactionsInput
-  upsert?: Prisma.ItemUpsertWithoutCoinTransactionsInput
-  disconnect?: Prisma.ItemWhereInput | boolean
-  delete?: Prisma.ItemWhereInput | boolean
-  connect?: Prisma.ItemWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ItemUpdateToOneWithWhereWithoutCoinTransactionsInput, Prisma.ItemUpdateWithoutCoinTransactionsInput>, Prisma.ItemUncheckedUpdateWithoutCoinTransactionsInput>
+export type ItemUncheckedCreateWithoutBoostDetailInput = {
+  id?: number
+  type: $Enums.ItemType
+  name: string
+  description?: string | null
+  price?: number
+  isPremium?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scopes?: Prisma.ItemScopeUncheckedCreateNestedManyWithoutItemInput
+  stampDetail?: Prisma.StampDetailUncheckedCreateNestedOneWithoutItemInput
+  effectDetail?: Prisma.EffectDetailUncheckedCreateNestedOneWithoutItemInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutItemInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutRelatedItemInput
+}
+
+export type ItemCreateOrConnectWithoutBoostDetailInput = {
+  where: Prisma.ItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.ItemCreateWithoutBoostDetailInput, Prisma.ItemUncheckedCreateWithoutBoostDetailInput>
+}
+
+export type ItemUpsertWithoutBoostDetailInput = {
+  update: Prisma.XOR<Prisma.ItemUpdateWithoutBoostDetailInput, Prisma.ItemUncheckedUpdateWithoutBoostDetailInput>
+  create: Prisma.XOR<Prisma.ItemCreateWithoutBoostDetailInput, Prisma.ItemUncheckedCreateWithoutBoostDetailInput>
+  where?: Prisma.ItemWhereInput
+}
+
+export type ItemUpdateToOneWithWhereWithoutBoostDetailInput = {
+  where?: Prisma.ItemWhereInput
+  data: Prisma.XOR<Prisma.ItemUpdateWithoutBoostDetailInput, Prisma.ItemUncheckedUpdateWithoutBoostDetailInput>
+}
+
+export type ItemUpdateWithoutBoostDetailInput = {
+  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scopes?: Prisma.ItemScopeUpdateManyWithoutItemNestedInput
+  stampDetail?: Prisma.StampDetailUpdateOneWithoutItemNestedInput
+  effectDetail?: Prisma.EffectDetailUpdateOneWithoutItemNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutItemNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutRelatedItemNestedInput
+}
+
+export type ItemUncheckedUpdateWithoutBoostDetailInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scopes?: Prisma.ItemScopeUncheckedUpdateManyWithoutItemNestedInput
+  stampDetail?: Prisma.StampDetailUncheckedUpdateOneWithoutItemNestedInput
+  effectDetail?: Prisma.EffectDetailUncheckedUpdateOneWithoutItemNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutItemNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutRelatedItemNestedInput
+}
+
+export type ItemCreateWithoutCoinTransactionsInput = {
+  type: $Enums.ItemType
+  name: string
+  description?: string | null
+  price?: number
+  isPremium?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scopes?: Prisma.ItemScopeCreateNestedManyWithoutItemInput
+  stampDetail?: Prisma.StampDetailCreateNestedOneWithoutItemInput
+  effectDetail?: Prisma.EffectDetailCreateNestedOneWithoutItemInput
+  boostDetail?: Prisma.BoostDetailCreateNestedOneWithoutItemInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutItemInput
+}
+
+export type ItemUncheckedCreateWithoutCoinTransactionsInput = {
+  id?: number
+  type: $Enums.ItemType
+  name: string
+  description?: string | null
+  price?: number
+  isPremium?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scopes?: Prisma.ItemScopeUncheckedCreateNestedManyWithoutItemInput
+  stampDetail?: Prisma.StampDetailUncheckedCreateNestedOneWithoutItemInput
+  effectDetail?: Prisma.EffectDetailUncheckedCreateNestedOneWithoutItemInput
+  boostDetail?: Prisma.BoostDetailUncheckedCreateNestedOneWithoutItemInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutItemInput
+}
+
+export type ItemCreateOrConnectWithoutCoinTransactionsInput = {
+  where: Prisma.ItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.ItemCreateWithoutCoinTransactionsInput, Prisma.ItemUncheckedCreateWithoutCoinTransactionsInput>
+}
+
+export type ItemUpsertWithoutCoinTransactionsInput = {
+  update: Prisma.XOR<Prisma.ItemUpdateWithoutCoinTransactionsInput, Prisma.ItemUncheckedUpdateWithoutCoinTransactionsInput>
+  create: Prisma.XOR<Prisma.ItemCreateWithoutCoinTransactionsInput, Prisma.ItemUncheckedCreateWithoutCoinTransactionsInput>
+  where?: Prisma.ItemWhereInput
+}
+
+export type ItemUpdateToOneWithWhereWithoutCoinTransactionsInput = {
+  where?: Prisma.ItemWhereInput
+  data: Prisma.XOR<Prisma.ItemUpdateWithoutCoinTransactionsInput, Prisma.ItemUncheckedUpdateWithoutCoinTransactionsInput>
+}
+
+export type ItemUpdateWithoutCoinTransactionsInput = {
+  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scopes?: Prisma.ItemScopeUpdateManyWithoutItemNestedInput
+  stampDetail?: Prisma.StampDetailUpdateOneWithoutItemNestedInput
+  effectDetail?: Prisma.EffectDetailUpdateOneWithoutItemNestedInput
+  boostDetail?: Prisma.BoostDetailUpdateOneWithoutItemNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutItemNestedInput
+}
+
+export type ItemUncheckedUpdateWithoutCoinTransactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scopes?: Prisma.ItemScopeUncheckedUpdateManyWithoutItemNestedInput
+  stampDetail?: Prisma.StampDetailUncheckedUpdateOneWithoutItemNestedInput
+  effectDetail?: Prisma.EffectDetailUncheckedUpdateOneWithoutItemNestedInput
+  boostDetail?: Prisma.BoostDetailUncheckedUpdateOneWithoutItemNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutItemNestedInput
+}
+
+export type ItemCreateWithoutEffectDetailInput = {
+  type: $Enums.ItemType
+  name: string
+  description?: string | null
+  price?: number
+  isPremium?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scopes?: Prisma.ItemScopeCreateNestedManyWithoutItemInput
+  stampDetail?: Prisma.StampDetailCreateNestedOneWithoutItemInput
+  boostDetail?: Prisma.BoostDetailCreateNestedOneWithoutItemInput
+  inventories?: Prisma.UserInventoryCreateNestedManyWithoutItemInput
+  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutRelatedItemInput
+}
+
+export type ItemUncheckedCreateWithoutEffectDetailInput = {
+  id?: number
+  type: $Enums.ItemType
+  name: string
+  description?: string | null
+  price?: number
+  isPremium?: boolean
+  isActive?: boolean
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  scopes?: Prisma.ItemScopeUncheckedCreateNestedManyWithoutItemInput
+  stampDetail?: Prisma.StampDetailUncheckedCreateNestedOneWithoutItemInput
+  boostDetail?: Prisma.BoostDetailUncheckedCreateNestedOneWithoutItemInput
+  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutItemInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutRelatedItemInput
+}
+
+export type ItemCreateOrConnectWithoutEffectDetailInput = {
+  where: Prisma.ItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.ItemCreateWithoutEffectDetailInput, Prisma.ItemUncheckedCreateWithoutEffectDetailInput>
+}
+
+export type ItemUpsertWithoutEffectDetailInput = {
+  update: Prisma.XOR<Prisma.ItemUpdateWithoutEffectDetailInput, Prisma.ItemUncheckedUpdateWithoutEffectDetailInput>
+  create: Prisma.XOR<Prisma.ItemCreateWithoutEffectDetailInput, Prisma.ItemUncheckedCreateWithoutEffectDetailInput>
+  where?: Prisma.ItemWhereInput
+}
+
+export type ItemUpdateToOneWithWhereWithoutEffectDetailInput = {
+  where?: Prisma.ItemWhereInput
+  data: Prisma.XOR<Prisma.ItemUpdateWithoutEffectDetailInput, Prisma.ItemUncheckedUpdateWithoutEffectDetailInput>
+}
+
+export type ItemUpdateWithoutEffectDetailInput = {
+  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scopes?: Prisma.ItemScopeUpdateManyWithoutItemNestedInput
+  stampDetail?: Prisma.StampDetailUpdateOneWithoutItemNestedInput
+  boostDetail?: Prisma.BoostDetailUpdateOneWithoutItemNestedInput
+  inventories?: Prisma.UserInventoryUpdateManyWithoutItemNestedInput
+  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutRelatedItemNestedInput
+}
+
+export type ItemUncheckedUpdateWithoutEffectDetailInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  price?: Prisma.IntFieldUpdateOperationsInput | number
+  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  scopes?: Prisma.ItemScopeUncheckedUpdateManyWithoutItemNestedInput
+  stampDetail?: Prisma.StampDetailUncheckedUpdateOneWithoutItemNestedInput
+  boostDetail?: Prisma.BoostDetailUncheckedUpdateOneWithoutItemNestedInput
+  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutItemNestedInput
+  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutRelatedItemNestedInput
 }
 
 export type ItemCreateWithoutScopesInput = {
@@ -782,178 +1040,6 @@ export type ItemUncheckedUpdateWithoutStampDetailInput = {
   coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutRelatedItemNestedInput
 }
 
-export type ItemCreateWithoutEffectDetailInput = {
-  type: $Enums.ItemType
-  name: string
-  description?: string | null
-  price?: number
-  isPremium?: boolean
-  isActive?: boolean
-  sortOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  scopes?: Prisma.ItemScopeCreateNestedManyWithoutItemInput
-  stampDetail?: Prisma.StampDetailCreateNestedOneWithoutItemInput
-  boostDetail?: Prisma.BoostDetailCreateNestedOneWithoutItemInput
-  inventories?: Prisma.UserInventoryCreateNestedManyWithoutItemInput
-  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutRelatedItemInput
-}
-
-export type ItemUncheckedCreateWithoutEffectDetailInput = {
-  id?: number
-  type: $Enums.ItemType
-  name: string
-  description?: string | null
-  price?: number
-  isPremium?: boolean
-  isActive?: boolean
-  sortOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  scopes?: Prisma.ItemScopeUncheckedCreateNestedManyWithoutItemInput
-  stampDetail?: Prisma.StampDetailUncheckedCreateNestedOneWithoutItemInput
-  boostDetail?: Prisma.BoostDetailUncheckedCreateNestedOneWithoutItemInput
-  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutItemInput
-  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutRelatedItemInput
-}
-
-export type ItemCreateOrConnectWithoutEffectDetailInput = {
-  where: Prisma.ItemWhereUniqueInput
-  create: Prisma.XOR<Prisma.ItemCreateWithoutEffectDetailInput, Prisma.ItemUncheckedCreateWithoutEffectDetailInput>
-}
-
-export type ItemUpsertWithoutEffectDetailInput = {
-  update: Prisma.XOR<Prisma.ItemUpdateWithoutEffectDetailInput, Prisma.ItemUncheckedUpdateWithoutEffectDetailInput>
-  create: Prisma.XOR<Prisma.ItemCreateWithoutEffectDetailInput, Prisma.ItemUncheckedCreateWithoutEffectDetailInput>
-  where?: Prisma.ItemWhereInput
-}
-
-export type ItemUpdateToOneWithWhereWithoutEffectDetailInput = {
-  where?: Prisma.ItemWhereInput
-  data: Prisma.XOR<Prisma.ItemUpdateWithoutEffectDetailInput, Prisma.ItemUncheckedUpdateWithoutEffectDetailInput>
-}
-
-export type ItemUpdateWithoutEffectDetailInput = {
-  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  price?: Prisma.IntFieldUpdateOperationsInput | number
-  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  scopes?: Prisma.ItemScopeUpdateManyWithoutItemNestedInput
-  stampDetail?: Prisma.StampDetailUpdateOneWithoutItemNestedInput
-  boostDetail?: Prisma.BoostDetailUpdateOneWithoutItemNestedInput
-  inventories?: Prisma.UserInventoryUpdateManyWithoutItemNestedInput
-  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutRelatedItemNestedInput
-}
-
-export type ItemUncheckedUpdateWithoutEffectDetailInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  price?: Prisma.IntFieldUpdateOperationsInput | number
-  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  scopes?: Prisma.ItemScopeUncheckedUpdateManyWithoutItemNestedInput
-  stampDetail?: Prisma.StampDetailUncheckedUpdateOneWithoutItemNestedInput
-  boostDetail?: Prisma.BoostDetailUncheckedUpdateOneWithoutItemNestedInput
-  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutItemNestedInput
-  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutRelatedItemNestedInput
-}
-
-export type ItemCreateWithoutBoostDetailInput = {
-  type: $Enums.ItemType
-  name: string
-  description?: string | null
-  price?: number
-  isPremium?: boolean
-  isActive?: boolean
-  sortOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  scopes?: Prisma.ItemScopeCreateNestedManyWithoutItemInput
-  stampDetail?: Prisma.StampDetailCreateNestedOneWithoutItemInput
-  effectDetail?: Prisma.EffectDetailCreateNestedOneWithoutItemInput
-  inventories?: Prisma.UserInventoryCreateNestedManyWithoutItemInput
-  coinTransactions?: Prisma.CoinTransactionCreateNestedManyWithoutRelatedItemInput
-}
-
-export type ItemUncheckedCreateWithoutBoostDetailInput = {
-  id?: number
-  type: $Enums.ItemType
-  name: string
-  description?: string | null
-  price?: number
-  isPremium?: boolean
-  isActive?: boolean
-  sortOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  scopes?: Prisma.ItemScopeUncheckedCreateNestedManyWithoutItemInput
-  stampDetail?: Prisma.StampDetailUncheckedCreateNestedOneWithoutItemInput
-  effectDetail?: Prisma.EffectDetailUncheckedCreateNestedOneWithoutItemInput
-  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutItemInput
-  coinTransactions?: Prisma.CoinTransactionUncheckedCreateNestedManyWithoutRelatedItemInput
-}
-
-export type ItemCreateOrConnectWithoutBoostDetailInput = {
-  where: Prisma.ItemWhereUniqueInput
-  create: Prisma.XOR<Prisma.ItemCreateWithoutBoostDetailInput, Prisma.ItemUncheckedCreateWithoutBoostDetailInput>
-}
-
-export type ItemUpsertWithoutBoostDetailInput = {
-  update: Prisma.XOR<Prisma.ItemUpdateWithoutBoostDetailInput, Prisma.ItemUncheckedUpdateWithoutBoostDetailInput>
-  create: Prisma.XOR<Prisma.ItemCreateWithoutBoostDetailInput, Prisma.ItemUncheckedCreateWithoutBoostDetailInput>
-  where?: Prisma.ItemWhereInput
-}
-
-export type ItemUpdateToOneWithWhereWithoutBoostDetailInput = {
-  where?: Prisma.ItemWhereInput
-  data: Prisma.XOR<Prisma.ItemUpdateWithoutBoostDetailInput, Prisma.ItemUncheckedUpdateWithoutBoostDetailInput>
-}
-
-export type ItemUpdateWithoutBoostDetailInput = {
-  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  price?: Prisma.IntFieldUpdateOperationsInput | number
-  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  scopes?: Prisma.ItemScopeUpdateManyWithoutItemNestedInput
-  stampDetail?: Prisma.StampDetailUpdateOneWithoutItemNestedInput
-  effectDetail?: Prisma.EffectDetailUpdateOneWithoutItemNestedInput
-  inventories?: Prisma.UserInventoryUpdateManyWithoutItemNestedInput
-  coinTransactions?: Prisma.CoinTransactionUpdateManyWithoutRelatedItemNestedInput
-}
-
-export type ItemUncheckedUpdateWithoutBoostDetailInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  price?: Prisma.IntFieldUpdateOperationsInput | number
-  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  scopes?: Prisma.ItemScopeUncheckedUpdateManyWithoutItemNestedInput
-  stampDetail?: Prisma.StampDetailUncheckedUpdateOneWithoutItemNestedInput
-  effectDetail?: Prisma.EffectDetailUncheckedUpdateOneWithoutItemNestedInput
-  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutItemNestedInput
-  coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutRelatedItemNestedInput
-}
-
 export type ItemCreateWithoutInventoriesInput = {
   type: $Enums.ItemType
   name: string
@@ -1038,92 +1124,6 @@ export type ItemUncheckedUpdateWithoutInventoriesInput = {
   effectDetail?: Prisma.EffectDetailUncheckedUpdateOneWithoutItemNestedInput
   boostDetail?: Prisma.BoostDetailUncheckedUpdateOneWithoutItemNestedInput
   coinTransactions?: Prisma.CoinTransactionUncheckedUpdateManyWithoutRelatedItemNestedInput
-}
-
-export type ItemCreateWithoutCoinTransactionsInput = {
-  type: $Enums.ItemType
-  name: string
-  description?: string | null
-  price?: number
-  isPremium?: boolean
-  isActive?: boolean
-  sortOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  scopes?: Prisma.ItemScopeCreateNestedManyWithoutItemInput
-  stampDetail?: Prisma.StampDetailCreateNestedOneWithoutItemInput
-  effectDetail?: Prisma.EffectDetailCreateNestedOneWithoutItemInput
-  boostDetail?: Prisma.BoostDetailCreateNestedOneWithoutItemInput
-  inventories?: Prisma.UserInventoryCreateNestedManyWithoutItemInput
-}
-
-export type ItemUncheckedCreateWithoutCoinTransactionsInput = {
-  id?: number
-  type: $Enums.ItemType
-  name: string
-  description?: string | null
-  price?: number
-  isPremium?: boolean
-  isActive?: boolean
-  sortOrder?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  scopes?: Prisma.ItemScopeUncheckedCreateNestedManyWithoutItemInput
-  stampDetail?: Prisma.StampDetailUncheckedCreateNestedOneWithoutItemInput
-  effectDetail?: Prisma.EffectDetailUncheckedCreateNestedOneWithoutItemInput
-  boostDetail?: Prisma.BoostDetailUncheckedCreateNestedOneWithoutItemInput
-  inventories?: Prisma.UserInventoryUncheckedCreateNestedManyWithoutItemInput
-}
-
-export type ItemCreateOrConnectWithoutCoinTransactionsInput = {
-  where: Prisma.ItemWhereUniqueInput
-  create: Prisma.XOR<Prisma.ItemCreateWithoutCoinTransactionsInput, Prisma.ItemUncheckedCreateWithoutCoinTransactionsInput>
-}
-
-export type ItemUpsertWithoutCoinTransactionsInput = {
-  update: Prisma.XOR<Prisma.ItemUpdateWithoutCoinTransactionsInput, Prisma.ItemUncheckedUpdateWithoutCoinTransactionsInput>
-  create: Prisma.XOR<Prisma.ItemCreateWithoutCoinTransactionsInput, Prisma.ItemUncheckedCreateWithoutCoinTransactionsInput>
-  where?: Prisma.ItemWhereInput
-}
-
-export type ItemUpdateToOneWithWhereWithoutCoinTransactionsInput = {
-  where?: Prisma.ItemWhereInput
-  data: Prisma.XOR<Prisma.ItemUpdateWithoutCoinTransactionsInput, Prisma.ItemUncheckedUpdateWithoutCoinTransactionsInput>
-}
-
-export type ItemUpdateWithoutCoinTransactionsInput = {
-  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  price?: Prisma.IntFieldUpdateOperationsInput | number
-  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  scopes?: Prisma.ItemScopeUpdateManyWithoutItemNestedInput
-  stampDetail?: Prisma.StampDetailUpdateOneWithoutItemNestedInput
-  effectDetail?: Prisma.EffectDetailUpdateOneWithoutItemNestedInput
-  boostDetail?: Prisma.BoostDetailUpdateOneWithoutItemNestedInput
-  inventories?: Prisma.UserInventoryUpdateManyWithoutItemNestedInput
-}
-
-export type ItemUncheckedUpdateWithoutCoinTransactionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  type?: Prisma.EnumItemTypeFieldUpdateOperationsInput | $Enums.ItemType
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  price?: Prisma.IntFieldUpdateOperationsInput | number
-  isPremium?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  scopes?: Prisma.ItemScopeUncheckedUpdateManyWithoutItemNestedInput
-  stampDetail?: Prisma.StampDetailUncheckedUpdateOneWithoutItemNestedInput
-  effectDetail?: Prisma.EffectDetailUncheckedUpdateOneWithoutItemNestedInput
-  boostDetail?: Prisma.BoostDetailUncheckedUpdateOneWithoutItemNestedInput
-  inventories?: Prisma.UserInventoryUncheckedUpdateManyWithoutItemNestedInput
 }
 
 
