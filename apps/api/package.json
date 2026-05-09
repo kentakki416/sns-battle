@@ -27,6 +27,8 @@
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.2.0",
     "@repo/api-schema": "workspace:^",
+    "@repo/queue": "workspace:^",
+    "bullmq": "^5.69.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "google-auth-library": "^10.5.0",
