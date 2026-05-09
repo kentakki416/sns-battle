@@ -36,6 +36,8 @@ TTL: 1800 秒（30 分。タイムアウト + 余裕分）
 
 ### `apps/api` 側
 
+> **NOTE**: BullMQ Queue は raw インスタンスを Service に渡さず、`apps/api/src/repository/queue/` に `ThemeProgressEnqueuer` interface を切って注入する（Service ユニットテストで `jest.fn()` で mock できるようにするため。Repository 抽象化と同じ理由）。以下のサンプルでは説明の簡潔さのため raw Queue を渡しているが、実装時は Enqueuer interface 経由にすること。
+
 #### `POST /api/matching/sessions/:id/start` controller
 
 ```typescript

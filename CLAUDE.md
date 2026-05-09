@@ -10,7 +10,9 @@ Turborepo + pnpm モノレポ。
 - **apps/admin**: Next.js 16 admin dashboard (port 3030)
 - **apps/mobile**: Expo/React Native mobile application
 - **apps/api**: Express.js API server (port 8080)
+- **apps/matching-worker**: BullMQ ワーカー（Phase 4 マッチング機能のテーマ進行 / Webhook 副作用処理）
 - **packages/schema**: Shared Zod schemas (`@repo/api-schema`)
+- **packages/queue**: BullMQ Queue 共有定義 (`@repo/queue`)。apps/api で enqueue、apps/matching-worker で消化
 - **infra/terraform**: AWS Infrastructure as Code
 
 各ディレクトリでの作業時は **対応する `CLAUDE.md` を参照してください**:
