@@ -10,6 +10,9 @@ import { AuthRefreshController } from "./controller/auth/refresh"
 import { HealthLivenessController } from "./controller/health/liveness"
 import { HealthReadinessController } from "./controller/health/readiness"
 import { HobbyListController } from "./controller/hobby/list"
+import { MatchingJoinController } from "./controller/matching/join"
+import { MatchingLeaveController } from "./controller/matching/leave"
+import { MatchingStatusController } from "./controller/matching/status"
 import { MatchingPreferenceGetController } from "./controller/matching-preference/get"
 import { MatchingPreferenceUpdateController } from "./controller/matching-preference/update"
 import { MemoCreateController } from "./controller/memo/create"
@@ -27,18 +30,26 @@ import { requestLogger } from "./middleware/request-logger"
 import { prisma } from "./prisma/prisma.client"
 import {
   PrismaAuthAccountRepository,
+  PrismaBlockRepository,
   PrismaDatabaseHealthRepository,
   PrismaHobbyRepository,
   PrismaMatchingPreferenceRepository,
+  PrismaMatchingQueueRepository,
+  PrismaMatchingSessionRepository,
   PrismaMemoRepository,
   PrismaUserRepository,
   PrismaUserRegistrationRepository
 } from "./repository/prisma"
-import { IoRedisHealthRepository, IoRedisRefreshTokenRepository } from "./repository/redis"
+import {
+  IoRedisHealthRepository,
+  IoRedisMatchingQueueRepository,
+  IoRedisRefreshTokenRepository,
+} from "./repository/redis"
 import { authRouter } from "./routes/auth-router"
 import { healthRouter } from "./routes/health-router"
 import { hobbyRouter } from "./routes/hobby-router"
 import { matchingPreferenceRouter } from "./routes/matching-preference-router"
+import { matchingRouter } from "./routes/matching-router"
 import { memoRouter } from "./routes/memo-router"
 import { userRouter } from "./routes/user-router"
 
@@ -57,9 +68,13 @@ const userRegistrationRepository = new PrismaUserRegistrationRepository(prisma)
 const memoRepository = new PrismaMemoRepository(prisma)
 const hobbyRepository = new PrismaHobbyRepository(prisma)
 const matchingPreferenceRepository = new PrismaMatchingPreferenceRepository(prisma)
+const matchingQueueRepository = new PrismaMatchingQueueRepository(prisma)
+const matchingSessionRepository = new PrismaMatchingSessionRepository(prisma)
+const blockRepository = new PrismaBlockRepository(prisma)
 const databaseHealthRepository = new PrismaDatabaseHealthRepository(prisma)
 const redisHealthRepository = new IoRedisHealthRepository(redis)
 const refreshTokenRepository = new IoRedisRefreshTokenRepository(redis)
+const matchingQueueRedisRepository = new IoRedisMatchingQueueRepository(redis)
 
 // Client のインスタンス化
 const googleOAuthClient = new GoogleOAuthClient(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
@@ -101,6 +116,23 @@ const matchingPreferenceGetController = new MatchingPreferenceGetController(
 const matchingPreferenceUpdateController = new MatchingPreferenceUpdateController(
   matchingPreferenceRepository,
   hobbyRepository,
+)
+
+// Matching Controller のインスタンス化
+const matchingJoinController = new MatchingJoinController(
+  blockRepository,
+  matchingQueueRedisRepository,
+  matchingQueueRepository,
+  matchingSessionRepository,
+  userRepository,
+)
+const matchingLeaveController = new MatchingLeaveController(
+  matchingQueueRedisRepository,
+  matchingQueueRepository,
+)
+const matchingStatusController = new MatchingStatusController(
+  matchingQueueRedisRepository,
+  matchingSessionRepository,
 )
 
 // cors設定のミドルウェア
@@ -166,6 +198,19 @@ app.use(
   matchingPreferenceRouter({
     get: matchingPreferenceGetController,
     update: matchingPreferenceUpdateController,
+  })
+)
+/**
+ * /api/matching/preferences より後にマウントすることで、Express のルーティング順序的に
+ * preferences のルーター内で未マッチの場合のみ /api/matching の他のパス（join/leave/status）が
+ * 評価される。順序を逆にしないこと。
+ */
+app.use(
+  "/api/matching",
+  matchingRouter({
+    join: matchingJoinController,
+    leave: matchingLeaveController,
+    status: matchingStatusController,
   })
 )
 
