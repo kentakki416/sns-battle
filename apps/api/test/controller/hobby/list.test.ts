@@ -5,7 +5,7 @@ import { generateAccessToken } from "../../../src/lib/jwt"
 import { PrismaHobbyRepository } from "../../../src/repository/prisma/hobby-repository"
 import { hobbyRouter } from "../../../src/routes/hobby-router"
 import { attachErrorHandler, createTestApp } from "../helper"
-import { cleanupTestData, disconnectTestDb, testPrisma } from "../setup"
+import { cleanupTestData, disconnectTestDb, disconnectTestRedis, testPrisma } from "../setup"
 
 const hobbyRepository = new PrismaHobbyRepository(testPrisma)
 const hobbyListController = new HobbyListController(hobbyRepository)
@@ -21,6 +21,7 @@ beforeEach(async () => {
 afterAll(async () => {
   await cleanupTestData()
   await disconnectTestDb()
+  await disconnectTestRedis()
 })
 
 describe("GET /api/hobbies", () => {

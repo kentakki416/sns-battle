@@ -6,7 +6,7 @@ import { PrismaHobbyRepository } from "../../../src/repository/prisma/hobby-repo
 import { PrismaUserRepository } from "../../../src/repository/prisma/user-repository"
 import { userRouter } from "../../../src/routes/user-router"
 import { attachErrorHandler, createTestApp } from "../helper"
-import { cleanupTestData, disconnectTestDb, testPrisma } from "../setup"
+import { cleanupTestData, disconnectTestDb, disconnectTestRedis, testPrisma } from "../setup"
 
 const userRepository = new PrismaUserRepository(testPrisma)
 const hobbyRepository = new PrismaHobbyRepository(testPrisma)
@@ -23,6 +23,7 @@ beforeEach(async () => {
 afterAll(async () => {
   await cleanupTestData()
   await disconnectTestDb()
+  await disconnectTestRedis()
 })
 
 describe("PUT /api/users/:id/onboarding", () => {

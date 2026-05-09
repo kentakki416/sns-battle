@@ -5,7 +5,7 @@ import { generateAccessToken } from "../../../src/lib/jwt"
 import { PrismaMatchingPreferenceRepository } from "../../../src/repository/prisma/matching-preference-repository"
 import { matchingPreferenceRouter } from "../../../src/routes/matching-preference-router"
 import { attachErrorHandler, createTestApp } from "../helper"
-import { cleanupTestData, disconnectTestDb, testPrisma } from "../setup"
+import { cleanupTestData, disconnectTestDb, disconnectTestRedis, testPrisma } from "../setup"
 
 const matchingPreferenceRepository = new PrismaMatchingPreferenceRepository(testPrisma)
 const matchingPreferenceGetController = new MatchingPreferenceGetController(
@@ -26,6 +26,7 @@ beforeEach(async () => {
 afterAll(async () => {
   await cleanupTestData()
   await disconnectTestDb()
+  await disconnectTestRedis()
 })
 
 describe("GET /api/matching/preferences", () => {

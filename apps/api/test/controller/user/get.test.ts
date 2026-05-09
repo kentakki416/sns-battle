@@ -5,7 +5,7 @@ import { generateAccessToken } from "../../../src/lib/jwt"
 import { PrismaUserRepository } from "../../../src/repository/prisma/user-repository"
 import { userRouter } from "../../../src/routes/user-router"
 import { attachErrorHandler, createTestApp } from "../helper"
-import { cleanupTestData, disconnectTestDb, testPrisma } from "../setup"
+import { cleanupTestData, disconnectTestDb, disconnectTestRedis, testPrisma } from "../setup"
 
 const userRepository = new PrismaUserRepository(testPrisma)
 const userGetController = new UserGetController(userRepository)
@@ -21,6 +21,7 @@ beforeEach(async () => {
 afterAll(async () => {
   await cleanupTestData()
   await disconnectTestDb()
+  await disconnectTestRedis()
 })
 
 describe("GET /api/users/:id", () => {

@@ -4,7 +4,7 @@ import { MemoDetailController } from "../../../src/controller/memo/detail"
 import { PrismaMemoRepository } from "../../../src/repository/prisma/memo-repository"
 import { memoRouter } from "../../../src/routes/memo-router"
 import { attachErrorHandler, createTestApp } from "../helper"
-import { cleanupTestData, disconnectTestDb, testPrisma } from "../setup"
+import { cleanupTestData, disconnectTestDb, disconnectTestRedis, testPrisma } from "../setup"
 
 const memoRepository = new PrismaMemoRepository(testPrisma)
 
@@ -20,6 +20,7 @@ beforeEach(async () => {
 afterAll(async () => {
   await cleanupTestData()
   await disconnectTestDb()
+  await disconnectTestRedis()
 })
 
 describe("GET /api/memo/:id", () => {

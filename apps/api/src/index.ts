@@ -2,7 +2,7 @@ import cors from "cors"
 import express from "express"
 
 import { GoogleOAuthClient } from "./client/google-oauth"
-import { redis } from "./client/redis"
+import { queueRedis, redis } from "./client/redis"
 import { AuthGoogleController } from "./controller/auth/google"
 import { AuthLogoutController } from "./controller/auth/logout"
 import { AuthMeController } from "./controller/auth/me"
@@ -187,6 +187,7 @@ process.on("SIGTERM", async () => {
   await Promise.all([
     prisma.$disconnect(),
     redis.quit(),
+    queueRedis.quit(),
   ])
   logger.info("Database and Redis connections closed")
   process.exit(0)
