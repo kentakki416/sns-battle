@@ -285,11 +285,6 @@ export type BoostDetailUncheckedUpdateManyInput = {
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
-export type BoostDetailNullableScalarRelationFilter = {
-  is?: Prisma.BoostDetailWhereInput | null
-  isNot?: Prisma.BoostDetailWhereInput | null
-}
-
 export type BoostDetailCountOrderByAggregateInput = {
   itemId?: Prisma.SortOrder
   boostType?: Prisma.SortOrder
@@ -316,6 +311,15 @@ export type BoostDetailMinOrderByAggregateInput = {
 export type BoostDetailSumOrderByAggregateInput = {
   itemId?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
+}
+
+export type BoostDetailNullableScalarRelationFilter = {
+  is?: Prisma.BoostDetailWhereInput | null
+  isNot?: Prisma.BoostDetailWhereInput | null
+}
+
+export type EnumBoostTypeFieldUpdateOperationsInput = {
+  set?: $Enums.BoostType
 }
 
 export type BoostDetailCreateNestedOneWithoutItemInput = {
@@ -348,10 +352,6 @@ export type BoostDetailUncheckedUpdateOneWithoutItemNestedInput = {
   delete?: Prisma.BoostDetailWhereInput | boolean
   connect?: Prisma.BoostDetailWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.BoostDetailUpdateToOneWithWhereWithoutItemInput, Prisma.BoostDetailUpdateWithoutItemInput>, Prisma.BoostDetailUncheckedUpdateWithoutItemInput>
-}
-
-export type EnumBoostTypeFieldUpdateOperationsInput = {
-  set?: $Enums.BoostType
 }
 
 export type BoostDetailCreateWithoutItemInput = {

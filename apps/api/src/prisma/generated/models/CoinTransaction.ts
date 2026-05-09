@@ -368,16 +368,6 @@ export type CoinTransactionUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type CoinTransactionListRelationFilter = {
-  every?: Prisma.CoinTransactionWhereInput
-  some?: Prisma.CoinTransactionWhereInput
-  none?: Prisma.CoinTransactionWhereInput
-}
-
-export type CoinTransactionOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type CoinTransactionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -422,46 +412,18 @@ export type CoinTransactionSumOrderByAggregateInput = {
   relatedItemId?: Prisma.SortOrder
 }
 
-export type CoinTransactionCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput> | Prisma.CoinTransactionCreateWithoutUserInput[] | Prisma.CoinTransactionUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CoinTransactionCreateOrConnectWithoutUserInput | Prisma.CoinTransactionCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.CoinTransactionCreateManyUserInputEnvelope
-  connect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+export type CoinTransactionListRelationFilter = {
+  every?: Prisma.CoinTransactionWhereInput
+  some?: Prisma.CoinTransactionWhereInput
+  none?: Prisma.CoinTransactionWhereInput
 }
 
-export type CoinTransactionUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput> | Prisma.CoinTransactionCreateWithoutUserInput[] | Prisma.CoinTransactionUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CoinTransactionCreateOrConnectWithoutUserInput | Prisma.CoinTransactionCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.CoinTransactionCreateManyUserInputEnvelope
-  connect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+export type CoinTransactionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
-export type CoinTransactionUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput> | Prisma.CoinTransactionCreateWithoutUserInput[] | Prisma.CoinTransactionUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CoinTransactionCreateOrConnectWithoutUserInput | Prisma.CoinTransactionCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.CoinTransactionUpsertWithWhereUniqueWithoutUserInput | Prisma.CoinTransactionUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.CoinTransactionCreateManyUserInputEnvelope
-  set?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
-  disconnect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
-  delete?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
-  connect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
-  update?: Prisma.CoinTransactionUpdateWithWhereUniqueWithoutUserInput | Prisma.CoinTransactionUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.CoinTransactionUpdateManyWithWhereWithoutUserInput | Prisma.CoinTransactionUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
-}
-
-export type CoinTransactionUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput> | Prisma.CoinTransactionCreateWithoutUserInput[] | Prisma.CoinTransactionUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.CoinTransactionCreateOrConnectWithoutUserInput | Prisma.CoinTransactionCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.CoinTransactionUpsertWithWhereUniqueWithoutUserInput | Prisma.CoinTransactionUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.CoinTransactionCreateManyUserInputEnvelope
-  set?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
-  disconnect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
-  delete?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
-  connect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
-  update?: Prisma.CoinTransactionUpdateWithWhereUniqueWithoutUserInput | Prisma.CoinTransactionUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.CoinTransactionUpdateManyWithWhereWithoutUserInput | Prisma.CoinTransactionUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
+export type EnumTransactionTypeFieldUpdateOperationsInput = {
+  set?: $Enums.TransactionType
 }
 
 export type CoinTransactionCreateNestedManyWithoutRelatedItemInput = {
@@ -506,64 +468,46 @@ export type CoinTransactionUncheckedUpdateManyWithoutRelatedItemNestedInput = {
   deleteMany?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
 }
 
-export type EnumTransactionTypeFieldUpdateOperationsInput = {
-  set?: $Enums.TransactionType
+export type CoinTransactionCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput> | Prisma.CoinTransactionCreateWithoutUserInput[] | Prisma.CoinTransactionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.CoinTransactionCreateOrConnectWithoutUserInput | Prisma.CoinTransactionCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.CoinTransactionCreateManyUserInputEnvelope
+  connect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
 }
 
-export type CoinTransactionCreateWithoutUserInput = {
-  amount: number
-  type: $Enums.TransactionType
-  description?: string | null
-  createdAt?: Date | string
-  relatedItem?: Prisma.ItemCreateNestedOneWithoutCoinTransactionsInput
+export type CoinTransactionUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput> | Prisma.CoinTransactionCreateWithoutUserInput[] | Prisma.CoinTransactionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.CoinTransactionCreateOrConnectWithoutUserInput | Prisma.CoinTransactionCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.CoinTransactionCreateManyUserInputEnvelope
+  connect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
 }
 
-export type CoinTransactionUncheckedCreateWithoutUserInput = {
-  id?: number
-  amount: number
-  type: $Enums.TransactionType
-  relatedItemId?: number | null
-  description?: string | null
-  createdAt?: Date | string
+export type CoinTransactionUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput> | Prisma.CoinTransactionCreateWithoutUserInput[] | Prisma.CoinTransactionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.CoinTransactionCreateOrConnectWithoutUserInput | Prisma.CoinTransactionCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.CoinTransactionUpsertWithWhereUniqueWithoutUserInput | Prisma.CoinTransactionUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.CoinTransactionCreateManyUserInputEnvelope
+  set?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+  disconnect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+  delete?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+  connect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+  update?: Prisma.CoinTransactionUpdateWithWhereUniqueWithoutUserInput | Prisma.CoinTransactionUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.CoinTransactionUpdateManyWithWhereWithoutUserInput | Prisma.CoinTransactionUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
 }
 
-export type CoinTransactionCreateOrConnectWithoutUserInput = {
-  where: Prisma.CoinTransactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput>
-}
-
-export type CoinTransactionCreateManyUserInputEnvelope = {
-  data: Prisma.CoinTransactionCreateManyUserInput | Prisma.CoinTransactionCreateManyUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type CoinTransactionUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.CoinTransactionWhereUniqueInput
-  update: Prisma.XOR<Prisma.CoinTransactionUpdateWithoutUserInput, Prisma.CoinTransactionUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput>
-}
-
-export type CoinTransactionUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.CoinTransactionWhereUniqueInput
-  data: Prisma.XOR<Prisma.CoinTransactionUpdateWithoutUserInput, Prisma.CoinTransactionUncheckedUpdateWithoutUserInput>
-}
-
-export type CoinTransactionUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.CoinTransactionScalarWhereInput
-  data: Prisma.XOR<Prisma.CoinTransactionUpdateManyMutationInput, Prisma.CoinTransactionUncheckedUpdateManyWithoutUserInput>
-}
-
-export type CoinTransactionScalarWhereInput = {
-  AND?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
-  OR?: Prisma.CoinTransactionScalarWhereInput[]
-  NOT?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
-  id?: Prisma.IntFilter<"CoinTransaction"> | number
-  userId?: Prisma.IntFilter<"CoinTransaction"> | number
-  amount?: Prisma.IntFilter<"CoinTransaction"> | number
-  type?: Prisma.EnumTransactionTypeFilter<"CoinTransaction"> | $Enums.TransactionType
-  relatedItemId?: Prisma.IntNullableFilter<"CoinTransaction"> | number | null
-  description?: Prisma.StringNullableFilter<"CoinTransaction"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"CoinTransaction"> | Date | string
+export type CoinTransactionUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput> | Prisma.CoinTransactionCreateWithoutUserInput[] | Prisma.CoinTransactionUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.CoinTransactionCreateOrConnectWithoutUserInput | Prisma.CoinTransactionCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.CoinTransactionUpsertWithWhereUniqueWithoutUserInput | Prisma.CoinTransactionUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.CoinTransactionCreateManyUserInputEnvelope
+  set?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+  disconnect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+  delete?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+  connect?: Prisma.CoinTransactionWhereUniqueInput | Prisma.CoinTransactionWhereUniqueInput[]
+  update?: Prisma.CoinTransactionUpdateWithWhereUniqueWithoutUserInput | Prisma.CoinTransactionUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.CoinTransactionUpdateManyWithWhereWithoutUserInput | Prisma.CoinTransactionUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
 }
 
 export type CoinTransactionCreateWithoutRelatedItemInput = {
@@ -609,7 +553,28 @@ export type CoinTransactionUpdateManyWithWhereWithoutRelatedItemInput = {
   data: Prisma.XOR<Prisma.CoinTransactionUpdateManyMutationInput, Prisma.CoinTransactionUncheckedUpdateManyWithoutRelatedItemInput>
 }
 
-export type CoinTransactionCreateManyUserInput = {
+export type CoinTransactionScalarWhereInput = {
+  AND?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
+  OR?: Prisma.CoinTransactionScalarWhereInput[]
+  NOT?: Prisma.CoinTransactionScalarWhereInput | Prisma.CoinTransactionScalarWhereInput[]
+  id?: Prisma.IntFilter<"CoinTransaction"> | number
+  userId?: Prisma.IntFilter<"CoinTransaction"> | number
+  amount?: Prisma.IntFilter<"CoinTransaction"> | number
+  type?: Prisma.EnumTransactionTypeFilter<"CoinTransaction"> | $Enums.TransactionType
+  relatedItemId?: Prisma.IntNullableFilter<"CoinTransaction"> | number | null
+  description?: Prisma.StringNullableFilter<"CoinTransaction"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"CoinTransaction"> | Date | string
+}
+
+export type CoinTransactionCreateWithoutUserInput = {
+  amount: number
+  type: $Enums.TransactionType
+  description?: string | null
+  createdAt?: Date | string
+  relatedItem?: Prisma.ItemCreateNestedOneWithoutCoinTransactionsInput
+}
+
+export type CoinTransactionUncheckedCreateWithoutUserInput = {
   id?: number
   amount: number
   type: $Enums.TransactionType
@@ -618,30 +583,30 @@ export type CoinTransactionCreateManyUserInput = {
   createdAt?: Date | string
 }
 
-export type CoinTransactionUpdateWithoutUserInput = {
-  amount?: Prisma.IntFieldUpdateOperationsInput | number
-  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  relatedItem?: Prisma.ItemUpdateOneWithoutCoinTransactionsNestedInput
+export type CoinTransactionCreateOrConnectWithoutUserInput = {
+  where: Prisma.CoinTransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput>
 }
 
-export type CoinTransactionUncheckedUpdateWithoutUserInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  amount?: Prisma.IntFieldUpdateOperationsInput | number
-  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
-  relatedItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type CoinTransactionCreateManyUserInputEnvelope = {
+  data: Prisma.CoinTransactionCreateManyUserInput | Prisma.CoinTransactionCreateManyUserInput[]
+  skipDuplicates?: boolean
 }
 
-export type CoinTransactionUncheckedUpdateManyWithoutUserInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  amount?: Prisma.IntFieldUpdateOperationsInput | number
-  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
-  relatedItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type CoinTransactionUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.CoinTransactionWhereUniqueInput
+  update: Prisma.XOR<Prisma.CoinTransactionUpdateWithoutUserInput, Prisma.CoinTransactionUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.CoinTransactionCreateWithoutUserInput, Prisma.CoinTransactionUncheckedCreateWithoutUserInput>
+}
+
+export type CoinTransactionUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.CoinTransactionWhereUniqueInput
+  data: Prisma.XOR<Prisma.CoinTransactionUpdateWithoutUserInput, Prisma.CoinTransactionUncheckedUpdateWithoutUserInput>
+}
+
+export type CoinTransactionUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.CoinTransactionScalarWhereInput
+  data: Prisma.XOR<Prisma.CoinTransactionUpdateManyMutationInput, Prisma.CoinTransactionUncheckedUpdateManyWithoutUserInput>
 }
 
 export type CoinTransactionCreateManyRelatedItemInput = {
@@ -675,6 +640,41 @@ export type CoinTransactionUncheckedUpdateManyWithoutRelatedItemInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   amount?: Prisma.IntFieldUpdateOperationsInput | number
   type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CoinTransactionCreateManyUserInput = {
+  id?: number
+  amount: number
+  type: $Enums.TransactionType
+  relatedItemId?: number | null
+  description?: string | null
+  createdAt?: Date | string
+}
+
+export type CoinTransactionUpdateWithoutUserInput = {
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  relatedItem?: Prisma.ItemUpdateOneWithoutCoinTransactionsNestedInput
+}
+
+export type CoinTransactionUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  relatedItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CoinTransactionUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  amount?: Prisma.IntFieldUpdateOperationsInput | number
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  relatedItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }

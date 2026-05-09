@@ -233,6 +233,7 @@ export type TalkThemeChoiceWhereInput = {
   sortOrder?: Prisma.IntFilter<"TalkThemeChoice"> | number
   createdAt?: Prisma.DateTimeFilter<"TalkThemeChoice"> | Date | string
   theme?: Prisma.XOR<Prisma.TalkThemeScalarRelationFilter, Prisma.TalkThemeWhereInput>
+  reactions?: Prisma.MatchingReactionListRelationFilter
 }
 
 export type TalkThemeChoiceOrderByWithRelationInput = {
@@ -243,6 +244,7 @@ export type TalkThemeChoiceOrderByWithRelationInput = {
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   theme?: Prisma.TalkThemeOrderByWithRelationInput
+  reactions?: Prisma.MatchingReactionOrderByRelationAggregateInput
 }
 
 export type TalkThemeChoiceWhereUniqueInput = Prisma.AtLeast<{
@@ -256,6 +258,7 @@ export type TalkThemeChoiceWhereUniqueInput = Prisma.AtLeast<{
   sortOrder?: Prisma.IntFilter<"TalkThemeChoice"> | number
   createdAt?: Prisma.DateTimeFilter<"TalkThemeChoice"> | Date | string
   theme?: Prisma.XOR<Prisma.TalkThemeScalarRelationFilter, Prisma.TalkThemeWhereInput>
+  reactions?: Prisma.MatchingReactionListRelationFilter
 }, "id">
 
 export type TalkThemeChoiceOrderByWithAggregationInput = {
@@ -290,6 +293,7 @@ export type TalkThemeChoiceCreateInput = {
   sortOrder?: number
   createdAt?: Date | string
   theme: Prisma.TalkThemeCreateNestedOneWithoutChoicesInput
+  reactions?: Prisma.MatchingReactionCreateNestedManyWithoutChoiceInput
 }
 
 export type TalkThemeChoiceUncheckedCreateInput = {
@@ -299,6 +303,7 @@ export type TalkThemeChoiceUncheckedCreateInput = {
   emoji: string
   sortOrder?: number
   createdAt?: Date | string
+  reactions?: Prisma.MatchingReactionUncheckedCreateNestedManyWithoutChoiceInput
 }
 
 export type TalkThemeChoiceUpdateInput = {
@@ -307,6 +312,7 @@ export type TalkThemeChoiceUpdateInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   theme?: Prisma.TalkThemeUpdateOneRequiredWithoutChoicesNestedInput
+  reactions?: Prisma.MatchingReactionUpdateManyWithoutChoiceNestedInput
 }
 
 export type TalkThemeChoiceUncheckedUpdateInput = {
@@ -316,6 +322,7 @@ export type TalkThemeChoiceUncheckedUpdateInput = {
   emoji?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reactions?: Prisma.MatchingReactionUncheckedUpdateManyWithoutChoiceNestedInput
 }
 
 export type TalkThemeChoiceCreateManyInput = {
@@ -341,6 +348,11 @@ export type TalkThemeChoiceUncheckedUpdateManyInput = {
   emoji?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TalkThemeChoiceNullableScalarRelationFilter = {
+  is?: Prisma.TalkThemeChoiceWhereInput | null
+  isNot?: Prisma.TalkThemeChoiceWhereInput | null
 }
 
 export type TalkThemeChoiceListRelationFilter = {
@@ -392,6 +404,22 @@ export type TalkThemeChoiceSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
+export type TalkThemeChoiceCreateNestedOneWithoutReactionsInput = {
+  create?: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.TalkThemeChoiceCreateOrConnectWithoutReactionsInput
+  connect?: Prisma.TalkThemeChoiceWhereUniqueInput
+}
+
+export type TalkThemeChoiceUpdateOneWithoutReactionsNestedInput = {
+  create?: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
+  connectOrCreate?: Prisma.TalkThemeChoiceCreateOrConnectWithoutReactionsInput
+  upsert?: Prisma.TalkThemeChoiceUpsertWithoutReactionsInput
+  disconnect?: Prisma.TalkThemeChoiceWhereInput | boolean
+  delete?: Prisma.TalkThemeChoiceWhereInput | boolean
+  connect?: Prisma.TalkThemeChoiceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TalkThemeChoiceUpdateToOneWithWhereWithoutReactionsInput, Prisma.TalkThemeChoiceUpdateWithoutReactionsInput>, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
+}
+
 export type TalkThemeChoiceCreateNestedManyWithoutThemeInput = {
   create?: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutThemeInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutThemeInput> | Prisma.TalkThemeChoiceCreateWithoutThemeInput[] | Prisma.TalkThemeChoiceUncheckedCreateWithoutThemeInput[]
   connectOrCreate?: Prisma.TalkThemeChoiceCreateOrConnectWithoutThemeInput | Prisma.TalkThemeChoiceCreateOrConnectWithoutThemeInput[]
@@ -434,11 +462,62 @@ export type TalkThemeChoiceUncheckedUpdateManyWithoutThemeNestedInput = {
   deleteMany?: Prisma.TalkThemeChoiceScalarWhereInput | Prisma.TalkThemeChoiceScalarWhereInput[]
 }
 
+export type TalkThemeChoiceCreateWithoutReactionsInput = {
+  label: string
+  emoji: string
+  sortOrder?: number
+  createdAt?: Date | string
+  theme: Prisma.TalkThemeCreateNestedOneWithoutChoicesInput
+}
+
+export type TalkThemeChoiceUncheckedCreateWithoutReactionsInput = {
+  id?: number
+  themeId: number
+  label: string
+  emoji: string
+  sortOrder?: number
+  createdAt?: Date | string
+}
+
+export type TalkThemeChoiceCreateOrConnectWithoutReactionsInput = {
+  where: Prisma.TalkThemeChoiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
+}
+
+export type TalkThemeChoiceUpsertWithoutReactionsInput = {
+  update: Prisma.XOR<Prisma.TalkThemeChoiceUpdateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
+  create: Prisma.XOR<Prisma.TalkThemeChoiceCreateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedCreateWithoutReactionsInput>
+  where?: Prisma.TalkThemeChoiceWhereInput
+}
+
+export type TalkThemeChoiceUpdateToOneWithWhereWithoutReactionsInput = {
+  where?: Prisma.TalkThemeChoiceWhereInput
+  data: Prisma.XOR<Prisma.TalkThemeChoiceUpdateWithoutReactionsInput, Prisma.TalkThemeChoiceUncheckedUpdateWithoutReactionsInput>
+}
+
+export type TalkThemeChoiceUpdateWithoutReactionsInput = {
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  theme?: Prisma.TalkThemeUpdateOneRequiredWithoutChoicesNestedInput
+}
+
+export type TalkThemeChoiceUncheckedUpdateWithoutReactionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  themeId?: Prisma.IntFieldUpdateOperationsInput | number
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  emoji?: Prisma.StringFieldUpdateOperationsInput | string
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type TalkThemeChoiceCreateWithoutThemeInput = {
   label: string
   emoji: string
   sortOrder?: number
   createdAt?: Date | string
+  reactions?: Prisma.MatchingReactionCreateNestedManyWithoutChoiceInput
 }
 
 export type TalkThemeChoiceUncheckedCreateWithoutThemeInput = {
@@ -447,6 +526,7 @@ export type TalkThemeChoiceUncheckedCreateWithoutThemeInput = {
   emoji: string
   sortOrder?: number
   createdAt?: Date | string
+  reactions?: Prisma.MatchingReactionUncheckedCreateNestedManyWithoutChoiceInput
 }
 
 export type TalkThemeChoiceCreateOrConnectWithoutThemeInput = {
@@ -500,6 +580,7 @@ export type TalkThemeChoiceUpdateWithoutThemeInput = {
   emoji?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reactions?: Prisma.MatchingReactionUpdateManyWithoutChoiceNestedInput
 }
 
 export type TalkThemeChoiceUncheckedUpdateWithoutThemeInput = {
@@ -508,6 +589,7 @@ export type TalkThemeChoiceUncheckedUpdateWithoutThemeInput = {
   emoji?: Prisma.StringFieldUpdateOperationsInput | string
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reactions?: Prisma.MatchingReactionUncheckedUpdateManyWithoutChoiceNestedInput
 }
 
 export type TalkThemeChoiceUncheckedUpdateManyWithoutThemeInput = {
@@ -519,6 +601,35 @@ export type TalkThemeChoiceUncheckedUpdateManyWithoutThemeInput = {
 }
 
 
+/**
+ * Count Type TalkThemeChoiceCountOutputType
+ */
+
+export type TalkThemeChoiceCountOutputType = {
+  reactions: number
+}
+
+export type TalkThemeChoiceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reactions?: boolean | TalkThemeChoiceCountOutputTypeCountReactionsArgs
+}
+
+/**
+ * TalkThemeChoiceCountOutputType without action
+ */
+export type TalkThemeChoiceCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TalkThemeChoiceCountOutputType
+   */
+  select?: Prisma.TalkThemeChoiceCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * TalkThemeChoiceCountOutputType without action
+ */
+export type TalkThemeChoiceCountOutputTypeCountReactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MatchingReactionWhereInput
+}
+
 
 export type TalkThemeChoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -528,6 +639,8 @@ export type TalkThemeChoiceSelect<ExtArgs extends runtime.Types.Extensions.Inter
   sortOrder?: boolean
   createdAt?: boolean
   theme?: boolean | Prisma.TalkThemeDefaultArgs<ExtArgs>
+  reactions?: boolean | Prisma.TalkThemeChoice$reactionsArgs<ExtArgs>
+  _count?: boolean | Prisma.TalkThemeChoiceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["talkThemeChoice"]>
 
 export type TalkThemeChoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -562,6 +675,8 @@ export type TalkThemeChoiceSelectScalar = {
 export type TalkThemeChoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "themeId" | "label" | "emoji" | "sortOrder" | "createdAt", ExtArgs["result"]["talkThemeChoice"]>
 export type TalkThemeChoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   theme?: boolean | Prisma.TalkThemeDefaultArgs<ExtArgs>
+  reactions?: boolean | Prisma.TalkThemeChoice$reactionsArgs<ExtArgs>
+  _count?: boolean | Prisma.TalkThemeChoiceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TalkThemeChoiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   theme?: boolean | Prisma.TalkThemeDefaultArgs<ExtArgs>
@@ -574,6 +689,7 @@ export type $TalkThemeChoicePayload<ExtArgs extends runtime.Types.Extensions.Int
   name: "TalkThemeChoice"
   objects: {
     theme: Prisma.$TalkThemePayload<ExtArgs>
+    reactions: Prisma.$MatchingReactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -977,6 +1093,7 @@ readonly fields: TalkThemeChoiceFieldRefs;
 export interface Prisma__TalkThemeChoiceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   theme<T extends Prisma.TalkThemeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TalkThemeDefaultArgs<ExtArgs>>): Prisma.Prisma__TalkThemeClient<runtime.Types.Result.GetResult<Prisma.$TalkThemePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  reactions<T extends Prisma.TalkThemeChoice$reactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TalkThemeChoice$reactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MatchingReactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1410,6 +1527,30 @@ export type TalkThemeChoiceDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many TalkThemeChoices to delete.
    */
   limit?: number
+}
+
+/**
+ * TalkThemeChoice.reactions
+ */
+export type TalkThemeChoice$reactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MatchingReaction
+   */
+  select?: Prisma.MatchingReactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MatchingReaction
+   */
+  omit?: Prisma.MatchingReactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MatchingReactionInclude<ExtArgs> | null
+  where?: Prisma.MatchingReactionWhereInput
+  orderBy?: Prisma.MatchingReactionOrderByWithRelationInput | Prisma.MatchingReactionOrderByWithRelationInput[]
+  cursor?: Prisma.MatchingReactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MatchingReactionScalarFieldEnum | Prisma.MatchingReactionScalarFieldEnum[]
 }
 
 /**

@@ -9,24 +9,6 @@
 * 🟢 You can import this file directly.
 */
 
-export const Gender = {
-  MALE: 'MALE',
-  FEMALE: 'FEMALE',
-  OTHER: 'OTHER'
-} as const
-
-export type Gender = (typeof Gender)[keyof typeof Gender]
-
-
-export const Provider = {
-  GOOGLE: 'GOOGLE',
-  GITHUB: 'GITHUB',
-  CREDENTIALS: 'CREDENTIALS'
-} as const
-
-export type Provider = (typeof Provider)[keyof typeof Provider]
-
-
 export const AnimationType = {
   NONE: 'NONE',
   FLOAT: 'FLOAT',
@@ -36,6 +18,34 @@ export const AnimationType = {
 } as const
 
 export type AnimationType = (typeof AnimationType)[keyof typeof AnimationType]
+
+
+export const BoostType = {
+  MATCH_PRIORITY: 'MATCH_PRIORITY',
+  EXTEND_TIME: 'EXTEND_TIME',
+  SKIP_QUEUE: 'SKIP_QUEUE'
+} as const
+
+export type BoostType = (typeof BoostType)[keyof typeof BoostType]
+
+
+export const EffectType = {
+  CONFETTI: 'CONFETTI',
+  FIREWORKS: 'FIREWORKS',
+  HEARTS: 'HEARTS',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type EffectType = (typeof EffectType)[keyof typeof EffectType]
+
+
+export const Gender = {
+  MALE: 'MALE',
+  FEMALE: 'FEMALE',
+  OTHER: 'OTHER'
+} as const
+
+export type Gender = (typeof Gender)[keyof typeof Gender]
 
 
 export const ItemType = {
@@ -49,6 +59,42 @@ export const ItemType = {
 export type ItemType = (typeof ItemType)[keyof typeof ItemType]
 
 
+export const MatchingEndReason = {
+  TIMEOUT: 'TIMEOUT',
+  USER_LEFT: 'USER_LEFT',
+  MANUAL: 'MANUAL'
+} as const
+
+export type MatchingEndReason = (typeof MatchingEndReason)[keyof typeof MatchingEndReason]
+
+
+export const MatchingQueueStatus = {
+  WAITING: 'WAITING',
+  MATCHED: 'MATCHED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type MatchingQueueStatus = (typeof MatchingQueueStatus)[keyof typeof MatchingQueueStatus]
+
+
+export const MatchingSessionStatus = {
+  COUNTDOWN: 'COUNTDOWN',
+  ACTIVE: 'ACTIVE',
+  ENDED: 'ENDED'
+} as const
+
+export type MatchingSessionStatus = (typeof MatchingSessionStatus)[keyof typeof MatchingSessionStatus]
+
+
+export const Provider = {
+  GOOGLE: 'GOOGLE',
+  GITHUB: 'GITHUB',
+  CREDENTIALS: 'CREDENTIALS'
+} as const
+
+export type Provider = (typeof Provider)[keyof typeof Provider]
+
+
 export const Scope = {
   MATCHING: 'MATCHING',
   BATTLE: 'BATTLE',
@@ -57,35 +103,6 @@ export const Scope = {
 } as const
 
 export type Scope = (typeof Scope)[keyof typeof Scope]
-
-
-export const EffectType = {
-  CONFETTI: 'CONFETTI',
-  FIREWORKS: 'FIREWORKS',
-  HEARTS: 'HEARTS',
-  CUSTOM: 'CUSTOM'
-} as const
-
-export type EffectType = (typeof EffectType)[keyof typeof EffectType]
-
-
-export const BoostType = {
-  MATCH_PRIORITY: 'MATCH_PRIORITY',
-  EXTEND_TIME: 'EXTEND_TIME',
-  SKIP_QUEUE: 'SKIP_QUEUE'
-} as const
-
-export type BoostType = (typeof BoostType)[keyof typeof BoostType]
-
-
-export const TransactionType = {
-  PURCHASE: 'PURCHASE',
-  SPEND: 'SPEND',
-  BONUS: 'BONUS',
-  REFUND: 'REFUND'
-} as const
-
-export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
 
 
 export const TalkThemeCategory = {
@@ -102,3 +119,13 @@ export const TalkThemeType = {
 } as const
 
 export type TalkThemeType = (typeof TalkThemeType)[keyof typeof TalkThemeType]
+
+
+export const TransactionType = {
+  PURCHASE: 'PURCHASE',
+  SPEND: 'SPEND',
+  BONUS: 'BONUS',
+  REFUND: 'REFUND'
+} as const
+
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]

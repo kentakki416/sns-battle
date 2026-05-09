@@ -406,48 +406,6 @@ export type UserInventorySumOrderByAggregateInput = {
   quantity?: Prisma.SortOrder
 }
 
-export type UserInventoryCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput> | Prisma.UserInventoryCreateWithoutUserInput[] | Prisma.UserInventoryUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutUserInput | Prisma.UserInventoryCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.UserInventoryCreateManyUserInputEnvelope
-  connect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-}
-
-export type UserInventoryUncheckedCreateNestedManyWithoutUserInput = {
-  create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput> | Prisma.UserInventoryCreateWithoutUserInput[] | Prisma.UserInventoryUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutUserInput | Prisma.UserInventoryCreateOrConnectWithoutUserInput[]
-  createMany?: Prisma.UserInventoryCreateManyUserInputEnvelope
-  connect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-}
-
-export type UserInventoryUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput> | Prisma.UserInventoryCreateWithoutUserInput[] | Prisma.UserInventoryUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutUserInput | Prisma.UserInventoryCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.UserInventoryUpsertWithWhereUniqueWithoutUserInput | Prisma.UserInventoryUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.UserInventoryCreateManyUserInputEnvelope
-  set?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-  disconnect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-  delete?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-  connect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-  update?: Prisma.UserInventoryUpdateWithWhereUniqueWithoutUserInput | Prisma.UserInventoryUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.UserInventoryUpdateManyWithWhereWithoutUserInput | Prisma.UserInventoryUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
-}
-
-export type UserInventoryUncheckedUpdateManyWithoutUserNestedInput = {
-  create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput> | Prisma.UserInventoryCreateWithoutUserInput[] | Prisma.UserInventoryUncheckedCreateWithoutUserInput[]
-  connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutUserInput | Prisma.UserInventoryCreateOrConnectWithoutUserInput[]
-  upsert?: Prisma.UserInventoryUpsertWithWhereUniqueWithoutUserInput | Prisma.UserInventoryUpsertWithWhereUniqueWithoutUserInput[]
-  createMany?: Prisma.UserInventoryCreateManyUserInputEnvelope
-  set?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-  disconnect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-  delete?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-  connect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
-  update?: Prisma.UserInventoryUpdateWithWhereUniqueWithoutUserInput | Prisma.UserInventoryUpdateWithWhereUniqueWithoutUserInput[]
-  updateMany?: Prisma.UserInventoryUpdateManyWithWhereWithoutUserInput | Prisma.UserInventoryUpdateManyWithWhereWithoutUserInput[]
-  deleteMany?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
-}
-
 export type UserInventoryCreateNestedManyWithoutItemInput = {
   create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutItemInput, Prisma.UserInventoryUncheckedCreateWithoutItemInput> | Prisma.UserInventoryCreateWithoutItemInput[] | Prisma.UserInventoryUncheckedCreateWithoutItemInput[]
   connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutItemInput | Prisma.UserInventoryCreateOrConnectWithoutItemInput[]
@@ -490,57 +448,46 @@ export type UserInventoryUncheckedUpdateManyWithoutItemNestedInput = {
   deleteMany?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
 }
 
-export type UserInventoryCreateWithoutUserInput = {
-  quantity?: number
-  acquiredAt?: Date | string
-  expiresAt?: Date | string | null
-  item: Prisma.ItemCreateNestedOneWithoutInventoriesInput
+export type UserInventoryCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput> | Prisma.UserInventoryCreateWithoutUserInput[] | Prisma.UserInventoryUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutUserInput | Prisma.UserInventoryCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.UserInventoryCreateManyUserInputEnvelope
+  connect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
 }
 
-export type UserInventoryUncheckedCreateWithoutUserInput = {
-  id?: number
-  itemId: number
-  quantity?: number
-  acquiredAt?: Date | string
-  expiresAt?: Date | string | null
+export type UserInventoryUncheckedCreateNestedManyWithoutUserInput = {
+  create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput> | Prisma.UserInventoryCreateWithoutUserInput[] | Prisma.UserInventoryUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutUserInput | Prisma.UserInventoryCreateOrConnectWithoutUserInput[]
+  createMany?: Prisma.UserInventoryCreateManyUserInputEnvelope
+  connect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
 }
 
-export type UserInventoryCreateOrConnectWithoutUserInput = {
-  where: Prisma.UserInventoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput>
+export type UserInventoryUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput> | Prisma.UserInventoryCreateWithoutUserInput[] | Prisma.UserInventoryUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutUserInput | Prisma.UserInventoryCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.UserInventoryUpsertWithWhereUniqueWithoutUserInput | Prisma.UserInventoryUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.UserInventoryCreateManyUserInputEnvelope
+  set?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
+  disconnect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
+  delete?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
+  connect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
+  update?: Prisma.UserInventoryUpdateWithWhereUniqueWithoutUserInput | Prisma.UserInventoryUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.UserInventoryUpdateManyWithWhereWithoutUserInput | Prisma.UserInventoryUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
 }
 
-export type UserInventoryCreateManyUserInputEnvelope = {
-  data: Prisma.UserInventoryCreateManyUserInput | Prisma.UserInventoryCreateManyUserInput[]
-  skipDuplicates?: boolean
-}
-
-export type UserInventoryUpsertWithWhereUniqueWithoutUserInput = {
-  where: Prisma.UserInventoryWhereUniqueInput
-  update: Prisma.XOR<Prisma.UserInventoryUpdateWithoutUserInput, Prisma.UserInventoryUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput>
-}
-
-export type UserInventoryUpdateWithWhereUniqueWithoutUserInput = {
-  where: Prisma.UserInventoryWhereUniqueInput
-  data: Prisma.XOR<Prisma.UserInventoryUpdateWithoutUserInput, Prisma.UserInventoryUncheckedUpdateWithoutUserInput>
-}
-
-export type UserInventoryUpdateManyWithWhereWithoutUserInput = {
-  where: Prisma.UserInventoryScalarWhereInput
-  data: Prisma.XOR<Prisma.UserInventoryUpdateManyMutationInput, Prisma.UserInventoryUncheckedUpdateManyWithoutUserInput>
-}
-
-export type UserInventoryScalarWhereInput = {
-  AND?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
-  OR?: Prisma.UserInventoryScalarWhereInput[]
-  NOT?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
-  id?: Prisma.IntFilter<"UserInventory"> | number
-  userId?: Prisma.IntFilter<"UserInventory"> | number
-  itemId?: Prisma.IntFilter<"UserInventory"> | number
-  quantity?: Prisma.IntFilter<"UserInventory"> | number
-  acquiredAt?: Prisma.DateTimeFilter<"UserInventory"> | Date | string
-  expiresAt?: Prisma.DateTimeNullableFilter<"UserInventory"> | Date | string | null
+export type UserInventoryUncheckedUpdateManyWithoutUserNestedInput = {
+  create?: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput> | Prisma.UserInventoryCreateWithoutUserInput[] | Prisma.UserInventoryUncheckedCreateWithoutUserInput[]
+  connectOrCreate?: Prisma.UserInventoryCreateOrConnectWithoutUserInput | Prisma.UserInventoryCreateOrConnectWithoutUserInput[]
+  upsert?: Prisma.UserInventoryUpsertWithWhereUniqueWithoutUserInput | Prisma.UserInventoryUpsertWithWhereUniqueWithoutUserInput[]
+  createMany?: Prisma.UserInventoryCreateManyUserInputEnvelope
+  set?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
+  disconnect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
+  delete?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
+  connect?: Prisma.UserInventoryWhereUniqueInput | Prisma.UserInventoryWhereUniqueInput[]
+  update?: Prisma.UserInventoryUpdateWithWhereUniqueWithoutUserInput | Prisma.UserInventoryUpdateWithWhereUniqueWithoutUserInput[]
+  updateMany?: Prisma.UserInventoryUpdateManyWithWhereWithoutUserInput | Prisma.UserInventoryUpdateManyWithWhereWithoutUserInput[]
+  deleteMany?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
 }
 
 export type UserInventoryCreateWithoutItemInput = {
@@ -584,7 +531,26 @@ export type UserInventoryUpdateManyWithWhereWithoutItemInput = {
   data: Prisma.XOR<Prisma.UserInventoryUpdateManyMutationInput, Prisma.UserInventoryUncheckedUpdateManyWithoutItemInput>
 }
 
-export type UserInventoryCreateManyUserInput = {
+export type UserInventoryScalarWhereInput = {
+  AND?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
+  OR?: Prisma.UserInventoryScalarWhereInput[]
+  NOT?: Prisma.UserInventoryScalarWhereInput | Prisma.UserInventoryScalarWhereInput[]
+  id?: Prisma.IntFilter<"UserInventory"> | number
+  userId?: Prisma.IntFilter<"UserInventory"> | number
+  itemId?: Prisma.IntFilter<"UserInventory"> | number
+  quantity?: Prisma.IntFilter<"UserInventory"> | number
+  acquiredAt?: Prisma.DateTimeFilter<"UserInventory"> | Date | string
+  expiresAt?: Prisma.DateTimeNullableFilter<"UserInventory"> | Date | string | null
+}
+
+export type UserInventoryCreateWithoutUserInput = {
+  quantity?: number
+  acquiredAt?: Date | string
+  expiresAt?: Date | string | null
+  item: Prisma.ItemCreateNestedOneWithoutInventoriesInput
+}
+
+export type UserInventoryUncheckedCreateWithoutUserInput = {
   id?: number
   itemId: number
   quantity?: number
@@ -592,27 +558,30 @@ export type UserInventoryCreateManyUserInput = {
   expiresAt?: Date | string | null
 }
 
-export type UserInventoryUpdateWithoutUserInput = {
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  acquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  item?: Prisma.ItemUpdateOneRequiredWithoutInventoriesNestedInput
+export type UserInventoryCreateOrConnectWithoutUserInput = {
+  where: Prisma.UserInventoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput>
 }
 
-export type UserInventoryUncheckedUpdateWithoutUserInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  itemId?: Prisma.IntFieldUpdateOperationsInput | number
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  acquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+export type UserInventoryCreateManyUserInputEnvelope = {
+  data: Prisma.UserInventoryCreateManyUserInput | Prisma.UserInventoryCreateManyUserInput[]
+  skipDuplicates?: boolean
 }
 
-export type UserInventoryUncheckedUpdateManyWithoutUserInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  itemId?: Prisma.IntFieldUpdateOperationsInput | number
-  quantity?: Prisma.IntFieldUpdateOperationsInput | number
-  acquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+export type UserInventoryUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.UserInventoryWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserInventoryUpdateWithoutUserInput, Prisma.UserInventoryUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.UserInventoryCreateWithoutUserInput, Prisma.UserInventoryUncheckedCreateWithoutUserInput>
+}
+
+export type UserInventoryUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.UserInventoryWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserInventoryUpdateWithoutUserInput, Prisma.UserInventoryUncheckedUpdateWithoutUserInput>
+}
+
+export type UserInventoryUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.UserInventoryScalarWhereInput
+  data: Prisma.XOR<Prisma.UserInventoryUpdateManyMutationInput, Prisma.UserInventoryUncheckedUpdateManyWithoutUserInput>
 }
 
 export type UserInventoryCreateManyItemInput = {
@@ -641,6 +610,37 @@ export type UserInventoryUncheckedUpdateWithoutItemInput = {
 export type UserInventoryUncheckedUpdateManyWithoutItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  acquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type UserInventoryCreateManyUserInput = {
+  id?: number
+  itemId: number
+  quantity?: number
+  acquiredAt?: Date | string
+  expiresAt?: Date | string | null
+}
+
+export type UserInventoryUpdateWithoutUserInput = {
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  acquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  item?: Prisma.ItemUpdateOneRequiredWithoutInventoriesNestedInput
+}
+
+export type UserInventoryUncheckedUpdateWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  itemId?: Prisma.IntFieldUpdateOperationsInput | number
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  acquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type UserInventoryUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  itemId?: Prisma.IntFieldUpdateOperationsInput | number
   quantity?: Prisma.IntFieldUpdateOperationsInput | number
   acquiredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null

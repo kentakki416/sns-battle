@@ -12,3 +12,12 @@ export type { Hobby } from "./hobby"
 
 // MatchingPreference
 export type { MatchingPreference } from "./matching-preference"
+
+// MatchingQueue
+export type { MatchingQueue, MatchingQueueStatus } from "./matching-queue"
+
+// MatchingReaction
+export type { MatchingReaction } from "./matching-reaction"
+
+// MatchingSession
+export type { MatchingEndReason, MatchingSession, MatchingSessionStatus } from "./matching-session"

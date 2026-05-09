@@ -411,11 +411,6 @@ export type MatchingPreferenceUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type MatchingPreferenceNullableScalarRelationFilter = {
-  is?: Prisma.MatchingPreferenceWhereInput | null
-  isNot?: Prisma.MatchingPreferenceWhereInput | null
-}
-
 export type EnumGenderNullableListFilter<$PrismaModel = never> = {
   equals?: $Enums.Gender[] | Prisma.ListEnumGenderFieldRefInput<$PrismaModel> | null
   has?: $Enums.Gender | Prisma.EnumGenderFieldRefInput<$PrismaModel> | null
@@ -487,6 +482,47 @@ export type MatchingPreferenceSumOrderByAggregateInput = {
   preferredHobbyIds?: Prisma.SortOrder
 }
 
+export type MatchingPreferenceNullableScalarRelationFilter = {
+  is?: Prisma.MatchingPreferenceWhereInput | null
+  isNot?: Prisma.MatchingPreferenceWhereInput | null
+}
+
+export type MatchingPreferenceCreatepreferredGendersInput = {
+  set: $Enums.Gender[]
+}
+
+export type MatchingPreferenceCreatepreferredLocationsInput = {
+  set: string[]
+}
+
+export type MatchingPreferenceCreatepreferredMbtiInput = {
+  set: string[]
+}
+
+export type MatchingPreferenceCreatepreferredHobbyIdsInput = {
+  set: number[]
+}
+
+export type MatchingPreferenceUpdatepreferredGendersInput = {
+  set?: $Enums.Gender[]
+  push?: $Enums.Gender | $Enums.Gender[]
+}
+
+export type MatchingPreferenceUpdatepreferredLocationsInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type MatchingPreferenceUpdatepreferredMbtiInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
+export type MatchingPreferenceUpdatepreferredHobbyIdsInput = {
+  set?: number[]
+  push?: number | number[]
+}
+
 export type MatchingPreferenceCreateNestedOneWithoutUserInput = {
   create?: Prisma.XOR<Prisma.MatchingPreferenceCreateWithoutUserInput, Prisma.MatchingPreferenceUncheckedCreateWithoutUserInput>
   connectOrCreate?: Prisma.MatchingPreferenceCreateOrConnectWithoutUserInput
@@ -517,50 +553,6 @@ export type MatchingPreferenceUncheckedUpdateOneWithoutUserNestedInput = {
   delete?: Prisma.MatchingPreferenceWhereInput | boolean
   connect?: Prisma.MatchingPreferenceWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.MatchingPreferenceUpdateToOneWithWhereWithoutUserInput, Prisma.MatchingPreferenceUpdateWithoutUserInput>, Prisma.MatchingPreferenceUncheckedUpdateWithoutUserInput>
-}
-
-export type MatchingPreferenceCreatepreferredGendersInput = {
-  set: $Enums.Gender[]
-}
-
-export type MatchingPreferenceCreatepreferredLocationsInput = {
-  set: string[]
-}
-
-export type MatchingPreferenceCreatepreferredMbtiInput = {
-  set: string[]
-}
-
-export type MatchingPreferenceCreatepreferredHobbyIdsInput = {
-  set: number[]
-}
-
-export type MatchingPreferenceUpdatepreferredGendersInput = {
-  set?: $Enums.Gender[]
-  push?: $Enums.Gender | $Enums.Gender[]
-}
-
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
-export type MatchingPreferenceUpdatepreferredLocationsInput = {
-  set?: string[]
-  push?: string | string[]
-}
-
-export type MatchingPreferenceUpdatepreferredMbtiInput = {
-  set?: string[]
-  push?: string | string[]
-}
-
-export type MatchingPreferenceUpdatepreferredHobbyIdsInput = {
-  set?: number[]
-  push?: number | number[]
 }
 
 export type MatchingPreferenceCreateWithoutUserInput = {

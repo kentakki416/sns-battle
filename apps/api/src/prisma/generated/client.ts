@@ -29,8 +29,8 @@ export * from "./enums.js"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more AuthAccounts
+ * const authAccounts = await prisma.authAccount.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -40,40 +40,40 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model User
- * 
- */
-export type User = Prisma.UserModel
-/**
- * Model HobbyMaster
- * 
- */
-export type HobbyMaster = Prisma.HobbyMasterModel
-/**
- * Model UserHobby
- * 
- */
-export type UserHobby = Prisma.UserHobbyModel
-/**
- * Model MatchingPreference
- * 
- */
-export type MatchingPreference = Prisma.MatchingPreferenceModel
-/**
  * Model AuthAccount
  * 
  */
 export type AuthAccount = Prisma.AuthAccountModel
+/**
+ * Model Block
+ * 
+ */
+export type Block = Prisma.BlockModel
+/**
+ * Model BoostDetail
+ * 
+ */
+export type BoostDetail = Prisma.BoostDetailModel
+/**
+ * Model CoinTransaction
+ * 
+ */
+export type CoinTransaction = Prisma.CoinTransactionModel
+/**
+ * Model EffectDetail
+ * 
+ */
+export type EffectDetail = Prisma.EffectDetailModel
 /**
  * Model Follow
  * 
  */
 export type Follow = Prisma.FollowModel
 /**
- * Model Block
+ * Model HobbyMaster
  * 
  */
-export type Block = Prisma.BlockModel
+export type HobbyMaster = Prisma.HobbyMasterModel
 /**
  * Model Item
  * 
@@ -85,30 +85,35 @@ export type Item = Prisma.ItemModel
  */
 export type ItemScope = Prisma.ItemScopeModel
 /**
+ * Model MatchingPreference
+ * 
+ */
+export type MatchingPreference = Prisma.MatchingPreferenceModel
+/**
+ * Model MatchingQueue
+ * 
+ */
+export type MatchingQueue = Prisma.MatchingQueueModel
+/**
+ * Model MatchingReaction
+ * 
+ */
+export type MatchingReaction = Prisma.MatchingReactionModel
+/**
+ * Model MatchingSession
+ * 
+ */
+export type MatchingSession = Prisma.MatchingSessionModel
+/**
+ * Model Memo
+ * 
+ */
+export type Memo = Prisma.MemoModel
+/**
  * Model StampDetail
  * 
  */
 export type StampDetail = Prisma.StampDetailModel
-/**
- * Model EffectDetail
- * 
- */
-export type EffectDetail = Prisma.EffectDetailModel
-/**
- * Model BoostDetail
- * 
- */
-export type BoostDetail = Prisma.BoostDetailModel
-/**
- * Model UserInventory
- * 
- */
-export type UserInventory = Prisma.UserInventoryModel
-/**
- * Model CoinTransaction
- * 
- */
-export type CoinTransaction = Prisma.CoinTransactionModel
 /**
  * Model TalkTheme
  * 
@@ -120,7 +125,17 @@ export type TalkTheme = Prisma.TalkThemeModel
  */
 export type TalkThemeChoice = Prisma.TalkThemeChoiceModel
 /**
- * Model Memo
+ * Model User
  * 
  */
-export type Memo = Prisma.MemoModel
+export type User = Prisma.UserModel
+/**
+ * Model UserHobby
+ * 
+ */
+export type UserHobby = Prisma.UserHobbyModel
+/**
+ * Model UserInventory
+ * 
+ */
+export type UserInventory = Prisma.UserInventoryModel
