@@ -400,6 +400,9 @@ export const ModelName = {
   CoinTransaction: 'CoinTransaction',
   TalkTheme: 'TalkTheme',
   TalkThemeChoice: 'TalkThemeChoice',
+  MatchingQueue: 'MatchingQueue',
+  MatchingSession: 'MatchingSession',
+  MatchingReaction: 'MatchingReaction',
   Memo: 'Memo'
 } as const
 
@@ -416,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "hobbyMaster" | "userHobby" | "matchingPreference" | "authAccount" | "follow" | "block" | "item" | "itemScope" | "stampDetail" | "effectDetail" | "boostDetail" | "userInventory" | "coinTransaction" | "talkTheme" | "talkThemeChoice" | "memo"
+    modelProps: "user" | "hobbyMaster" | "userHobby" | "matchingPreference" | "authAccount" | "follow" | "block" | "item" | "itemScope" | "stampDetail" | "effectDetail" | "boostDetail" | "userInventory" | "coinTransaction" | "talkTheme" | "talkThemeChoice" | "matchingQueue" | "matchingSession" | "matchingReaction" | "memo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1604,6 +1607,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MatchingQueue: {
+      payload: Prisma.$MatchingQueuePayload<ExtArgs>
+      fields: Prisma.MatchingQueueFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MatchingQueueFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MatchingQueueFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>
+        }
+        findFirst: {
+          args: Prisma.MatchingQueueFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MatchingQueueFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>
+        }
+        findMany: {
+          args: Prisma.MatchingQueueFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>[]
+        }
+        create: {
+          args: Prisma.MatchingQueueCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>
+        }
+        createMany: {
+          args: Prisma.MatchingQueueCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MatchingQueueCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>[]
+        }
+        delete: {
+          args: Prisma.MatchingQueueDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>
+        }
+        update: {
+          args: Prisma.MatchingQueueUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>
+        }
+        deleteMany: {
+          args: Prisma.MatchingQueueDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MatchingQueueUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MatchingQueueUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>[]
+        }
+        upsert: {
+          args: Prisma.MatchingQueueUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingQueuePayload>
+        }
+        aggregate: {
+          args: Prisma.MatchingQueueAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMatchingQueue>
+        }
+        groupBy: {
+          args: Prisma.MatchingQueueGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingQueueGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MatchingQueueCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingQueueCountAggregateOutputType> | number
+        }
+      }
+    }
+    MatchingSession: {
+      payload: Prisma.$MatchingSessionPayload<ExtArgs>
+      fields: Prisma.MatchingSessionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MatchingSessionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MatchingSessionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>
+        }
+        findFirst: {
+          args: Prisma.MatchingSessionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MatchingSessionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>
+        }
+        findMany: {
+          args: Prisma.MatchingSessionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>[]
+        }
+        create: {
+          args: Prisma.MatchingSessionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>
+        }
+        createMany: {
+          args: Prisma.MatchingSessionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MatchingSessionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>[]
+        }
+        delete: {
+          args: Prisma.MatchingSessionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>
+        }
+        update: {
+          args: Prisma.MatchingSessionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>
+        }
+        deleteMany: {
+          args: Prisma.MatchingSessionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MatchingSessionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MatchingSessionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>[]
+        }
+        upsert: {
+          args: Prisma.MatchingSessionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingSessionPayload>
+        }
+        aggregate: {
+          args: Prisma.MatchingSessionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMatchingSession>
+        }
+        groupBy: {
+          args: Prisma.MatchingSessionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingSessionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MatchingSessionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    MatchingReaction: {
+      payload: Prisma.$MatchingReactionPayload<ExtArgs>
+      fields: Prisma.MatchingReactionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MatchingReactionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MatchingReactionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>
+        }
+        findFirst: {
+          args: Prisma.MatchingReactionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MatchingReactionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>
+        }
+        findMany: {
+          args: Prisma.MatchingReactionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>[]
+        }
+        create: {
+          args: Prisma.MatchingReactionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>
+        }
+        createMany: {
+          args: Prisma.MatchingReactionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MatchingReactionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>[]
+        }
+        delete: {
+          args: Prisma.MatchingReactionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>
+        }
+        update: {
+          args: Prisma.MatchingReactionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>
+        }
+        deleteMany: {
+          args: Prisma.MatchingReactionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MatchingReactionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MatchingReactionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>[]
+        }
+        upsert: {
+          args: Prisma.MatchingReactionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MatchingReactionPayload>
+        }
+        aggregate: {
+          args: Prisma.MatchingReactionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMatchingReaction>
+        }
+        groupBy: {
+          args: Prisma.MatchingReactionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingReactionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MatchingReactionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MatchingReactionCountAggregateOutputType> | number
+        }
+      }
+    }
     Memo: {
       payload: Prisma.$MemoPayload<ExtArgs>
       fields: Prisma.MemoFieldRefs
@@ -1917,6 +2142,45 @@ export const TalkThemeChoiceScalarFieldEnum = {
 export type TalkThemeChoiceScalarFieldEnum = (typeof TalkThemeChoiceScalarFieldEnum)[keyof typeof TalkThemeChoiceScalarFieldEnum]
 
 
+export const MatchingQueueScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MatchingQueueScalarFieldEnum = (typeof MatchingQueueScalarFieldEnum)[keyof typeof MatchingQueueScalarFieldEnum]
+
+
+export const MatchingSessionScalarFieldEnum = {
+  id: 'id',
+  user1Id: 'user1Id',
+  user2Id: 'user2Id',
+  livekitRoomName: 'livekitRoomName',
+  status: 'status',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  endReason: 'endReason',
+  createdAt: 'createdAt'
+} as const
+
+export type MatchingSessionScalarFieldEnum = (typeof MatchingSessionScalarFieldEnum)[keyof typeof MatchingSessionScalarFieldEnum]
+
+
+export const MatchingReactionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  themeId: 'themeId',
+  choiceId: 'choiceId',
+  roundNumber: 'roundNumber',
+  createdAt: 'createdAt'
+} as const
+
+export type MatchingReactionScalarFieldEnum = (typeof MatchingReactionScalarFieldEnum)[keyof typeof MatchingReactionScalarFieldEnum]
+
+
 export const MemoScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -2134,6 +2398,48 @@ export type ListEnumTalkThemeCategoryFieldRefInput<$PrismaModel> = FieldRefInput
 
 
 /**
+ * Reference to a field of type 'MatchingQueueStatus'
+ */
+export type EnumMatchingQueueStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MatchingQueueStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'MatchingQueueStatus[]'
+ */
+export type ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MatchingQueueStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MatchingSessionStatus'
+ */
+export type EnumMatchingSessionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MatchingSessionStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'MatchingSessionStatus[]'
+ */
+export type ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MatchingSessionStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'MatchingEndReason'
+ */
+export type EnumMatchingEndReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MatchingEndReason'>
+    
+
+
+/**
+ * Reference to a field of type 'MatchingEndReason[]'
+ */
+export type ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MatchingEndReason[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2272,6 +2578,9 @@ export type GlobalOmitConfig = {
   coinTransaction?: Prisma.CoinTransactionOmit
   talkTheme?: Prisma.TalkThemeOmit
   talkThemeChoice?: Prisma.TalkThemeChoiceOmit
+  matchingQueue?: Prisma.MatchingQueueOmit
+  matchingSession?: Prisma.MatchingSessionOmit
+  matchingReaction?: Prisma.MatchingReactionOmit
   memo?: Prisma.MemoOmit
 }
 

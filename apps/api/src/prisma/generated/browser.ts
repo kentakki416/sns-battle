@@ -98,6 +98,21 @@ export type TalkTheme = Prisma.TalkThemeModel
  */
 export type TalkThemeChoice = Prisma.TalkThemeChoiceModel
 /**
+ * Model MatchingQueue
+ * 
+ */
+export type MatchingQueue = Prisma.MatchingQueueModel
+/**
+ * Model MatchingSession
+ * 
+ */
+export type MatchingSession = Prisma.MatchingSessionModel
+/**
+ * Model MatchingReaction
+ * 
+ */
+export type MatchingReaction = Prisma.MatchingReactionModel
+/**
  * Model Memo
  * 
  */

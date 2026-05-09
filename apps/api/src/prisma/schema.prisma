@@ -40,15 +40,19 @@ model User {
     createdAt   DateTime  @default(now()) @map("created_at")
     updatedAt   DateTime  @updatedAt @map("updated_at")
 
-    accounts           AuthAccount[]
-    followers          Follow[]            @relation("UserFollowers")
-    following          Follow[]            @relation("UserFollowees")
-    blocked            Block[]             @relation("UserBlocker")
-    blockedBy          Block[]             @relation("UserBlocked")
-    hobbies            UserHobby[]
-    matchingPreference MatchingPreference?
-    inventories        UserInventory[]
-    coinTransactions   CoinTransaction[]
+    accounts            AuthAccount[]
+    followers           Follow[]            @relation("UserFollowers")
+    following           Follow[]            @relation("UserFollowees")
+    blocked             Block[]             @relation("UserBlocker")
+    blockedBy           Block[]             @relation("UserBlocked")
+    hobbies             UserHobby[]
+    matchingPreference  MatchingPreference?
+    matchingQueue       MatchingQueue?
+    matchingSessionsAs1 MatchingSession[]   @relation("MatchingSessionUser1")
+    matchingSessionsAs2 MatchingSession[]   @relation("MatchingSessionUser2")
+    matchingReactions   MatchingReaction[]
+    inventories         UserInventory[]
+    coinTransactions    CoinTransaction[]
 
     @@map("users")
 }
@@ -356,7 +360,8 @@ model TalkTheme {
     createdAt DateTime          @default(now()) @map("created_at")
     updatedAt DateTime          @updatedAt @map("updated_at")
 
-    choices TalkThemeChoice[]
+    choices   TalkThemeChoice[]
+    reactions MatchingReaction[]
 
     @@index([category, isActive, sortOrder])
     @@map("talk_themes")
@@ -371,10 +376,87 @@ model TalkThemeChoice {
     sortOrder Int      @default(0) @map("sort_order")
     createdAt DateTime @default(now()) @map("created_at")
 
-    theme TalkTheme @relation(fields: [themeId], references: [id], onDelete: Cascade)
+    theme     TalkTheme          @relation(fields: [themeId], references: [id], onDelete: Cascade)
+    reactions MatchingReaction[]
 
     @@index([themeId, sortOrder])
     @@map("talk_theme_choices")
+}
+
+// マッチング待機キューのステータス（実運用は WAITING のみ。MATCHED / CANCELLED は監査用 enum 値）
+enum MatchingQueueStatus {
+    WAITING
+    MATCHED
+    CANCELLED
+}
+
+// 1対1マッチングセッションのステータス
+enum MatchingSessionStatus {
+    COUNTDOWN
+    ACTIVE
+    ENDED
+}
+
+// マッチングセッションが終了した理由
+enum MatchingEndReason {
+    TIMEOUT
+    USER_LEFT
+    MANUAL
+}
+
+// マッチング待機キュー（Redis Sorted Set がプライマリ、DB はバックアップ／監査用）
+model MatchingQueue {
+    id        Int                 @id @default(autoincrement())
+    userId    Int                 @unique @map("user_id")
+    status    MatchingQueueStatus @default(WAITING)
+    createdAt DateTime            @default(now()) @map("created_at")
+    updatedAt DateTime            @updatedAt @map("updated_at")
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([status, createdAt])
+    @@map("matching_queue")
+}
+
+// 1対1ビデオ通話のセッション記録
+model MatchingSession {
+    id              Int                   @id @default(autoincrement())
+    user1Id         Int                   @map("user1_id")
+    user2Id         Int                   @map("user2_id")
+    livekitRoomName String                @unique @map("livekit_room_name") @db.VarChar(255)
+    status          MatchingSessionStatus @default(COUNTDOWN)
+    startedAt       DateTime?             @map("started_at")
+    endedAt         DateTime?             @map("ended_at")
+    endReason       MatchingEndReason?    @map("end_reason")
+    createdAt       DateTime              @default(now()) @map("created_at")
+
+    user1     User               @relation("MatchingSessionUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+    user2     User               @relation("MatchingSessionUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+    reactions MatchingReaction[]
+
+    @@index([user1Id, status])
+    @@index([user2Id, status])
+    @@map("matching_sessions")
+}
+
+// トークテーマへの回答記録
+model MatchingReaction {
+    id          Int      @id @default(autoincrement())
+    sessionId   Int      @map("session_id")
+    userId      Int      @map("user_id")
+    themeId     Int      @map("theme_id")
+    choiceId    Int?     @map("choice_id")
+    roundNumber Int      @map("round_number")
+    createdAt   DateTime @default(now()) @map("created_at")
+
+    session MatchingSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+    user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+    theme   TalkTheme        @relation(fields: [themeId], references: [id], onDelete: Restrict)
+    choice  TalkThemeChoice? @relation(fields: [choiceId], references: [id], onDelete: SetNull)
+
+    @@unique([sessionId, userId, roundNumber])
+    @@index([sessionId])
+    @@map("matching_reactions")
 }
 
 // メモ

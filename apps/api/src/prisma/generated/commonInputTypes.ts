@@ -355,6 +355,57 @@ export type EnumTalkThemeCategoryWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumTalkThemeCategoryFilter<$PrismaModel>
 }
 
+export type EnumMatchingQueueStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingQueueStatus | Prisma.EnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MatchingQueueStatus[] | Prisma.ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MatchingQueueStatus[] | Prisma.ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMatchingQueueStatusFilter<$PrismaModel> | $Enums.MatchingQueueStatus
+}
+
+export type EnumMatchingQueueStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingQueueStatus | Prisma.EnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MatchingQueueStatus[] | Prisma.ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MatchingQueueStatus[] | Prisma.ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMatchingQueueStatusWithAggregatesFilter<$PrismaModel> | $Enums.MatchingQueueStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMatchingQueueStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMatchingQueueStatusFilter<$PrismaModel>
+}
+
+export type EnumMatchingSessionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingSessionStatus | Prisma.EnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MatchingSessionStatus[] | Prisma.ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MatchingSessionStatus[] | Prisma.ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMatchingSessionStatusFilter<$PrismaModel> | $Enums.MatchingSessionStatus
+}
+
+export type EnumMatchingEndReasonNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingEndReason | Prisma.EnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MatchingEndReason[] | Prisma.ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MatchingEndReason[] | Prisma.ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMatchingEndReasonNullableFilter<$PrismaModel> | $Enums.MatchingEndReason | null
+}
+
+export type EnumMatchingSessionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingSessionStatus | Prisma.EnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MatchingSessionStatus[] | Prisma.ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MatchingSessionStatus[] | Prisma.ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMatchingSessionStatusWithAggregatesFilter<$PrismaModel> | $Enums.MatchingSessionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMatchingSessionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMatchingSessionStatusFilter<$PrismaModel>
+}
+
+export type EnumMatchingEndReasonNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingEndReason | Prisma.EnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MatchingEndReason[] | Prisma.ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MatchingEndReason[] | Prisma.ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMatchingEndReasonNullableWithAggregatesFilter<$PrismaModel> | $Enums.MatchingEndReason | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMatchingEndReasonNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMatchingEndReasonNullableFilter<$PrismaModel>
+}
+
 export type NestedIntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
@@ -707,6 +758,57 @@ export type NestedEnumTalkThemeCategoryWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTalkThemeCategoryFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTalkThemeCategoryFilter<$PrismaModel>
+}
+
+export type NestedEnumMatchingQueueStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingQueueStatus | Prisma.EnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MatchingQueueStatus[] | Prisma.ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MatchingQueueStatus[] | Prisma.ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMatchingQueueStatusFilter<$PrismaModel> | $Enums.MatchingQueueStatus
+}
+
+export type NestedEnumMatchingQueueStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingQueueStatus | Prisma.EnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MatchingQueueStatus[] | Prisma.ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MatchingQueueStatus[] | Prisma.ListEnumMatchingQueueStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMatchingQueueStatusWithAggregatesFilter<$PrismaModel> | $Enums.MatchingQueueStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMatchingQueueStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMatchingQueueStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumMatchingSessionStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingSessionStatus | Prisma.EnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MatchingSessionStatus[] | Prisma.ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MatchingSessionStatus[] | Prisma.ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMatchingSessionStatusFilter<$PrismaModel> | $Enums.MatchingSessionStatus
+}
+
+export type NestedEnumMatchingEndReasonNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingEndReason | Prisma.EnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MatchingEndReason[] | Prisma.ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MatchingEndReason[] | Prisma.ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMatchingEndReasonNullableFilter<$PrismaModel> | $Enums.MatchingEndReason | null
+}
+
+export type NestedEnumMatchingSessionStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingSessionStatus | Prisma.EnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.MatchingSessionStatus[] | Prisma.ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.MatchingSessionStatus[] | Prisma.ListEnumMatchingSessionStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumMatchingSessionStatusWithAggregatesFilter<$PrismaModel> | $Enums.MatchingSessionStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMatchingSessionStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMatchingSessionStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumMatchingEndReasonNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.MatchingEndReason | Prisma.EnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  in?: $Enums.MatchingEndReason[] | Prisma.ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.MatchingEndReason[] | Prisma.ListEnumMatchingEndReasonFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumMatchingEndReasonNullableWithAggregatesFilter<$PrismaModel> | $Enums.MatchingEndReason | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumMatchingEndReasonNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumMatchingEndReasonNullableFilter<$PrismaModel>
 }
 
 

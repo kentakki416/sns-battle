@@ -19,6 +19,9 @@ const TABLE_NAMES = [
   "hobby_masters",
   "user_hobbies",
   "matching_preferences",
+  "matching_queue",
+  "matching_sessions",
+  "matching_reactions",
 ]
 
 /**

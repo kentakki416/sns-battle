@@ -102,3 +102,30 @@ export const TalkThemeType = {
 } as const
 
 export type TalkThemeType = (typeof TalkThemeType)[keyof typeof TalkThemeType]
+
+
+export const MatchingQueueStatus = {
+  WAITING: 'WAITING',
+  MATCHED: 'MATCHED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type MatchingQueueStatus = (typeof MatchingQueueStatus)[keyof typeof MatchingQueueStatus]
+
+
+export const MatchingSessionStatus = {
+  COUNTDOWN: 'COUNTDOWN',
+  ACTIVE: 'ACTIVE',
+  ENDED: 'ENDED'
+} as const
+
+export type MatchingSessionStatus = (typeof MatchingSessionStatus)[keyof typeof MatchingSessionStatus]
+
+
+export const MatchingEndReason = {
+  TIMEOUT: 'TIMEOUT',
+  USER_LEFT: 'USER_LEFT',
+  MANUAL: 'MANUAL'
+} as const
+
+export type MatchingEndReason = (typeof MatchingEndReason)[keyof typeof MatchingEndReason]

@@ -67,6 +67,9 @@ export const ModelName = {
   CoinTransaction: 'CoinTransaction',
   TalkTheme: 'TalkTheme',
   TalkThemeChoice: 'TalkThemeChoice',
+  MatchingQueue: 'MatchingQueue',
+  MatchingSession: 'MatchingSession',
+  MatchingReaction: 'MatchingReaction',
   Memo: 'Memo'
 } as const
 
@@ -284,6 +287,45 @@ export const TalkThemeChoiceScalarFieldEnum = {
 } as const
 
 export type TalkThemeChoiceScalarFieldEnum = (typeof TalkThemeChoiceScalarFieldEnum)[keyof typeof TalkThemeChoiceScalarFieldEnum]
+
+
+export const MatchingQueueScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MatchingQueueScalarFieldEnum = (typeof MatchingQueueScalarFieldEnum)[keyof typeof MatchingQueueScalarFieldEnum]
+
+
+export const MatchingSessionScalarFieldEnum = {
+  id: 'id',
+  user1Id: 'user1Id',
+  user2Id: 'user2Id',
+  livekitRoomName: 'livekitRoomName',
+  status: 'status',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  endReason: 'endReason',
+  createdAt: 'createdAt'
+} as const
+
+export type MatchingSessionScalarFieldEnum = (typeof MatchingSessionScalarFieldEnum)[keyof typeof MatchingSessionScalarFieldEnum]
+
+
+export const MatchingReactionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  themeId: 'themeId',
+  choiceId: 'choiceId',
+  roundNumber: 'roundNumber',
+  createdAt: 'createdAt'
+} as const
+
+export type MatchingReactionScalarFieldEnum = (typeof MatchingReactionScalarFieldEnum)[keyof typeof MatchingReactionScalarFieldEnum]
 
 
 export const MemoScalarFieldEnum = {
