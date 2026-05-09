@@ -3,7 +3,7 @@ import Redis from "ioredis"
 export const redis = new Redis({
   db: Number(process.env.REDIS_DB) || 0,
   host: process.env.REDIS_HOST || "localhost",
-  lazyConnect: true,
+  lazyConnect: true, // インスタンス作成時にRedisに接続せず、Redis API呼び出し時に接続する
   password: process.env.REDIS_PASSWORD || undefined,
   port: Number(process.env.REDIS_PORT) || 6379,
 })
@@ -15,7 +15,7 @@ export const redis = new Redis({
 export const queueRedis = new Redis({
   db: Number(process.env.REDIS_DB) || 0,
   host: process.env.REDIS_HOST || "localhost",
-  maxRetriesPerRequest: null,
+  maxRetriesPerRequest: null, // Redis接続が瞬断しても、接続が戻るまで永遠に待つ
   password: process.env.REDIS_PASSWORD || undefined,
   port: Number(process.env.REDIS_PORT) || 6379,
 })

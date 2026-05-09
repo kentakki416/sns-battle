@@ -36,11 +36,6 @@ export const createThemeProgressQueue = (redis: Redis): Queue<ThemeProgressJob> 
   })
 
 /** 決定的 jobId で重複 enqueue を防ぐ */
-export const buildAdvanceThemeJobId = (sessionId: number, nextRoundNumber: number): string =>
-  `session:${sessionId}:advance:${nextRoundNumber}`
-
-export const buildPublishTimerJobId = (sessionId: number, tickIndex: number): string =>
-  `session:${sessionId}:timer:${tickIndex}`
-
-export const buildSessionTimeoutJobId = (sessionId: number): string =>
-  `session:${sessionId}:timeout`
+export const buildAdvanceThemeJobId = (sessionId: number, nextRoundNumber: number): string => { return `session:${sessionId}:advance:${nextRoundNumber}` }
+export const buildPublishTimerJobId = (sessionId: number, tickIndex: number): string => { return `session:${sessionId}:timer:${tickIndex}` }
+export const buildSessionTimeoutJobId = (sessionId: number): string => { return `session:${sessionId}:timeout` }

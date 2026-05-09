@@ -19,8 +19,8 @@ export type LivekitEventJob = {
 
 export type WebhookEventsJob = LivekitEventJob
 
-export const createWebhookEventsQueue = (redis: Redis): Queue<WebhookEventsJob> =>
-  new Queue<WebhookEventsJob>(WEBHOOK_EVENTS_QUEUE_NAME, {
+export const createWebhookEventsQueue = (redis: Redis): Queue<WebhookEventsJob> => {
+  return new Queue<WebhookEventsJob>(WEBHOOK_EVENTS_QUEUE_NAME, {
     connection: redis,
     defaultJobOptions: {
       attempts: 5,
@@ -29,7 +29,7 @@ export const createWebhookEventsQueue = (redis: Redis): Queue<WebhookEventsJob> 
       removeOnFail: { age: 86400 },
     },
   })
+}
 
 /** Webhook event の id を流用して重複 enqueue を防ぐ */
-export const buildLivekitEventJobId = (eventId: string): string =>
-  `livekit:${eventId}`
+export const buildLivekitEventJobId = (eventId: string): string => { return `livekit:${eventId}`}
