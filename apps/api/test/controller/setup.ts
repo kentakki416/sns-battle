@@ -2,7 +2,7 @@
 process.env.DB_NAME = "sns-battle_test"
 process.env.REDIS_DB = "1"
 
-import { redis } from "../../src/client/redis"
+import { queueRedis, redis } from "../../src/client/redis"
 import { prisma } from "../../src/prisma/prisma.client"
 
 export { prisma as testPrisma }
@@ -48,7 +48,8 @@ export const disconnectTestDb = async (): Promise<void> => {
 
 /**
  * テスト終了時にRedis接続を切断する
+ * 汎用 redis と BullMQ 用 queueRedis の両方を閉じる
  */
 export const disconnectTestRedis = async (): Promise<void> => {
-  await redis.quit()
+  await Promise.all([redis.quit(), queueRedis.quit()])
 }

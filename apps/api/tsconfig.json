@@ -2,13 +2,17 @@
   "compilerOptions": {
     // コンパイルターゲット: ES2020にコンパイル
     "target": "ES2020",
-    // モジュールシステム: CommonJS（Node.js標準）
+    /**
+     * モジュールシステム: node16（Node.js の ESM/CJS dual-mode 解決）。
+     * "16" は Node 16 でしか動かない意味ではなく、解決ルール名のラベル。Node 22 でも問題なく動作する。
+     * Prisma v7 生成コードの動的 import が nodenext だと Jest VM で動かないため node16 を採用。
+     */
     "module": "node16",
     // 使用するライブラリ: ES2020の標準ライブラリ
     "lib": ["ES2020"],
     // 出力ディレクトリ: コンパイル後のファイル出力先
     "outDir": "./dist",
-    // モジュール解決方法: Node16方式
+    // モジュール解決方法: node16（module と揃える）
     "moduleResolution": "node16",
     // パスエイリアス: @/でsrcディレクトリを参照可能
     "paths": {

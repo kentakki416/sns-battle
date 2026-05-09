@@ -10,6 +10,17 @@ module.exports = {
   // 内部で ts-jest トランスフォーマーが .ts → .js への変換を行う。
   preset: "ts-jest",
 
+  /**
+   * ts-jest の transform 設定。
+   * TS151002: "Using hybrid module kind (Node16/18/Next) is only supported in isolatedModules: true"
+   * tsconfig の module=node16 を維持するために出る警告だが、
+   * isolatedModules を立てると ts-jest が per-file transpile に切り替わり、
+   * Prisma v7 生成コードの動的 import が壊れて全テストが失敗するため警告を無視
+   */
+  transform: {
+    "^.+\\.tsx?$": ["ts-jest", { diagnostics: { ignoreCodes: [151002] } }],
+  },
+
   // テストの実行環境。"node" は Node.js 環境（サーバーサイド向け）。
   // フロントエンドの場合は "jsdom"（ブラウザ相当の DOM API が使える）を指定する。
   testEnvironment: "node",
