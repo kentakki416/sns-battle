@@ -57,10 +57,9 @@ services:
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      REDIS_DB: 0
       BULL_VERSION: BULLMQ
-      # キューを明示列挙（packages/queue の定義と一致させる）
       BULL_PREFIX: bull
-      QUEUES: theme-progress webhook-events
       # Basic 認証（local でも素のまま晒さない）
       USER_LOGIN: admin
       USER_PASSWORD: admin
@@ -75,11 +74,26 @@ services:
 
 ポイント:
 
+- **キューは自動発見**: `deadly0/bull-board` は `BULL_PREFIX` にマッチする Redis キーをスキャンしてキューを検出する。`packages/queue` の `theme-progress` / `webhook-events` は両方ともカスタム prefix を設定していない（BullMQ デフォルト `bull`）ので、image のデフォルト `BULL_PREFIX=bull` でそのまま **自動で表示される**。明示的にキューを列挙する env は image 側に存在しない
 - **`REDIS_HOST: redis`**: `app-network` 内のサービス名で Redis を解決する（host 側の `localhost:6379` ではないことに注意）
-- **`BULL_VERSION: BULLMQ`**: BullMQ（v5 系）に対応させる必須 env。Bull v3 用ではない
-- **`QUEUES`**: `packages/queue/src/index.ts` で `export` しているキュー名（`theme-progress` / `webhook-events`）を空白区切りで列挙
-- **`ports: "3050:3000"`**: ホスト側 3050 番（apps/web の 3000、apps/admin の 3030 と衝突しない）
+- **`BULL_VERSION: BULLMQ`**: BullMQ 対応にする必須 env。`BULL` を指定すると Bull v3 用の挙動になる
+- **`ports: "3050:3000"`**: ホスト側 3050 番（apps/web の 3000、apps/admin の 3030 と衝突しない）。コンテナ側は image の listen ポート `3000` 固定
 - **image tag**: `latest` だと再現性が悪いので、本格導入時は `deadly0/bull-board:3.x.x` のように pin する
+
+サポートされる env 変数の完全な一覧（[Deadly0/bull-board-docker](https://github.com/Deadly0/bull-board-docker) より）:
+
+| 変数 | 用途 | デフォルト |
+|------|------|----------|
+| `REDIS_HOST` | Redis 接続先ホスト | `localhost` |
+| `REDIS_PORT` | Redis ポート | `6379` |
+| `REDIS_DB` | Redis DB 番号 | `0` |
+| `REDIS_PASSWORD` | Redis パスワード | なし |
+| `REDIS_USE_TLS` | TLS 有効化 | `false` |
+| `BULL_PREFIX` | キュー名プレフィックス（BullMQ の Redis キー prefix と一致させる） | `bull` |
+| `BULL_VERSION` | `BULLMQ` / `BULL` | `BULLMQ` |
+| `PROXY_PATH` | サブパス配信時のベース URL | 空文字 |
+| `USER_LOGIN` | Basic 認証ユーザー名（`USER_PASSWORD` と両方設定で有効化） | 無効 |
+| `USER_PASSWORD` | Basic 認証パスワード | 無効 |
 
 ## 起動手順
 
@@ -115,7 +129,7 @@ open http://localhost:3050
 
 - **prod デプロイ対象外**。`docker-compose.yaml` はあくまで local dev 用で、Terraform / ECS のデプロイには含まれない。誤って ECS Task に含めないこと
 - **Basic 認証の credentials は local 値**。`.env.local` に出すほどでもないが、外部に晒す環境（ngrok 経由で LiveKit Webhook を受けるとき等）では強めの値に変える
-- **キュー追加時は `QUEUES` env を更新**。`packages/queue` に新キュー（例: 将来の配信用 `streaming-events`）を追加した際は同じく列挙する
+- **キュー追加時は何もしなくてよい**。`BULL_PREFIX=bull` でスキャンするため、`packages/queue` に新キュー（例: 将来の配信用 `streaming-events`）を追加してジョブが流れ始めた時点で自動的にダッシュボードに現れる。**ただしカスタム prefix を指定したキューを追加する場合は image の `BULL_PREFIX` を揃える必要がある**（複数 prefix を同時監視はできないため、揃えるのが現実的）
 - **BullMQ メジャー更新時の整合**: `bullmq` を v5 → v6 等に上げる場合は `deadly0/bull-board` の image tag も対応バージョンを確認する。`@bull-board/api` のメジャー番号は BullMQ の breaking change にしばしば追従するため
 
 ## 代替案: standalone Node 起動スクリプト
