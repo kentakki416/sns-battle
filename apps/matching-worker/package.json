@@ -10,7 +10,7 @@
     "lint:fix": "eslint 'src/**/*.ts' 'test/**/*.ts' --fix",
     "start": "dotenvx run -f .env.local -- node dist/index.js",
     "test": "DB_NAME=sns-battle_test dotenvx run -f .env.local -- jest",
-    "test:ci": "prisma generate --schema=./prisma/schema.prisma && jest"
+    "test:ci": "jest"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.7.0",
