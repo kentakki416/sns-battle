@@ -347,6 +347,24 @@ enum TalkThemeType { CHOICE, FREE_TALK }
 |---------|------|------|------|
 | GET | `/api/matching/events` | Access Token | マッチング待機中にリアルタイム通知する。`matched`（成立通知）、`heartbeat`（30秒間隔）、`cancelled`（サーバー側キャンセル） |
 
+#### マッチング成立時の peer プロフィール
+
+`POST /api/matching/join` のレスポンス（`matched=true` 時）と SSE `matched` イベントの `peer` フィールドには、UI 表示用のプロフィール情報を含める:
+
+| フィールド | 型 | 説明 |
+|----------|----|------|
+| `id` | int | ユーザー ID |
+| `age` | int / null | 生年月日から算出した満年齢 |
+| `avatar_url` | string / null | アバター画像 URL |
+| `bio` | string / null | 自己紹介文 |
+| `gender` | "MALE" / "FEMALE" / "OTHER" / null | 性別 |
+| `hobbies` | `{ id, name }[]` | 趣味タグ（`hobby_masters.sortOrder` 昇順） |
+| `location` | string / null | 居住地域 |
+| `mbti` | string / null | MBTI タイプ |
+| `name` | string / null | 表示名 |
+
+機密情報（`email`, `coinBalance`, `createdAt`, `is_onboarded` 等）は含めない。`hobbies` は `findProfileById` で `user_hobbies` を join して取得する。
+
 ### LiveKit Data Channel イベント
 
 | イベント名 | 方向 | モード | 説明 |

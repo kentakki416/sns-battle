@@ -143,8 +143,14 @@ describe("POST /api/matching/join", () => {
       livekit_room_name: expect.stringMatching(/^matching:\d+$/),
       matched: true,
       peer: {
-        avatar_url: peer.avatarUrl,
         id: peer.id,
+        age: expect.any(Number),
+        avatar_url: peer.avatarUrl,
+        bio: null,
+        gender: "FEMALE",
+        hobbies: [],
+        location: null,
+        mbti: null,
         name: peer.name,
       },
       session_id: expect.any(Number),
@@ -165,6 +171,58 @@ describe("POST /api/matching/join", () => {
     expect(await testRedis.zscore("matching:queue", String(peer.id))).toBeNull()
     expect(await testPrisma.matchingQueue.findUnique({ where: { userId: me.id } })).toBeNull()
     expect(await testPrisma.matchingQueue.findUnique({ where: { userId: peer.id } })).toBeNull()
+  })
+
+  it("peer のプロフィール（hobbies / bio / location / mbti）がレスポンスに含まれる", async () => {
+    /** hobby_masters は migration / seed で投入されている前提だが、
+     *  テストでは独立性のため自前で作成する */
+    const hobby1 = await testPrisma.hobbyMaster.create({
+      data: { name: "音楽", sortOrder: 1 },
+    })
+    const hobby2 = await testPrisma.hobbyMaster.create({
+      data: { name: "ゲーム", sortOrder: 2 },
+    })
+    const peer = await testPrisma.user.create({
+      data: {
+        avatarUrl: "https://example.com/peer.jpg",
+        bio: "Hello!",
+        birthDate: new Date("2000-01-01"),
+        email: "peer@example.com",
+        gender: "FEMALE",
+        hobbies: {
+          create: [{ hobbyId: hobby1.id }, { hobbyId: hobby2.id }],
+        },
+        isOnboarded: true,
+        location: "Tokyo",
+        mbti: "INFP",
+        name: "Peer Profile",
+      },
+    })
+    const me = await createOnboardedUser("me")
+    await testRedis.zadd("matching:queue", Date.now() - 1000, String(peer.id))
+    await testPrisma.matchingQueue.create({ data: { status: "WAITING", userId: peer.id } })
+
+    const token = generateAccessToken(me.id)
+    const res = await request(app)
+      .post("/api/matching/join")
+      .set("Authorization", `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body.matched).toBe(true)
+    expect(res.body.peer).toEqual({
+      id: peer.id,
+      age: expect.any(Number),
+      avatar_url: "https://example.com/peer.jpg",
+      bio: "Hello!",
+      gender: "FEMALE",
+      hobbies: [
+        { id: hobby1.id, name: "音楽" },
+        { id: hobby2.id, name: "ゲーム" },
+      ],
+      location: "Tokyo",
+      mbti: "INFP",
+      name: "Peer Profile",
+    })
   })
 
   it("ブロック関係がある相手 → matched: false（自分は WAITING のまま）", async () => {

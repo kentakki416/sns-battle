@@ -140,7 +140,17 @@ describe("GET /api/matching/events", () => {
 
     await matchingEventPublisher.publishMatched([me.id], {
       livekitRoomName: "matching:42",
-      peer: { avatarUrl: peer.avatarUrl, id: peer.id, name: peer.name },
+      peer: {
+        id: peer.id,
+        age: null,
+        avatarUrl: peer.avatarUrl,
+        bio: null,
+        gender: null,
+        hobbies: [],
+        location: null,
+        mbti: null,
+        name: peer.name,
+      },
       sessionId: 42,
     })
 
@@ -151,6 +161,9 @@ describe("GET /api/matching/events", () => {
     expect(buffer).toContain("\"session_id\":42")
     expect(buffer).toContain("\"livekit_room_name\":\"matching:42\"")
     expect(buffer).toContain(`"id":${peer.id}`)
+    /** 拡充されたプロフィール項目が含まれること */
+    expect(buffer).toContain("\"hobbies\":[]")
+    expect(buffer).toContain("\"gender\":null")
   })
 
   it("接続切断後に publish しても再受信しない（subscribe 解除）", async () => {
@@ -169,7 +182,17 @@ describe("GET /api/matching/events", () => {
     await new Promise((r) => setTimeout(r, 200))
     await matchingEventPublisher.publishMatched([me.id], {
       livekitRoomName: "matching:1",
-      peer: { avatarUrl: null, id: 99, name: null },
+      peer: {
+        id: 99,
+        age: null,
+        avatarUrl: null,
+        bio: null,
+        gender: null,
+        hobbies: [],
+        location: null,
+        mbti: null,
+        name: null,
+      },
       sessionId: 1,
     })
     await first

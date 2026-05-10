@@ -6,7 +6,17 @@ import type Redis from "ioredis"
  */
 export type MatchedEventPayload = {
     livekitRoomName: string
-    peer: { avatarUrl: string | null; id: number; name: string | null }
+    peer: {
+        id: number
+        age: number | null
+        avatarUrl: string | null
+        bio: string | null
+        gender: "MALE" | "FEMALE" | "OTHER" | null
+        hobbies: { id: number; name: string }[]
+        location: string | null
+        mbti: string | null
+        name: string | null
+    }
     sessionId: number
 }
 
@@ -35,8 +45,14 @@ export class IoRedisMatchingEventPublisher implements MatchingEventPublisher {
     const payload = JSON.stringify({
       livekit_room_name: event.livekitRoomName,
       peer: {
-        avatar_url: event.peer.avatarUrl,
         id: event.peer.id,
+        age: event.peer.age,
+        avatar_url: event.peer.avatarUrl,
+        bio: event.peer.bio,
+        gender: event.peer.gender,
+        hobbies: event.peer.hobbies,
+        location: event.peer.location,
+        mbti: event.peer.mbti,
         name: event.peer.name,
       },
       session_id: event.sessionId,

@@ -11,7 +11,7 @@ import type {
   MatchingEventSubscriber,
   MatchingQueueRedisRepository,
 } from "../repository/redis"
-import type { MatchingPreference, MatchingSession, User } from "../types/domain"
+import type { Gender, MatchingPreference, MatchingSession, User } from "../types/domain"
 import {
   badRequestError,
   conflictError,
@@ -86,6 +86,22 @@ const checkMatchingPreferences = (
 }
 
 /**
+ * マッチング相手のプロフィール情報。matched=true のとき UI で表示する。
+ * 機密情報（email / coinBalance / createdAt 等）は含めない。
+ */
+export type MatchingPeerProfile = {
+    id: number
+    age: number | null
+    avatarUrl: string | null
+    bio: string | null
+    gender: Gender | null
+    hobbies: { id: number; name: string }[]
+    location: string | null
+    mbti: string | null
+    name: string | null
+}
+
+/**
  * joinMatching の結果。matched=true なら即時マッチング成立、false なら待機状態。
  */
 export type JoinMatchingOutput =
@@ -93,7 +109,7 @@ export type JoinMatchingOutput =
     | {
           livekitRoomName: string
           matched: true
-          peer: { avatarUrl: string | null; id: number; name: string | null }
+          peer: MatchingPeerProfile
           sessionId: number
       }
 
@@ -211,6 +227,26 @@ export const joinMatching = async (
 
   if (!chosenPeer) return ok({ matched: false })
 
+  /**
+   * peer の最新プロフィール（hobbies 含む）を取得して UI 表示用 peer サマリを構築する。
+   * findManyByIds で取得した chosenPeer は hobbies を持たないため、ここで補完する。
+   * peer は直前まで matching_queue に存在し、本プロジェクトには User 削除 API が無いため
+   * findProfileById は必ず非 null を返す前提（null なら想定外として throw）。
+   */
+  const peerProfile = await repo.userRepository.findProfileById(chosenPeer.id)
+  if (!peerProfile) throw new Error(`Peer profile not found: userId=${chosenPeer.id}`)
+  const peerSummary: MatchingPeerProfile = {
+    id: peerProfile.user.id,
+    age: computeAge(peerProfile.user.birthDate),
+    avatarUrl: peerProfile.user.avatarUrl,
+    bio: peerProfile.user.bio,
+    gender: peerProfile.user.gender,
+    hobbies: peerProfile.hobbies.map((h) => ({ id: h.id, name: h.name })),
+    location: peerProfile.user.location,
+    mbti: peerProfile.user.mbti,
+    name: peerProfile.user.name,
+  }
+
   const session: MatchingSession = await repo.matchingSessionRepository.create({
     user1Id: userId,
     user2Id: chosenPeer.id,
@@ -220,7 +256,6 @@ export const joinMatching = async (
     repo.matchingQueueRepository.deleteByUserId(chosenPeer.id),
   ])
 
-  const peerSummary = { avatarUrl: chosenPeer.avatarUrl, id: chosenPeer.id, name: chosenPeer.name }
   /**
    * 両ユーザーの SSE 接続にマッチング成立を通知する。
    * join のレスポンスでも matched=true を返すが、別タブで /api/matching/events を購読しているケースのため
@@ -300,7 +335,17 @@ export const getMatchingStatus = async (
 export type MatchingSseEvent =
     | {
           livekit_room_name: string
-          peer: { avatar_url: string | null; id: number; name: string | null }
+          peer: {
+              id: number
+              age: number | null
+              avatar_url: string | null
+              bio: string | null
+              gender: Gender | null
+              hobbies: { id: number; name: string }[]
+              location: string | null
+              mbti: string | null
+              name: string | null
+          }
           session_id: number
           type: "matched"
       }
