@@ -110,6 +110,33 @@ export const matchingEventSchema = z.discriminatedUnion("type", [
   cancelledMatchingEventSchema,
 ])
 
+// ========================================================
+// POST /api/matching/token - LiveKit Room 接続トークン発行
+// ========================================================
+
+/**
+ * POST /api/matching/token のリクエスト。
+ * 自分が参加している MatchingSession の id を渡す。
+ */
+export const issueMatchingTokenRequestSchema = z.object({
+  session_id: z.number().int().positive(),
+})
+
+/**
+ * POST /api/matching/token のレスポンス。
+ *
+ * - `token`: LiveKit Room 接続用 JWT
+ * - `livekit_url`: クライアントが接続する LiveKit ホスト URL
+ * - `room_name`: 接続先ルーム名（DB の `livekit_room_name` と一致）
+ * - `expires_at`: トークンの有効期限（unix epoch 秒）
+ */
+export const issueMatchingTokenResponseSchema = z.object({
+  expires_at: z.number().int().positive(),
+  livekit_url: z.string(),
+  room_name: z.string(),
+  token: z.string(),
+})
+
 export type MatchingPeer = z.infer<typeof matchingPeerSchema>
 export type JoinMatchingResponse = z.infer<typeof joinMatchingResponseSchema>
 export type LeaveMatchingResponse = z.infer<typeof leaveMatchingResponseSchema>
@@ -119,3 +146,5 @@ export type MatchedMatchingEvent = z.infer<typeof matchedMatchingEventSchema>
 export type HeartbeatMatchingEvent = z.infer<typeof heartbeatMatchingEventSchema>
 export type CancelledMatchingEvent = z.infer<typeof cancelledMatchingEventSchema>
 export type MatchingEvent = z.infer<typeof matchingEventSchema>
+export type IssueMatchingTokenRequest = z.infer<typeof issueMatchingTokenRequestSchema>
+export type IssueMatchingTokenResponse = z.infer<typeof issueMatchingTokenResponseSchema>

@@ -24,6 +24,7 @@ export type ApiErrorType =
   | "BAD_REQUEST"
   | "CONFLICT"
   | "FORBIDDEN"
+  | "GONE"
   | "NOT_FOUND"
   | "UNAUTHORIZED"
 
@@ -90,4 +91,13 @@ export const forbiddenError = (message: string): ApiError => ({
   message,
   statusCode: 403,
   type: "FORBIDDEN",
+})
+
+/**
+ * 410 Gone のエラーを生成する
+ */
+export const goneError = (message: string): ApiError => ({
+  message,
+  statusCode: 410,
+  type: "GONE",
 })

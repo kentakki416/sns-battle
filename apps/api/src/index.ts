@@ -2,6 +2,7 @@ import cors from "cors"
 import express from "express"
 
 import { GoogleOAuthClient } from "./client/google-oauth"
+import { LiveKitClient } from "./client/livekit"
 import { queueRedis, redis, redisSubscriber } from "./client/redis"
 import { AuthGoogleController } from "./controller/auth/google"
 import { AuthLogoutController } from "./controller/auth/logout"
@@ -14,6 +15,7 @@ import { MatchingEventsController } from "./controller/matching/events"
 import { MatchingJoinController } from "./controller/matching/join"
 import { MatchingLeaveController } from "./controller/matching/leave"
 import { MatchingStatusController } from "./controller/matching/status"
+import { MatchingTokenController } from "./controller/matching/token"
 import { MatchingPreferenceGetController } from "./controller/matching-preference/get"
 import { MatchingPreferenceUpdateController } from "./controller/matching-preference/update"
 import { MemoCreateController } from "./controller/memo/create"
@@ -63,6 +65,9 @@ const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"
 // 環境変数（未設定の場合はダミー値で起動する。認証機能は動作しないがヘルスチェック等は応答可能）
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || "dummy"
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || "dummy"
+const LIVEKIT_HOST = process.env.LIVEKIT_HOST || "https://dummy.livekit.cloud"
+const LIVEKIT_API_KEY = process.env.LIVEKIT_API_KEY || "dummy-key"
+const LIVEKIT_API_SECRET = process.env.LIVEKIT_API_SECRET || "dummy-secret"
 
 // Repository のインスタンス化
 const userRepository = new PrismaUserRepository(prisma)
@@ -83,6 +88,7 @@ const matchingEventSubscriber = new IoRedisMatchingEventSubscriber(redisSubscrib
 
 // Client のインスタンス化
 const googleOAuthClient = new GoogleOAuthClient(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
+const livekitClient = new LiveKitClient(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
 
 // Health Controller のインスタンス化
 const healthLivenessController = new HealthLivenessController()
@@ -144,6 +150,11 @@ const matchingStatusController = new MatchingStatusController(
   matchingSessionRepository,
 )
 const matchingEventsController = new MatchingEventsController(matchingEventSubscriber)
+const matchingTokenController = new MatchingTokenController(
+  livekitClient,
+  LIVEKIT_HOST,
+  matchingSessionRepository,
+)
 
 // cors設定のミドルウェア
 app.use(
@@ -222,6 +233,7 @@ app.use(
     join: matchingJoinController,
     leave: matchingLeaveController,
     status: matchingStatusController,
+    token: matchingTokenController,
   })
 )
 
