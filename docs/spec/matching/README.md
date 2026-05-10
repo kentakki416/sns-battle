@@ -393,7 +393,13 @@ enum TalkThemeType { CHOICE, FREE_TALK }
 
 ### マッチング成立フロー
 
-待機キューへの参加 → 双方向 preference 適合チェック → SSE で `matched` 通知までの流れ。`A` が先にキューに入って待機している状態に `B` が join してきた場合を示す。
+待機キューへの参加 → 双方向 preference 適合チェック → 通知までの流れ。`A` が先にキューに入って待機している状態に `B` が join してきた場合を示す。
+
+**通知経路の使い分け**:
+
+- **B（後から join したトリガー側）**: `POST /api/matching/join` の **HTTP レスポンスで直接** `matched: true` を受け取る（一次経路）
+- **A（先に待機していた側）**: A の join リクエストはすでに `matched: false` で完了済みなので、**SSE `matched` イベント**でのみ通知される（一次経路）
+- サーバーは保険として **両者の SSE channel に同じ payload を冗長 publish** する（B が別タブで `/api/matching/events` を購読しているケース対応）。クライアントは `session_id` で重複判定する
 
 ```mermaid
 sequenceDiagram
@@ -406,7 +412,7 @@ sequenceDiagram
     A->>API: POST /api/matching/join
     API->>Redis: ZADD matching_queue (A, ts)
     API->>DB: insert matching_queue (A, WAITING)
-    API-->>A: { matched: false }
+    API-->>A: HTTP 200 { matched: false }
     A->>API: GET /api/matching/events (SSE 接続)
 
     B->>API: POST /api/matching/join
@@ -417,12 +423,13 @@ sequenceDiagram
     Note over API: 適合する最初の候補（A）を選定
     API->>Redis: WATCH/MULTI/EXEC で A,B を排他削除
     alt 排他削除に成功
-        API->>DB: insert matching_sessions (status=COUNTDOWN)
-        API->>DB: matching_queue を MATCHED に更新
-        API->>Redis: PUBLISH matching:A, matching:B
+        API->>DB: tx: insert matching_sessions (COUNTDOWN) + matching_queue 削除
+        API->>Redis: PUBLISH matching:user:A & matching:user:B（同一 payload）
         Redis-->>API: SSE 配信担当 api インスタンスへ fanout
-        API-->>A: SSE event matched (sessionId, peer profile)
-        API-->>B: response { matched: true, sessionId, peer profile }
+        API-->>A: SSE event matched (sessionId, peer)
+        API-->>B: SSE event matched (sessionId, peer)
+        Note over API,B: 別タブ用の冗長配信。クライアントは sessionId で dedupe
+        API-->>B: HTTP 200 { matched: true, sessionId, peer }
     else 競合敗北
         API->>API: 次の候補へリトライ
     end
@@ -431,6 +438,18 @@ sequenceDiagram
 ```
 
 候補がブロック関係 / preference 不適合 / 競合敗北で全滅した場合は `matched=false` を返して B も SSE 待機に入る。
+
+#### 通知が届かなかったときの復旧
+
+Redis Pub/Sub は fire-and-forget で、**サーバー側の publish には配送リトライが無い**。A の SSE が一時的に切断していた瞬間に publish が走った場合、その `matched` イベントはロストする。クライアントは以下で復旧する:
+
+| 状況 | クライアント側の挙動 |
+|------|------------------|
+| SSE 接続が瞬断 | ブラウザ標準の `EventSource` が自動再接続。再接続後に `GET /api/matching/status` を叩いて MATCHED を検知すれば成立画面に遷移 |
+| B の HTTP レスポンス受信前に切断 | B はリロード後に `GET /api/matching/status` で MATCHED を検知 |
+| Redis publish が失敗（DB tx は成功済み） | 同上。`status` API は `matchingSessionRepository.findActiveByUserId` で DB を見るため、SSE がロストしても拾える |
+
+`GET /api/matching/status` がフォールバックの一次手段。`publishMatched` は失敗しても join リクエスト自体が失敗扱いになるが（`await Promise.all` で throw）、その時点で DB tx は commit 済みのためセッションは残る。**クライアントは SSE 受信に依存しすぎず、画面復帰時に必ず status を確認する設計が必要**。
 
 ### ビデオ通話接続フロー
 
