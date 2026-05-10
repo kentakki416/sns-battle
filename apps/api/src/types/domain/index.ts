@@ -30,3 +30,11 @@ export type {
   TalkThemeType,
   TalkThemeWithChoices,
 } from "./talk-theme"
+
+// Item
+export type {
+  ItemScopeKey,
+  ItemType,
+  StampAnimationType,
+  StampForMatching,
+} from "./item"

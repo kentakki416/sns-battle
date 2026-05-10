@@ -7,6 +7,7 @@ import { MatchingReactionSubmitController } from "../controller/matching/reactio
 import { MatchingReactionsListController } from "../controller/matching/reactions-list"
 import { MatchingSessionDetailController } from "../controller/matching/session-detail"
 import { MatchingSessionEndController } from "../controller/matching/session-end"
+import { MatchingStampController } from "../controller/matching/stamp"
 import { MatchingStatusController } from "../controller/matching/status"
 import { MatchingTokenController } from "../controller/matching/token"
 
@@ -18,6 +19,7 @@ type MatchingRouterControllers = {
   reactionsList?: MatchingReactionsListController
   sessionDetail?: MatchingSessionDetailController
   sessionEnd?: MatchingSessionEndController
+  stamp?: MatchingStampController
   status?: MatchingStatusController
   token?: MatchingTokenController
 }
@@ -76,6 +78,12 @@ export const matchingRouter = (controllers: MatchingRouterControllers): Router =
   if (controllers.reactionsList) {
     const controller = controllers.reactionsList
     router.get("/sessions/:id/reactions", async (req, res) => controller.execute(req, res))
+  }
+
+  // POST /api/matching/sessions/:id/stamp
+  if (controllers.stamp) {
+    const controller = controllers.stamp
+    router.post("/sessions/:id/stamp", async (req, res) => controller.execute(req, res))
   }
 
   // GET /api/matching/sessions/:id
