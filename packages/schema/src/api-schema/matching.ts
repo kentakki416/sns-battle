@@ -5,12 +5,24 @@ import { z } from "zod"
 // ========================================================
 
 /**
- * マッチング相手の最低限のプロフィール情報。
- * matched=true のときに返す。
+ * マッチング相手のプロフィール情報。matched=true のときに返す。
+ *
+ * - `age`: 生年月日から算出（未設定なら null）
+ * - `hobbies`: hobby_masters から id / name のみを抽出（並びは sortOrder 昇順）
+ * - 機密情報（email, coinBalance 等）は含めない
  */
 export const matchingPeerSchema = z.object({
-  avatar_url: z.string().nullable(),
   id: z.number().int().positive(),
+  age: z.number().int().nonnegative().nullable(),
+  avatar_url: z.string().nullable(),
+  bio: z.string().nullable(),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]).nullable(),
+  hobbies: z.array(z.object({
+    id: z.number().int().positive(),
+    name: z.string(),
+  })),
+  location: z.string().nullable(),
+  mbti: z.string().nullable(),
   name: z.string().nullable(),
 })
 

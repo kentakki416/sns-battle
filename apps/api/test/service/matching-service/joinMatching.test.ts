@@ -75,7 +75,14 @@ describe("joinMatching", () => {
       findByEmail: jest.fn(),
       findById: jest.fn(),
       findManyByIds: jest.fn().mockResolvedValue([]),
-      findProfileById: jest.fn(),
+      /**
+       * デフォルトでは「呼ばれた id の User と空の hobbies」を返す。
+       * 具体的なプロフィール内容を検証するテストでは個別に上書きする。
+       */
+      findProfileById: jest.fn().mockImplementation(async (id: number) => ({
+        hobbies: [],
+        user: buildUser({ id }),
+      })),
       update: jest.fn(),
     }
     const matchingQueueRedisRepository: MatchingQueueRedisRepository = {
@@ -149,6 +156,11 @@ describe("joinMatching", () => {
     ;(repo.matchingSessionRepository.create as jest.Mock).mockResolvedValue(
       buildSession({ id: 100, livekitRoomName: "matching:100", user1Id: 1, user2Id: peer.id }),
     )
+    /** デフォルトでは hobbies=[] のプロフィールを返す。テスト個別で上書き可。 */
+    ;(repo.userRepository.findProfileById as jest.Mock).mockResolvedValue({
+      hobbies: [],
+      user: peer,
+    })
     return { me, peer }
   }
 
@@ -242,7 +254,17 @@ describe("joinMatching", () => {
         expect(result.value).toEqual({
           livekitRoomName: "matching:100",
           matched: true,
-          peer: { avatarUrl: "https://x", id: peer.id, name: "Peer" },
+          peer: {
+            id: peer.id,
+            age: expect.any(Number),
+            avatarUrl: "https://x",
+            bio: null,
+            gender: "FEMALE",
+            hobbies: [],
+            location: null,
+            mbti: null,
+            name: "Peer",
+          },
           sessionId: 100,
         })
       }
@@ -251,9 +273,39 @@ describe("joinMatching", () => {
       expect(repo.matchingQueueRepository.deleteByUserId).toHaveBeenCalledWith(2)
       expect(repo.matchingEventPublisher.publishMatched).toHaveBeenCalledWith([1, 2], {
         livekitRoomName: "matching:100",
-        peer: { avatarUrl: "https://x", id: 2, name: "Peer" },
+        peer: expect.objectContaining({
+          id: 2,
+          age: expect.any(Number),
+          avatarUrl: "https://x",
+          gender: "FEMALE",
+          hobbies: [],
+          name: "Peer",
+        }),
         sessionId: 100,
       })
+    })
+
+    it("findProfileById が hobbies を返す → peer に hobbies が反映される", async () => {
+      const repo = buildRepos()
+      const peer = buildUser({ avatarUrl: "https://x", id: 2, name: "Peer" })
+      setupBasicMatch(repo, { peer })
+      ;(repo.userRepository.findProfileById as jest.Mock).mockResolvedValue({
+        hobbies: [
+          { id: 1, name: "音楽", sortOrder: 1 },
+          { id: 2, name: "ゲーム", sortOrder: 2 },
+        ],
+        user: peer,
+      })
+
+      const result = await joinMatching(1, repo)
+
+      expect(result.ok).toBe(true)
+      if (result.ok && result.value.matched) {
+        expect(result.value.peer.hobbies).toEqual([
+          { id: 1, name: "音楽" },
+          { id: 2, name: "ゲーム" },
+        ])
+      }
     })
   })
 
