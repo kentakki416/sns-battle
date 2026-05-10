@@ -77,8 +77,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build schema package
-        run: pnpm --filter @repo/api-schema build
+      - name: Build shared packages
+        run: pnpm --filter "./packages/*" build
 
       - name: Run tests
         run: pnpm --filter api test:ci
