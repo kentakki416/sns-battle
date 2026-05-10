@@ -1423,7 +1423,7 @@ enum RelationshipRequestStatus { PENDING, ACCEPTED, REJECTED, EXPIRED }
 
 ## 実装ステップ
 
-Phase 4 マッチング機能は以下の 13 step に分割して実装する。各 step は単独で PR にできる粒度。**step0 でサービス分離 + BullMQ 基盤を整備してから step1 以降に進む。**
+Phase 4 マッチング機能は以下の step に分割して実装する。各 step は単独で PR にできる粒度。**step0 でサービス分離 + BullMQ 基盤を整備してから step1 以降に進む。** step8 は apps/api 側と apps/matching-worker 側を別 PR に切り出すため `8a` / `8b` に分割している。
 
 | step | ファイル | 概要 |
 |------|---------|------|
@@ -1435,7 +1435,8 @@ Phase 4 マッチング機能は以下の 13 step に分割して実装する。
 | 5 | [step5-api-matching-sessions.md](./step5-api-matching-sessions.md) | GET sessions/:id + POST sessions/:id/end（5 分制約） |
 | 6 | [step6-api-matching-reactions.md](./step6-api-matching-reactions.md) | 回答送信 + 一致判定 + Data Channel reaction_match |
 | 7 | [step7-api-matching-stamp.md](./step7-api-matching-stamp.md) | スタンプ送信（items 参照 + Data Channel + レート制限） |
-| 8 | [step8-server-theme-timer.md](./step8-server-theme-timer.md) | matching-worker の BullMQ delayed job でテーマ進行 / timer / session-timeout（setTimeout 不使用） |
+| 8a | [step8a-api-matching-session-start.md](./step8a-api-matching-session-start.md) | apps/api: `POST /api/matching/sessions/:id/start` で COUNTDOWN→ACTIVE 化 + theme-progress ジョブを 3 種 enqueue |
+| 8b | [step8b-server-theme-timer-jobs.md](./step8b-server-theme-timer-jobs.md) | apps/matching-worker: `advance-theme` / `publish-timer` / `session-timeout` の実消化（テーマ進行・タイマー・タイムアウト） |
 | 9 | [step9-server-livekit-webhook.md](./step9-server-livekit-webhook.md) | API は signature 検証 + BullMQ enqueue のみ。matching-worker が webhook-events ジョブを消化 |
 | 10 | [step10-web-matching-lobby.md](./step10-web-matching-lobby.md) | /matching ロビーページ |
 | 11 | [step11-web-matching-session.md](./step11-web-matching-session.md) | /matching/session ページ（waiting → matched → countdown → active） |
@@ -1450,11 +1451,15 @@ step1（DB）
   ↓
 step2〜7（API: join/leave/status → SSE → token → sessions → reactions → stamp）
   ↓
-step8〜9（matching-worker: theme-progress + webhook-events ジョブ）
+step8a（apps/api: sessions/:id/start で enqueue）
+  ↓
+step8b（apps/matching-worker: theme-progress ジョブ消化）
+  ↓
+step9（apps/api: webhook 受信 + apps/matching-worker: webhook-events ジョブ消化）
   ↓
 step10〜12（Frontend: lobby → session → result）
 ```
 
-step8 / step9 は step0 の queue 基盤に依存。フロント step は API + worker が揃ってから着手する。
+step8a → step8b → step9 は step0 の queue 基盤に依存。step8a で enqueue 経路だけ完成させてから step8b で消化処理を実装することで、PR の粒度を保ちつつ「enqueue されている／されていない」を BullMQ Dashboard 経由で観測しながら進められる。フロント step は API + worker が揃ってから着手する。
 
 LiveKit Cloud の API key / secret は step4 の前に整備する。dev では LiveKit Cloud の無料枠を利用、Webhook 受信は ngrok 等で検証する。
