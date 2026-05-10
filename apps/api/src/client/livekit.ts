@@ -3,6 +3,8 @@ import {
   DataPacket_Kind,
   RoomServiceClient,
   type VideoGrant,
+  WebhookReceiver,
+  type WebhookEvent,
 } from "livekit-server-sdk"
 
 /**
@@ -96,5 +98,40 @@ export class LiveKitClient implements ILiveKitClient {
     await this.roomService.sendData(input.roomName, payload, DataPacket_Kind.RELIABLE, {
       topic: input.topic,
     })
+  }
+}
+
+/**
+ * LiveKit から送られる Webhook を受け付け、署名検証して `WebhookEvent` を返す interface。
+ * テスト時は jest.fn() で差し替え、実 SDK の署名検証は実装側に閉じ込める。
+ */
+export interface ILiveKitWebhookReceiver {
+    /**
+     * Express の raw body 文字列と Authorization ヘッダから WebhookEvent を返す。
+     * 署名不正・ヘッダ無し・SDK が例外を投げた場合は null を返す（呼び出し側で 401）。
+     */
+    receive(rawBody: string, authHeader: string | undefined): Promise<WebhookEvent | null>
+}
+
+/**
+ * 本番用 Webhook receiver。`WebhookReceiver` は Phase 4 step9 で導入し、
+ * `apiKey` / `apiSecret` は LiveKit Cloud の設定値（step4 で .env.local に登録済）。
+ *
+ * SDK の `receive` は署名不正で throw するため try/catch で null に正規化する。
+ */
+export class LiveKitWebhookReceiverImpl implements ILiveKitWebhookReceiver {
+  private readonly receiver: WebhookReceiver
+
+  constructor(apiKey: string, apiSecret: string) {
+    this.receiver = new WebhookReceiver(apiKey, apiSecret)
+  }
+
+  async receive(rawBody: string, authHeader: string | undefined): Promise<WebhookEvent | null> {
+    if (!authHeader) return null
+    try {
+      return await this.receiver.receive(rawBody, authHeader)
+    } catch {
+      return null
+    }
   }
 }

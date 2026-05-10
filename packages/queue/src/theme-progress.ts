@@ -35,7 +35,13 @@ export const createThemeProgressQueue = (redis: Redis): Queue<ThemeProgressJob> 
     },
   })
 
-/** 決定的 jobId で重複 enqueue を防ぐ */
-export const buildAdvanceThemeJobId = (sessionId: number, nextRoundNumber: number): string => { return `session:${sessionId}:advance:${nextRoundNumber}` }
-export const buildPublishTimerJobId = (sessionId: number, tickIndex: number): string => { return `session:${sessionId}:timer:${tickIndex}` }
-export const buildSessionTimeoutJobId = (sessionId: number): string => { return `session:${sessionId}:timeout` }
+/**
+ * 決定的 jobId で重複 enqueue を防ぐ。
+ * BullMQ は customId に `:` を許容しない（内部キー区切り文字）ため `-` で区切る。
+ */
+export const buildAdvanceThemeJobId = (sessionId: number, nextRoundNumber: number): string =>
+  `session-${sessionId}-advance-${nextRoundNumber}`
+export const buildPublishTimerJobId = (sessionId: number, tickIndex: number): string =>
+  `session-${sessionId}-timer-${tickIndex}`
+export const buildSessionTimeoutJobId = (sessionId: number): string =>
+  `session-${sessionId}-timeout`
