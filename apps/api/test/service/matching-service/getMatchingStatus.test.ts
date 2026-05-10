@@ -30,6 +30,7 @@ describe("getMatchingStatus", () => {
       create: jest.fn(),
       findActiveByUserId: jest.fn(),
       findById: jest.fn(),
+      markActive: jest.fn(),
       markEnded: jest.fn(),
     }
     return { matchingQueueRedisRepository, matchingSessionRepository }

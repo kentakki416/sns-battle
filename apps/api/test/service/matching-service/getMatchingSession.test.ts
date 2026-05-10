@@ -41,6 +41,7 @@ describe("getMatchingSession", () => {
       create: jest.fn(),
       findActiveByUserId: jest.fn(),
       findById: jest.fn(),
+      markActive: jest.fn(),
       markEnded: jest.fn(),
     }
     const userRepository: Partial<UserRepository> = {

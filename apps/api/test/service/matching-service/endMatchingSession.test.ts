@@ -21,6 +21,7 @@ describe("endMatchingSession", () => {
       create: jest.fn(),
       findActiveByUserId: jest.fn(),
       findById: jest.fn(),
+      markActive: jest.fn(),
       markEnded: jest.fn(),
     }
     return { matchingSessionRepository }
