@@ -13,7 +13,13 @@ import type {
   MatchingEventSubscriber,
   MatchingQueueRedisRepository,
 } from "../repository/redis"
-import type { Gender, MatchingPreference, MatchingSession, User } from "../types/domain"
+import type {
+  Gender,
+  MatchingEndReason,
+  MatchingPreference,
+  MatchingSession,
+  User,
+} from "../types/domain"
 import {
   badRequestError,
   conflictError,
@@ -475,4 +481,136 @@ export const issueMatchingToken = async (
     roomName: session.livekitRoomName,
     token,
   })
+}
+
+/**
+ * セッション参加者の最小公開プロフィール。VS レイアウト等で id/name/avatar のみ必要なケース用。
+ */
+export type MatchingSessionParticipant = {
+    id: number
+    avatarUrl: string | null
+    name: string | null
+}
+
+/**
+ * `GET /api/matching/sessions/:id` の戻り値。
+ *
+ * - `elapsedSeconds`: started_at からの経過秒（COUNTDOWN なら 0）
+ * - `canEndNow`: ACTIVE かつ 5 分経過済のときのみ true
+ * - `isSelfUser1`: リクエスト主体が user1 か（VS レイアウトの左右割り当てに使う）
+ */
+export type MatchingSessionView = {
+    canEndNow: boolean
+    elapsedSeconds: number
+    isSelfUser1: boolean
+    session: MatchingSession
+    user1: MatchingSessionParticipant
+    user2: MatchingSessionParticipant
+}
+
+/**
+ * 手動終了の最低経過秒。spec1 の「5 分経過後に終了できます」制約。
+ * step8 の TIMEOUT 自動終了 / step9 の USER_LEFT には適用しない。
+ */
+const MATCHING_SESSION_MIN_END_SECONDS = 300
+
+/**
+ * 経過秒の安全な算出。startedAt が null（COUNTDOWN）の場合は 0 を返す。
+ */
+const computeElapsedSeconds = (startedAt: Date | null): number => {
+  if (!startedAt) return 0
+  return Math.max(0, Math.floor((Date.now() - startedAt.getTime()) / 1000))
+}
+
+/**
+ * セッション参加者かどうか判定するヘルパ。
+ */
+const isParticipant = (session: MatchingSession, userId: number): boolean =>
+  session.user1Id === userId || session.user2Id === userId
+
+/**
+ * 指定セッションの詳細を取得する。
+ *
+ * - 未存在 → 404
+ * - 自分が user1 / user2 のどちらでもない → 403
+ * - 参加者の User row は必ず存在する前提（User 削除 API は本プロジェクトに無い）。
+ *   万一 null なら整合性破壊なので 404 を返す（throw ではなく業務エラー扱い）
+ */
+export const getMatchingSession = async (
+  input: { sessionId: number; userId: number },
+  repo: {
+    matchingSessionRepository: MatchingSessionRepository
+    userRepository: UserRepository
+  },
+): Promise<Result<MatchingSessionView>> => {
+  logger.debug("MatchingService: getSession", {
+    sessionId: input.sessionId,
+    userId: input.userId,
+  })
+
+  const session = await repo.matchingSessionRepository.findById(input.sessionId)
+  if (!session) return err(notFoundError("Session not found"))
+  if (!isParticipant(session, input.userId)) {
+    return err(forbiddenError("Not a participant of this session"))
+  }
+
+  const [user1, user2] = await Promise.all([
+    repo.userRepository.findById(session.user1Id),
+    repo.userRepository.findById(session.user2Id),
+  ])
+  if (!user1 || !user2) return err(notFoundError("Participant user not found"))
+
+  const elapsedSeconds = computeElapsedSeconds(session.startedAt)
+  const canEndNow =
+        session.status === "ACTIVE" && elapsedSeconds >= MATCHING_SESSION_MIN_END_SECONDS
+
+  return ok({
+    canEndNow,
+    elapsedSeconds,
+    isSelfUser1: session.user1Id === input.userId,
+    session,
+    user1: { id: user1.id, avatarUrl: user1.avatarUrl, name: user1.name },
+    user2: { id: user2.id, avatarUrl: user2.avatarUrl, name: user2.name },
+  })
+}
+
+/**
+ * セッションを ENDED に遷移させる。
+ *
+ * `reason` で TIMEOUT / USER_LEFT / MANUAL を切替可能。Controller からは MANUAL のみ呼び、
+ * step8 の自動終了は TIMEOUT、step9 の Webhook は USER_LEFT を渡す想定。
+ *
+ * - 未存在 → 404
+ * - 非参加者 → 403
+ * - 既に ENDED → 410 GONE
+ * - reason=MANUAL かつ 5 分未満 → 400（spec1 の最低通話時間制約）
+ *
+ * Data Channel `matching:ended` の配信は本 step では扱わない（step8 / step9 で実施）。
+ */
+export const endMatchingSession = async (
+  input: { reason: MatchingEndReason; sessionId: number; userId: number },
+  repo: { matchingSessionRepository: MatchingSessionRepository },
+): Promise<Result<MatchingSession>> => {
+  logger.debug("MatchingService: endSession", {
+    reason: input.reason,
+    sessionId: input.sessionId,
+    userId: input.userId,
+  })
+
+  const session = await repo.matchingSessionRepository.findById(input.sessionId)
+  if (!session) return err(notFoundError("Session not found"))
+  if (!isParticipant(session, input.userId)) {
+    return err(forbiddenError("Not a participant of this session"))
+  }
+  if (session.status === "ENDED") return err(goneError("Session already ended"))
+
+  if (input.reason === "MANUAL") {
+    const elapsedSeconds = computeElapsedSeconds(session.startedAt)
+    if (elapsedSeconds < MATCHING_SESSION_MIN_END_SECONDS) {
+      return err(badRequestError("Cannot end session before 5 minutes"))
+    }
+  }
+
+  const updated = await repo.matchingSessionRepository.markEnded(input.sessionId, input.reason)
+  return ok(updated)
 }

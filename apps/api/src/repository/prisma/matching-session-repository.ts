@@ -1,5 +1,5 @@
 import { Prisma as PrismaTypes, PrismaClient } from "../../prisma/generated/client"
-import { MatchingSession } from "../../types/domain"
+import { MatchingEndReason, MatchingSession } from "../../types/domain"
 
 import { TransactionContext } from "./transaction-runner"
 
@@ -20,6 +20,11 @@ export interface MatchingSessionRepository {
     /** 自分が user1 / user2 のどちらでも参加しており、status が ENDED 以外のセッションを 1 件返す */
     findActiveByUserId(userId: number): Promise<MatchingSession | null>
     findById(id: number): Promise<MatchingSession | null>
+    /**
+     * セッションを ENDED に遷移させる。`endedAt` には DB 側 now() を入れ、
+     * `endReason` を引数の値にセットする。冪等性は呼び出し側で担保（既に ENDED は呼ぶ前に弾く）。
+     */
+    markEnded(id: number, endReason: MatchingEndReason): Promise<MatchingSession>
 }
 
 export class PrismaMatchingSessionRepository implements MatchingSessionRepository {
@@ -76,6 +81,18 @@ export class PrismaMatchingSessionRepository implements MatchingSessionRepositor
       },
     })
     if (!row) return null
+    return this._toDomain(row)
+  }
+
+  async markEnded(id: number, endReason: MatchingEndReason): Promise<MatchingSession> {
+    const row = await this._prisma.matchingSession.update({
+      data: {
+        endedAt: new Date(),
+        endReason,
+        status: "ENDED",
+      },
+      where: { id },
+    })
     return this._toDomain(row)
   }
 

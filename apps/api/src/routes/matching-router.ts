@@ -3,6 +3,8 @@ import { Router } from "express"
 import { MatchingEventsController } from "../controller/matching/events"
 import { MatchingJoinController } from "../controller/matching/join"
 import { MatchingLeaveController } from "../controller/matching/leave"
+import { MatchingSessionDetailController } from "../controller/matching/session-detail"
+import { MatchingSessionEndController } from "../controller/matching/session-end"
 import { MatchingStatusController } from "../controller/matching/status"
 import { MatchingTokenController } from "../controller/matching/token"
 
@@ -10,6 +12,8 @@ type MatchingRouterControllers = {
   events?: MatchingEventsController
   join?: MatchingJoinController
   leave?: MatchingLeaveController
+  sessionDetail?: MatchingSessionDetailController
+  sessionEnd?: MatchingSessionEndController
   status?: MatchingStatusController
   token?: MatchingTokenController
 }
@@ -49,6 +53,19 @@ export const matchingRouter = (controllers: MatchingRouterControllers): Router =
   if (controllers.token) {
     const controller = controllers.token
     router.post("/token", async (req, res) => controller.execute(req, res))
+  }
+
+  // POST /api/matching/sessions/:id/end
+  // /:id 系より先に登録（Express は宣言順）
+  if (controllers.sessionEnd) {
+    const controller = controllers.sessionEnd
+    router.post("/sessions/:id/end", async (req, res) => controller.execute(req, res))
+  }
+
+  // GET /api/matching/sessions/:id
+  if (controllers.sessionDetail) {
+    const controller = controllers.sessionDetail
+    router.get("/sessions/:id", async (req, res) => controller.execute(req, res))
   }
 
   return router

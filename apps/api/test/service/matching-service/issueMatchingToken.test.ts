@@ -22,6 +22,7 @@ describe("issueMatchingToken", () => {
       create: jest.fn(),
       findActiveByUserId: jest.fn(),
       findById: jest.fn(),
+      markEnded: jest.fn(),
     }
     const livekitClient: ILiveKitClient = {
       generateRoomToken: jest.fn(),

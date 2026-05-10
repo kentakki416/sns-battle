@@ -137,6 +137,82 @@ export const issueMatchingTokenResponseSchema = z.object({
   token: z.string(),
 })
 
+// ========================================================
+// GET /api/matching/sessions/:id - セッション情報取得
+// ========================================================
+
+/**
+ * セッション参加者の最小公開プロフィール。
+ * 一覧 / 詳細表示用に id / name / avatar のみ。
+ */
+export const matchingSessionParticipantSchema = z.object({
+  id: z.number().int().positive(),
+  avatar_url: z.string().nullable(),
+  name: z.string().nullable(),
+})
+
+/**
+ * MatchingSession の状態。
+ *
+ * - COUNTDOWN: マッチング成立直後 〜 START 直前
+ * - ACTIVE: 通話中
+ * - ENDED: 終了済（再接続不可）
+ */
+export const matchingSessionStatusSchema = z.enum(["COUNTDOWN", "ACTIVE", "ENDED"])
+
+/**
+ * セッション終了理由。
+ * - TIMEOUT: テーマ進行が全ラウンド完了
+ * - USER_LEFT: 片方が退出（LiveKit Webhook 由来）
+ * - MANUAL: ユーザーが明示的に終了ボタンを押した
+ */
+export const matchingSessionEndReasonSchema = z.enum(["TIMEOUT", "USER_LEFT", "MANUAL"])
+
+export const getMatchingSessionPathParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+})
+
+/**
+ * GET /api/matching/sessions/:id のレスポンス。
+ *
+ * - `elapsed_seconds`: started_at からの経過秒。COUNTDOWN（startedAt が null）なら 0
+ * - `can_end_now`: ACTIVE かつ 5 分経過済のとき true。手動終了 UI の活性制御に使う
+ * - `is_self_user1`: 自分が user1 か。VS レイアウトの左右割り当てに使う
+ */
+export const getMatchingSessionResponseSchema = z.object({
+  can_end_now: z.boolean(),
+  elapsed_seconds: z.number().int().nonnegative(),
+  ended_at: z.string().nullable(),
+  end_reason: matchingSessionEndReasonSchema.nullable(),
+  id: z.number().int().positive(),
+  is_self_user1: z.boolean(),
+  livekit_room_name: z.string(),
+  started_at: z.string().nullable(),
+  status: matchingSessionStatusSchema,
+  user1: matchingSessionParticipantSchema,
+  user2: matchingSessionParticipantSchema,
+})
+
+// ========================================================
+// POST /api/matching/sessions/:id/end - セッション手動終了
+// ========================================================
+
+export const endMatchingSessionPathParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+})
+
+/**
+ * POST /api/matching/sessions/:id/end のレスポンス。
+ * end_reason は本エンドポイントから呼ばれる時は常に "MANUAL" になるが、
+ * Service 層は TIMEOUT / USER_LEFT も扱うため enum で表現する。
+ */
+export const endMatchingSessionResponseSchema = z.object({
+  ended_at: z.string(),
+  end_reason: matchingSessionEndReasonSchema,
+  id: z.number().int().positive(),
+  status: z.literal("ENDED"),
+})
+
 export type MatchingPeer = z.infer<typeof matchingPeerSchema>
 export type JoinMatchingResponse = z.infer<typeof joinMatchingResponseSchema>
 export type LeaveMatchingResponse = z.infer<typeof leaveMatchingResponseSchema>
@@ -148,3 +224,10 @@ export type CancelledMatchingEvent = z.infer<typeof cancelledMatchingEventSchema
 export type MatchingEvent = z.infer<typeof matchingEventSchema>
 export type IssueMatchingTokenRequest = z.infer<typeof issueMatchingTokenRequestSchema>
 export type IssueMatchingTokenResponse = z.infer<typeof issueMatchingTokenResponseSchema>
+export type MatchingSessionParticipant = z.infer<typeof matchingSessionParticipantSchema>
+export type MatchingSessionStatus = z.infer<typeof matchingSessionStatusSchema>
+export type MatchingSessionEndReason = z.infer<typeof matchingSessionEndReasonSchema>
+export type GetMatchingSessionPathParam = z.infer<typeof getMatchingSessionPathParamSchema>
+export type GetMatchingSessionResponse = z.infer<typeof getMatchingSessionResponseSchema>
+export type EndMatchingSessionPathParam = z.infer<typeof endMatchingSessionPathParamSchema>
+export type EndMatchingSessionResponse = z.infer<typeof endMatchingSessionResponseSchema>
