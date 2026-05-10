@@ -5,7 +5,7 @@ const importPlugin = require("eslint-plugin-import")
 
 module.exports = defineConfig([
   {
-    files: ["src/**/*.ts"],
+    files: ["src/**/*.ts", "test/**/*.ts"],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -91,6 +91,6 @@ module.exports = defineConfig([
     },
   },
   {
-    ignores: ["dist/**", "node_modules/**"],
+    ignores: ["dist/**", "node_modules/**", "src/prisma/generated/**"],
   },
 ])
