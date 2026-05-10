@@ -4,6 +4,7 @@ import type {
   MatchingPreferenceRepository,
   MatchingQueueRepository,
   MatchingSessionRepository,
+  TransactionRunner,
   UserRepository,
 } from "../repository/prisma"
 import type {
@@ -148,6 +149,7 @@ export const joinMatching = async (
     matchingQueueRedisRepository: MatchingQueueRedisRepository
     matchingQueueRepository: MatchingQueueRepository
     matchingSessionRepository: MatchingSessionRepository
+    transactionRunner: TransactionRunner
     userRepository: UserRepository
   }
 ): Promise<Result<JoinMatchingOutput>> => {
@@ -247,14 +249,24 @@ export const joinMatching = async (
     name: peerProfile.user.name,
   }
 
-  const session: MatchingSession = await repo.matchingSessionRepository.create({
-    user1Id: userId,
-    user2Id: chosenPeer.id,
+  /**
+   * セッション作成と DB 側 matching_queue 削除を 1 トランザクションで実行。
+   * Redis 側は既に removeBothAtomic で削除済み。tx 失敗時は session 不作成 + queue 残留で
+   * Redis のみ消えた状態になるが、次回 join のゾンビ検知（findActiveByUserId）で吸収される。
+   */
+  const session: MatchingSession = await repo.transactionRunner.run(async (tx) => {
+    const newSession = await repo.matchingSessionRepository.create(
+      { user1Id: userId, user2Id: chosenPeer.id },
+      tx,
+    )
+    /**
+     * tx 内のクエリは Prisma 側で同一接続上に直列化されるため、Promise.all で並列に
+     * 見せても実行は逐次。意図を明確にするため await を 2 つ並べる。
+     */
+    await repo.matchingQueueRepository.deleteByUserId(userId, tx)
+    await repo.matchingQueueRepository.deleteByUserId(chosenPeer.id, tx)
+    return newSession
   })
-  await Promise.all([
-    repo.matchingQueueRepository.deleteByUserId(userId),
-    repo.matchingQueueRepository.deleteByUserId(chosenPeer.id),
-  ])
 
   /**
    * 両ユーザーの SSE 接続にマッチング成立を通知する。

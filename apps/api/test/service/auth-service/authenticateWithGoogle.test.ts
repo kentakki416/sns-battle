@@ -1,6 +1,10 @@
 import { GoogleUserInfo, IGoogleOAuthClient } from "../../../src/client/google-oauth"
-import { UserRegistrationRepository } from "../../../src/repository/prisma/aggregate/user-registration-repository"
 import { AuthAccountRepository } from "../../../src/repository/prisma/auth-account-repository"
+import {
+  TransactionContext,
+  TransactionRunner,
+} from "../../../src/repository/prisma/transaction-runner"
+import { UserRepository } from "../../../src/repository/prisma/user-repository"
 import { RefreshTokenRepository } from "../../../src/repository/redis/refresh-token-repository"
 import { authenticateWithGoogle } from "../../../src/service/auth-service"
 import { AuthAccountWithUser, User } from "../../../src/types/domain"
@@ -11,14 +15,27 @@ const mockGoogleOAuthClient: IGoogleOAuthClient = {
 }
 
 const mockFindByProvider = jest.fn<Promise<AuthAccountWithUser | null>, [string, string]>()
+const mockAuthAccountCreate = jest.fn<
+  Promise<unknown>,
+  [Parameters<AuthAccountRepository["create"]>[0], TransactionContext?]
+>()
 const mockAuthAccountRepository: AuthAccountRepository = {
-  create: jest.fn(),
+  create: mockAuthAccountCreate as never,
   findByProvider: mockFindByProvider,
 }
 
-const mockCreateUserWithAuthAccountTx = jest.fn<Promise<User>, [Parameters<UserRegistrationRepository["createUserWithAuthAccountTx"]>[0]]>()
-const mockUserRegistrationRepository: UserRegistrationRepository = {
-  createUserWithAuthAccountTx: mockCreateUserWithAuthAccountTx,
+const mockUserCreate = jest.fn<
+  Promise<User>,
+  [Parameters<UserRepository["create"]>[0], TransactionContext?]
+>()
+const mockUserRepository: UserRepository = {
+  completeOnboarding: jest.fn(),
+  create: mockUserCreate,
+  findByEmail: jest.fn(),
+  findById: jest.fn(),
+  findManyByIds: jest.fn(),
+  findProfileById: jest.fn(),
+  update: jest.fn(),
 }
 
 const mockRefreshTokenSave = jest.fn<Promise<void>, [string, number, number]>()
@@ -28,10 +45,20 @@ const mockRefreshTokenRepository: RefreshTokenRepository = {
   save: mockRefreshTokenSave,
 }
 
+/**
+ * Fake TransactionRunner: tx を渡さずそのまま callback を実行する。
+ * 単体テストでは実 tx の atomicity を検証する必要が無いため、tx 引数として
+ * undefined を渡し、Repository が tx 無し経路で動作することを確認する。
+ */
+const mockTransactionRunner: TransactionRunner = {
+  run: jest.fn(async (fn) => fn(undefined as unknown as TransactionContext)),
+}
+
 const mockRepository = {
   authAccountRepository: mockAuthAccountRepository,
   refreshTokenRepository: mockRefreshTokenRepository,
-  userRegistrationRepository: mockUserRegistrationRepository,
+  transactionRunner: mockTransactionRunner,
+  userRepository: mockUserRepository,
 }
 
 const mockTokenGenerators = {
@@ -106,11 +133,14 @@ describe("authenticateWithGoogle", () => {
       })
     }
     expect(mockGetUserInfo).toHaveBeenCalledWith("auth-code", REDIRECT_URI)
-    expect(mockCreateUserWithAuthAccountTx).not.toHaveBeenCalled()
+    /** 既存ユーザーなのでトランザクションは走らない */
+    expect(mockTransactionRunner.run).not.toHaveBeenCalled()
+    expect(mockUserCreate).not.toHaveBeenCalled()
+    expect(mockAuthAccountCreate).not.toHaveBeenCalled()
     expect(mockRefreshTokenSave).toHaveBeenCalledWith("uuid-1", 1, expect.any(Number))
   })
 
-  it("新規ユーザーの場合、isNewUser=true でユーザーを作成し Access/Refresh Token を発行する", async () => {
+  it("新規ユーザーの場合、tx 内で User + AuthAccount を作成し Access/Refresh Token を発行する", async () => {
     const mockGoogleUser: GoogleUserInfo = {
       email: "newuser@example.com",
       id: "google-456",
@@ -136,7 +166,8 @@ describe("authenticateWithGoogle", () => {
 
     mockGetUserInfo.mockResolvedValue(mockGoogleUser)
     mockFindByProvider.mockResolvedValue(null)
-    mockCreateUserWithAuthAccountTx.mockResolvedValue(mockNewUser)
+    mockUserCreate.mockResolvedValue(mockNewUser)
+    mockAuthAccountCreate.mockResolvedValue(undefined)
 
     const result = await authenticateWithGoogle(
       { code: "auth-code", redirectUri: REDIRECT_URI },
@@ -154,17 +185,24 @@ describe("authenticateWithGoogle", () => {
         user: mockNewUser,
       })
     }
-    expect(mockCreateUserWithAuthAccountTx).toHaveBeenCalledWith({
-      authAccount: {
-        provider: "google",
-        providerAccountId: "google-456",
-      },
-      user: {
+    expect(mockTransactionRunner.run).toHaveBeenCalledTimes(1)
+    /** fake runner は tx として undefined を渡すので、第2引数は undefined */
+    expect(mockUserCreate).toHaveBeenCalledWith(
+      {
         avatarUrl: "https://example.com/new-avatar.jpg",
         email: "newuser@example.com",
         name: "New User",
       },
-    })
+      undefined,
+    )
+    expect(mockAuthAccountCreate).toHaveBeenCalledWith(
+      {
+        provider: "google",
+        providerAccountId: "google-456",
+        userId: 2,
+      },
+      undefined,
+    )
     expect(mockRefreshTokenSave).toHaveBeenCalledWith("uuid-1", 2, expect.any(Number))
   })
 

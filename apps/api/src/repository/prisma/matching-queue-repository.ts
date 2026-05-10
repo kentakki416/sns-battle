@@ -1,6 +1,8 @@
 import { Prisma as PrismaTypes, PrismaClient } from "../../prisma/generated/client"
 import { MatchingQueue } from "../../types/domain"
 
+import { TransactionContext } from "./transaction-runner"
+
 /**
  * マッチング待機キュー（DB 側、監査・バックアップ用）の Repository。
  *
@@ -8,7 +10,7 @@ import { MatchingQueue } from "../../types/domain"
  * status は WAITING / MATCHED / CANCELLED の 3 種だが、実運用は WAITING のみが書き込まれる。
  */
 export interface MatchingQueueRepository {
-    deleteByUserId(userId: number): Promise<void>
+    deleteByUserId(userId: number, tx?: TransactionContext): Promise<void>
     findByUserId(userId: number): Promise<MatchingQueue | null>
     /** WAITING で upsert。重複参加防止は Redis 側に任せ、DB は最新状態を保持するだけ。 */
     upsertWaiting(userId: number): Promise<MatchingQueue>
@@ -36,8 +38,9 @@ export class PrismaMatchingQueueRepository implements MatchingQueueRepository {
     return this._toDomain(row)
   }
 
-  async deleteByUserId(userId: number): Promise<void> {
-    await this._prisma.matchingQueue.deleteMany({ where: { userId } })
+  async deleteByUserId(userId: number, tx?: TransactionContext): Promise<void> {
+    const client = tx ?? this._prisma
+    await client.matchingQueue.deleteMany({ where: { userId } })
   }
 
   private _toDomain(row: PrismaTypes.MatchingQueueGetPayload<{}>): MatchingQueue {

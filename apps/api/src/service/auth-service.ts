@@ -2,7 +2,8 @@ import { type IGoogleOAuthClient, GoogleUserInfo } from "../client/google-oauth"
 import { logger } from "../log"
 import {
   AuthAccountRepository,
-  UserRegistrationRepository,
+  TransactionRunner,
+  UserRepository,
 } from "../repository/prisma"
 import { RefreshTokenRepository } from "../repository/redis"
 import { User } from "../types/domain"
@@ -18,7 +19,8 @@ export type AuthenticateWithGoogleSuccess = {
 type Repositories = {
     authAccountRepository: AuthAccountRepository
     refreshTokenRepository: RefreshTokenRepository
-    userRegistrationRepository: UserRegistrationRepository
+    transactionRunner: TransactionRunner
+    userRepository: UserRepository
 }
 
 type TokenGenerators = {
@@ -61,16 +63,27 @@ export const authenticateWithGoogle = async (
   } else {
     isNewUser = true
     logger.info("AuthService: Creating new user")
-    user = await repo.userRegistrationRepository.createUserWithAuthAccountTx({
-      authAccount: {
-        provider: "google",
-        providerAccountId: googleUser.id,
-      },
-      user: {
-        avatarUrl: googleUser.picture,
-        email: googleUser.email,
-        name: googleUser.name,
-      },
+    /**
+     * User と AuthAccount を 1 トランザクションで作成。どちらか片方だけが残る不整合を防ぐ。
+     */
+    user = await repo.transactionRunner.run(async (tx) => {
+      const newUser = await repo.userRepository.create(
+        {
+          avatarUrl: googleUser.picture,
+          email: googleUser.email,
+          name: googleUser.name,
+        },
+        tx,
+      )
+      await repo.authAccountRepository.create(
+        {
+          provider: "google",
+          providerAccountId: googleUser.id,
+          userId: newUser.id,
+        },
+        tx,
+      )
+      return newUser
     })
     logger.info("AuthService: New user created", { userId: user.id })
   }

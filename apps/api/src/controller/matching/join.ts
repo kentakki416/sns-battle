@@ -9,6 +9,7 @@ import {
   MatchingPreferenceRepository,
   MatchingQueueRepository,
   MatchingSessionRepository,
+  TransactionRunner,
   UserRepository,
 } from "../../repository/prisma"
 import {
@@ -29,6 +30,7 @@ export class MatchingJoinController {
         private matchingQueueRedisRepository: MatchingQueueRedisRepository,
         private matchingQueueRepository: MatchingQueueRepository,
         private matchingSessionRepository: MatchingSessionRepository,
+        private transactionRunner: TransactionRunner,
         private userRepository: UserRepository,
   ) {}
 
@@ -42,6 +44,7 @@ export class MatchingJoinController {
       matchingQueueRedisRepository: this.matchingQueueRedisRepository,
       matchingQueueRepository: this.matchingQueueRepository,
       matchingSessionRepository: this.matchingSessionRepository,
+      transactionRunner: this.transactionRunner,
       userRepository: this.userRepository,
     })
 
