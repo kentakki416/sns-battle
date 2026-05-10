@@ -135,34 +135,67 @@
 
 `setTimeout` を一切使わない。すべて **BullMQ の delayed job** で表現する。worker が落ちても他の worker が拾うため耐障害性が高く、setTimeout のように「特定インスタンスのメモリに依存」しない。
 
-#### キュー一覧
+ジョブは **「いつ発火」「ペイロード」「やること」「Data Channel 出力」「次にどう繋がる」** の 5 点で定義する。
 
-| Queue 名 | ジョブ種別 | 説明 |
-|---------|-----------|------|
-| `theme-progress` | `advance-theme` | 各テーマ duration 経過後に発火。次テーマを Data Channel `matching:theme` で配信 + 次の delayed job を enqueue |
-| `theme-progress` | `publish-timer` | 30 秒ごとに残り時間を Data Channel `matching:timer` で配信。次回の publish-timer を 30 秒 delayed で enqueue |
-| `theme-progress` | `session-timeout` | session 開始から 600 秒後に発火。`matching:ended` 配信 + `endMatchingSession(TIMEOUT)` |
-| `webhook-events` | `livekit-event` | LiveKit Webhook を受けた時に enqueue。worker が participant_left / room_finished を処理 |
+#### `advance-theme`（テーマ進行）
 
-#### ジョブの冪等性
+セッションを 1 ラウンド進める「単発トリガー」ジョブ。発火するたびに **次のラウンド用 advance-theme を再 enqueue** することで 10 ラウンドを連鎖させる。
 
-すべて idempotent に設計する:
+| 項目 | 内容 |
+|------|------|
+| Queue | `theme-progress` |
+| 発火タイミング | 前ラウンドのテーマ表示開始から `duration` 秒後（初回のみセッション ACTIVE 化と同時に `delay=0`） |
+| ペイロード | `{ sessionId, nextRoundNumber }` |
+| Job ID | `session:{sessionId}:advance:{nextRoundNumber}`（決定的 ID で重複 enqueue 防止） |
+| やること | ① `matching_sessions` を取得し ENDED / 既に進行済みなら **no-op**（冪等）<br>② `talk_themes` から `nextRoundNumber` 番目のテーマと `talk_theme_choices` を取得<br>③ `matching_sessions` の `currentRound` / `themeId` / `speaker` を更新<br>④ Data Channel 配信（下記）<br>⑤ `nextRoundNumber + 1` 用の advance-theme を `delay = duration秒` で再 enqueue（10 ラウンドを超えたら enqueue しない） |
+| Data Channel 出力 | **`matching:theme`** — 両クライアントの画面に新テーマカードを表示（タイトル / type / choices / speaker / duration / round）<br>**`matching:hype`** — テーマ切替時の盛り上げコメントを画面中央にオーバーレイ表示 |
 
-- `advance-theme` ジョブは `currentRound` が既に進んでいたら no-op
-- `session-timeout` は session が既に ENDED なら no-op
-- ジョブ ID に `${sessionId}:${roundNumber}` のような決定的 ID を使い、重複 enqueue を防ぐ（BullMQ の `jobId` オプション）
+#### `publish-timer`（残り時間配信）
 
-#### Job ID 命名規則
+セッション全体（10 分制限）の残り時間を **30 秒間隔で配信** する自己ループジョブ。
 
-```typescript
-// theme-progress queue
-`session:${sessionId}:advance:${nextRoundNumber}`
-`session:${sessionId}:timer:${tickIndex}`
-`session:${sessionId}:timeout`
+| 項目 | 内容 |
+|------|------|
+| Queue | `theme-progress` |
+| 発火タイミング | セッション ACTIVE 化と同時に `delay=30s` で初回 enqueue。以降は自分で 30s delayed で再 enqueue |
+| ペイロード | `{ sessionId, tickIndex }`（0, 1, 2, ... の連番） |
+| Job ID | `session:{sessionId}:timer:{tickIndex}` |
+| やること | ① `matching_sessions.started_at` から残り秒数を算出し、ENDED なら **no-op**<br>② Data Channel 配信（下記）<br>③ `tickIndex + 1` 用の publish-timer を `delay=30s` で再 enqueue |
+| Data Channel 出力 | **`matching:timer`**（lossy mode）— 残り秒数 `remainSec` と「終了」ボタン有効化フラグ `canEnd`（5 分経過で true）。クライアントは画面下部の全体タイマー UI と「終了」ボタンの活性状態を更新する |
 
-// webhook-events queue
-`livekit:${event.id}`  // Webhook event の id を使う
-```
+クライアントは 30 秒間の隙間を **ローカル `setInterval` で 1 秒刻みに補間** する（サーバーは 30 秒粒度しか送らない）。
+
+#### `session-timeout`（10 分タイムアウト）
+
+セッションを強制終了する 1 回きりのジョブ。
+
+| 項目 | 内容 |
+|------|------|
+| Queue | `theme-progress` |
+| 発火タイミング | セッション ACTIVE 化と同時に `delay=600s` で 1 回だけ enqueue |
+| ペイロード | `{ sessionId }` |
+| Job ID | `session:{sessionId}:timeout` |
+| やること | ① `matching_sessions` の status が既に ENDED なら **no-op**（手動終了 / 離脱で先に終わっているケース）<br>② `status=ENDED, end_reason=TIMEOUT, ended_at=now` に更新<br>③ Data Channel 配信（下記）<br>④ LiveKit `deleteRoom matching:{sessionId}` で Room 自体を破棄 |
+| Data Channel 出力 | **`matching:ended { reason: "TIMEOUT" }`** — クライアントは結果画面 `/matching/result` へ遷移する合図として受け取る |
+
+#### `livekit-event`（Webhook 副作用処理）
+
+`apps/api` が LiveKit Webhook を受けた直後に enqueue するジョブ。署名検証 + enqueue だけ同期で行い、後続の終了処理は worker に委ねて 200 を即返す。
+
+| 項目 | 内容 |
+|------|------|
+| Queue | `webhook-events` |
+| 発火タイミング | LiveKit Cloud から Webhook 受信時（即時） |
+| ペイロード | LiveKit `WebhookEvent`（`participant_left` / `room_finished` 等） |
+| Job ID | `livekit:{event.id}`（LiveKit が発番する event id を使い、Webhook 再送による重複を吸収） |
+| やること | `participant_left` / `room_finished` のときのみ：① `matching_sessions` が ENDED なら **no-op**<br>② `status=ENDED, end_reason=USER_LEFT, ended_at=now`<br>③ Data Channel 配信（下記）<br>④ `deleteRoom` |
+| Data Channel 出力 | **`matching:ended { reason: "USER_LEFT" }`** |
+
+#### キュー設定（共通）
+
+`theme-progress` キューは `attempts: 3` + 指数バックオフ（5s 起点）。完了ジョブは 1 時間で自動削除、失敗ジョブは 24 時間保持（`packages/queue/src/theme-progress.ts`）。
+
+すべてのジョブは Job ID による decisive な冪等性を持つため、worker クラッシュ後の自動リトライで二重実行されても結果は同じ。
 
 ### スケール戦略
 
