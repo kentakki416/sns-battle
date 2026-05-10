@@ -1,3 +1,4 @@
+import type { ILiveKitClient } from "../client/livekit"
 import { logger } from "../log"
 import type {
   BlockRepository,
@@ -17,6 +18,8 @@ import {
   badRequestError,
   conflictError,
   err,
+  forbiddenError,
+  goneError,
   notFoundError,
   ok,
   type Result,
@@ -419,4 +422,57 @@ export const subscribeMatchingEvents = async (
       logger.warn("MatchingService: unsubscribe failed", { error, userId })
     }
   }
+}
+
+/**
+ * `POST /api/matching/token` の戻り値。LiveKit クライアントが Room に接続するために必要な
+ * JWT と接続先 URL のセットを返す。expiresAt は unix epoch 秒。
+ */
+export type IssueMatchingTokenOutput = {
+    expiresAt: number
+    livekitUrl: string
+    roomName: string
+    token: string
+}
+
+/**
+ * LiveKit Room トークンの有効期限（秒）。仕様 step4 より 1 時間。
+ */
+const MATCHING_TOKEN_TTL_SECONDS = 3600
+
+/**
+ * 指定セッションへの LiveKit Room 接続トークンを発行する。
+ *
+ * - セッションが存在しない → 404
+ * - セッションが ENDED → 410（ルームは既に閉じている）
+ * - 自分が user1 / user2 のどちらでもない → 403
+ * - identity は `user:{userId}` 形式で発行（同一ルーム内で衝突しないように）
+ * - canPublish / canPublishData / canSubscribe を全て付与（VideoGrant 既定値）
+ */
+export const issueMatchingToken = async (
+  input: { sessionId: number; userId: number },
+  repo: { matchingSessionRepository: MatchingSessionRepository },
+  client: { livekitClient: ILiveKitClient; livekitUrl: string },
+): Promise<Result<IssueMatchingTokenOutput>> => {
+  logger.debug("MatchingService: issueToken", { sessionId: input.sessionId, userId: input.userId })
+
+  const session = await repo.matchingSessionRepository.findById(input.sessionId)
+  if (!session) return err(notFoundError("Session not found"))
+  if (session.status === "ENDED") return err(goneError("Session already ended"))
+  if (session.user1Id !== input.userId && session.user2Id !== input.userId) {
+    return err(forbiddenError("Not a participant of this session"))
+  }
+
+  const token = await client.livekitClient.generateRoomToken({
+    identity: `user:${input.userId}`,
+    roomName: session.livekitRoomName,
+    ttlSeconds: MATCHING_TOKEN_TTL_SECONDS,
+  })
+
+  return ok({
+    expiresAt: Math.floor(Date.now() / 1000) + MATCHING_TOKEN_TTL_SECONDS,
+    livekitUrl: client.livekitUrl,
+    roomName: session.livekitRoomName,
+    token,
+  })
 }

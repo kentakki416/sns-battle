@@ -4,12 +4,14 @@ import { MatchingEventsController } from "../controller/matching/events"
 import { MatchingJoinController } from "../controller/matching/join"
 import { MatchingLeaveController } from "../controller/matching/leave"
 import { MatchingStatusController } from "../controller/matching/status"
+import { MatchingTokenController } from "../controller/matching/token"
 
 type MatchingRouterControllers = {
   events?: MatchingEventsController
   join?: MatchingJoinController
   leave?: MatchingLeaveController
   status?: MatchingStatusController
+  token?: MatchingTokenController
 }
 
 /**
@@ -41,6 +43,12 @@ export const matchingRouter = (controllers: MatchingRouterControllers): Router =
   if (controllers.events) {
     const controller = controllers.events
     router.get("/events", async (req, res) => controller.execute(req, res))
+  }
+
+  // POST /api/matching/token
+  if (controllers.token) {
+    const controller = controllers.token
+    router.post("/token", async (req, res) => controller.execute(req, res))
   }
 
   return router
