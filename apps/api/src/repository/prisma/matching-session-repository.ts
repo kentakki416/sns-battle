@@ -21,6 +21,14 @@ export interface MatchingSessionRepository {
     findActiveByUserId(userId: number): Promise<MatchingSession | null>
     findById(id: number): Promise<MatchingSession | null>
     /**
+     * セッションを ACTIVE に遷移させる。
+     *
+     * - `status='COUNTDOWN'` の row のみを対象に `status='ACTIVE'` + `startedAt=now()` を更新する
+     * - 既に `ACTIVE` の row は更新せず最新値を返す（呼び出し側で再 enqueue を冪等に保つため）
+     * - `ENDED` の場合は呼び出し元 Service が事前判定で防ぐ前提（DB レイヤでは特別扱いしない）
+     */
+    markActive(id: number): Promise<MatchingSession>
+    /**
      * セッションを ENDED に遷移させる。`endedAt` には DB 側 now() を入れ、
      * `endReason` を引数の値にセットする。冪等性は呼び出し側で担保（既に ENDED は呼ぶ前に弾く）。
      */
@@ -81,6 +89,23 @@ export class PrismaMatchingSessionRepository implements MatchingSessionRepositor
       },
     })
     if (!row) return null
+    return this._toDomain(row)
+  }
+
+  async markActive(id: number): Promise<MatchingSession> {
+    /**
+     * status='COUNTDOWN' のときだけ ACTIVE + startedAt=now() に更新する。updateMany で
+     * where 一致が 0 件（既に ACTIVE / ENDED）でも例外を出さず、その後 findById で最新行を返す。
+     * 既に ACTIVE の row はそのまま返り、ENDED の row も呼び出し側で事前判定済みの想定。
+     */
+    await this._prisma.matchingSession.updateMany({
+      data: {
+        startedAt: new Date(),
+        status: "ACTIVE",
+      },
+      where: { id, status: "COUNTDOWN" },
+    })
+    const row = await this._prisma.matchingSession.findUniqueOrThrow({ where: { id } })
     return this._toDomain(row)
   }
 

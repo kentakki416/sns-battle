@@ -56,6 +56,7 @@ describe("getReactions", () => {
       create: jest.fn(),
       findActiveByUserId: jest.fn(),
       findById: jest.fn(),
+      markActive: jest.fn(),
       markEnded: jest.fn(),
     }
     const matchingReactionRepository: MatchingReactionRepository = {

@@ -36,6 +36,7 @@ describe("sendMatchingStamp", () => {
       create: jest.fn(),
       findActiveByUserId: jest.fn(),
       findById: jest.fn(),
+      markActive: jest.fn(),
       markEnded: jest.fn(),
     }
     const itemRepository: ItemRepository = {

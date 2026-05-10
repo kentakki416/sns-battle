@@ -1,7 +1,7 @@
 import cors from "cors"
 import express from "express"
 
-import { createWebhookEventsQueue } from "@repo/queue"
+import { createThemeProgressQueue, createWebhookEventsQueue } from "@repo/queue"
 
 import { GoogleOAuthClient } from "./client/google-oauth"
 import { LiveKitClient, LiveKitWebhookReceiverImpl } from "./client/livekit"
@@ -21,6 +21,7 @@ import { MatchingReactionSubmitController } from "./controller/matching/reaction
 import { MatchingReactionsListController } from "./controller/matching/reactions-list"
 import { MatchingSessionDetailController } from "./controller/matching/session-detail"
 import { MatchingSessionEndController } from "./controller/matching/session-end"
+import { MatchingSessionStartController } from "./controller/matching/session-start"
 import { MatchingStampController } from "./controller/matching/stamp"
 import { MatchingStatusController } from "./controller/matching/status"
 import { MatchingTokenController } from "./controller/matching/token"
@@ -55,6 +56,7 @@ import {
   PrismaUserInventoryRepository,
   PrismaUserRepository,
 } from "./repository/prisma"
+import { BullMQThemeProgressEnqueuer } from "./repository/queue"
 import {
   IoRedisHealthRepository,
   IoRedisMatchingEventPublisher,
@@ -110,6 +112,8 @@ const livekitClient = new LiveKitClient(LIVEKIT_HOST, LIVEKIT_API_KEY, LIVEKIT_A
 const livekitWebhookReceiver = new LiveKitWebhookReceiverImpl(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
 
 // BullMQ Queue（enqueue 専用）
+const themeProgressQueue = createThemeProgressQueue(queueRedis)
+const themeProgressEnqueuer = new BullMQThemeProgressEnqueuer(themeProgressQueue)
 const webhookEventsQueue = createWebhookEventsQueue(queueRedis)
 
 // Health Controller のインスタンス化
@@ -182,6 +186,10 @@ const matchingSessionDetailController = new MatchingSessionDetailController(
   userRepository,
 )
 const matchingSessionEndController = new MatchingSessionEndController(matchingSessionRepository)
+const matchingSessionStartController = new MatchingSessionStartController(
+  matchingSessionRepository,
+  themeProgressEnqueuer,
+)
 const matchingReactionSubmitController = new MatchingReactionSubmitController(
   livekitClient,
   matchingReactionRepository,
@@ -293,6 +301,7 @@ app.use(
     reactionsList: matchingReactionsListController,
     sessionDetail: matchingSessionDetailController,
     sessionEnd: matchingSessionEndController,
+    sessionStart: matchingSessionStartController,
     stamp: matchingStampController,
     status: matchingStatusController,
     token: matchingTokenController,
@@ -318,7 +327,7 @@ process.on("SIGTERM", async () => {
    * BullMQ Queue は内部で queueRedis 接続を共有しているため、queueRedis.quit() の前に
    * close() してジョブ追加を停止しないと、quit 中に新規 enqueue が失敗で例外を投げる。
    */
-  await webhookEventsQueue.close()
+  await Promise.all([themeProgressQueue.close(), webhookEventsQueue.close()])
   await Promise.all([
     prisma.$disconnect(),
     redis.quit(),

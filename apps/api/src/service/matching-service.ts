@@ -12,6 +12,7 @@ import type {
   UserInventoryRepository,
   UserRepository,
 } from "../repository/prisma"
+import type { ThemeProgressEnqueuer } from "../repository/queue"
 import type {
   MatchingEventPublisher,
   MatchingEventSubscriber,
@@ -580,6 +581,75 @@ export const getMatchingSession = async (
     user1: { id: user1.id, avatarUrl: user1.avatarUrl, name: user1.name },
     user2: { id: user2.id, avatarUrl: user2.avatarUrl, name: user2.name },
   })
+}
+
+/**
+ * `POST /api/matching/sessions/:id/start` の戻り値。
+ *
+ * - `startedAt`: ACTIVE に遷移した時刻。冪等呼び出しの場合は既存値が入る
+ */
+export type StartMatchingSessionOutput = {
+    sessionId: number
+    startedAt: Date
+}
+
+/**
+ * セッションを COUNTDOWN → ACTIVE に遷移させ、テーマ進行ジョブ群を BullMQ に enqueue する。
+ *
+ * - 未存在 → 404
+ * - 非参加者 → 403
+ * - 既に ENDED → 410
+ * - 既に ACTIVE → 何もせず ok（idempotent。markActive と enqueue は冪等性が担保されているが、
+ *   既に startedAt が確定しているケースで余計な書き込み / enqueue を避ける）
+ * - COUNTDOWN → markActive で ACTIVE 化した後に enqueueSessionStart を呼ぶ。
+ *   markActive を先に呼ぶのは「ACTIVE 化したのに enqueue 漏れ」を防ぐため。
+ *   逆順だと enqueue 成功後の markActive 失敗で session が COUNTDOWN のままジョブだけ走るゾンビになる。
+ *
+ * 実ジョブ消化（テーマ配信 / タイマー配信 / タイムアウト）は step8b で `apps/matching-worker` 側に実装する。
+ */
+export const startMatchingSession = async (
+  input: { sessionId: number; userId: number },
+  repo: { matchingSessionRepository: MatchingSessionRepository },
+  enqueuer: { themeProgressEnqueuer: ThemeProgressEnqueuer },
+): Promise<Result<StartMatchingSessionOutput>> => {
+  logger.debug("MatchingService: startSession", {
+    sessionId: input.sessionId,
+    userId: input.userId,
+  })
+
+  const session = await repo.matchingSessionRepository.findById(input.sessionId)
+  if (!session) return err(notFoundError("Session not found"))
+  if (!isParticipant(session, input.userId)) {
+    return err(forbiddenError("Not a participant of this session"))
+  }
+  if (session.status === "ENDED") return err(goneError("Session already ended"))
+
+  /**
+   * 既に ACTIVE の場合は冪等成功扱い。markActive / enqueue は呼ばない。
+   * `startedAt` は markEnded を経由しない限り null に戻らないため非 null 想定。
+   * 万一 null（DB 直接編集等）なら整合性破壊として throw する。
+   */
+  if (session.status === "ACTIVE") {
+    if (!session.startedAt) {
+      throw new Error(`MatchingSession is ACTIVE but startedAt is null: id=${session.id}`)
+    }
+    return ok({ sessionId: session.id, startedAt: session.startedAt })
+  }
+
+  const updated = await repo.matchingSessionRepository.markActive(input.sessionId)
+  if (!updated.startedAt) {
+    /** markActive 直後は必ず startedAt がセットされている（DB レイヤの不変条件） */
+    throw new Error(`markActive returned null startedAt: id=${updated.id}`)
+  }
+
+  /**
+   * ジョブ enqueue は決定的 jobId で冪等。markActive の後に呼ぶことで、ACTIVE 化に成功したのに
+   * enqueue されないケースを防ぐ。enqueue 失敗時はクライアントへ 5xx が返り、再試行で
+   * markActive は no-op、enqueue だけが補完される。
+   */
+  await enqueuer.themeProgressEnqueuer.enqueueSessionStart(input.sessionId)
+
+  return ok({ sessionId: updated.id, startedAt: updated.startedAt })
 }
 
 /**

@@ -194,6 +194,27 @@ export const getMatchingSessionResponseSchema = z.object({
 })
 
 // ========================================================
+// POST /api/matching/sessions/:id/start - セッション開始（COUNTDOWN → ACTIVE）
+// ========================================================
+
+/**
+ * POST /api/matching/sessions/:id/start の路径パラメータ。
+ */
+export const startMatchingSessionPathParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+})
+
+/**
+ * POST /api/matching/sessions/:id/start のレスポンス。
+ *
+ * - `started_at`: ACTIVE に遷移した時刻（ISO 8601）。冪等呼び出しでも既存値を返す
+ */
+export const startMatchingSessionResponseSchema = z.object({
+  session_id: z.number().int().positive(),
+  started_at: z.string().datetime(),
+})
+
+// ========================================================
 // POST /api/matching/sessions/:id/end - セッション手動終了
 // ========================================================
 
@@ -345,6 +366,8 @@ export type GetMatchingSessionPathParam = z.infer<typeof getMatchingSessionPathP
 export type GetMatchingSessionResponse = z.infer<typeof getMatchingSessionResponseSchema>
 export type EndMatchingSessionPathParam = z.infer<typeof endMatchingSessionPathParamSchema>
 export type EndMatchingSessionResponse = z.infer<typeof endMatchingSessionResponseSchema>
+export type StartMatchingSessionPathParam = z.infer<typeof startMatchingSessionPathParamSchema>
+export type StartMatchingSessionResponse = z.infer<typeof startMatchingSessionResponseSchema>
 export type TalkThemeType = z.infer<typeof talkThemeTypeSchema>
 export type ReactionChoice = z.infer<typeof reactionChoiceSchema>
 export type SubmitReactionPathParam = z.infer<typeof submitReactionPathParamSchema>
