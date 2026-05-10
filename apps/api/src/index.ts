@@ -14,6 +14,8 @@ import { HobbyListController } from "./controller/hobby/list"
 import { MatchingEventsController } from "./controller/matching/events"
 import { MatchingJoinController } from "./controller/matching/join"
 import { MatchingLeaveController } from "./controller/matching/leave"
+import { MatchingSessionDetailController } from "./controller/matching/session-detail"
+import { MatchingSessionEndController } from "./controller/matching/session-end"
 import { MatchingStatusController } from "./controller/matching/status"
 import { MatchingTokenController } from "./controller/matching/token"
 import { MatchingPreferenceGetController } from "./controller/matching-preference/get"
@@ -155,6 +157,11 @@ const matchingTokenController = new MatchingTokenController(
   LIVEKIT_HOST,
   matchingSessionRepository,
 )
+const matchingSessionDetailController = new MatchingSessionDetailController(
+  matchingSessionRepository,
+  userRepository,
+)
+const matchingSessionEndController = new MatchingSessionEndController(matchingSessionRepository)
 
 // cors設定のミドルウェア
 app.use(
@@ -232,6 +239,8 @@ app.use(
     events: matchingEventsController,
     join: matchingJoinController,
     leave: matchingLeaveController,
+    sessionDetail: matchingSessionDetailController,
+    sessionEnd: matchingSessionEndController,
     status: matchingStatusController,
     token: matchingTokenController,
   })

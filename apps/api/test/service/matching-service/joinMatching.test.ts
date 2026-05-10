@@ -104,6 +104,7 @@ describe("joinMatching", () => {
       create: jest.fn(),
       findActiveByUserId: jest.fn().mockResolvedValue(null),
       findById: jest.fn(),
+      markEnded: jest.fn(),
     }
     const blockRepository: BlockRepository = {
       existsBetween: jest.fn(),
