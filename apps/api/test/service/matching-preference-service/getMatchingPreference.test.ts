@@ -5,6 +5,7 @@ import { MatchingPreference } from "../../../src/types/domain"
 const mockFindByUserId = jest.fn<Promise<MatchingPreference | null>, [number]>()
 const mockMatchingPreferenceRepository: MatchingPreferenceRepository = {
   findByUserId: mockFindByUserId,
+  findManyByUserIds: jest.fn(),
   upsertByUserId: jest.fn(),
 }
 

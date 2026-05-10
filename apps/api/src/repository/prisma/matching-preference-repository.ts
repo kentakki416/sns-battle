@@ -18,6 +18,11 @@ export type UpsertMatchingPreferenceInput = {
  */
 export interface MatchingPreferenceRepository {
     findByUserId(userId: number): Promise<MatchingPreference | null>
+    /**
+     * 指定 userId 群の preference を一括取得し、userId → MatchingPreference の Map にして返す。
+     * preference 未設定のユーザーは Map に含まれない。
+     */
+    findManyByUserIds(userIds: number[]): Promise<Map<number, MatchingPreference>>
     upsertByUserId(
         userId: number,
         data: UpsertMatchingPreferenceInput
@@ -38,6 +43,16 @@ export class PrismaMatchingPreferenceRepository implements MatchingPreferenceRep
     const row = await this._prisma.matchingPreference.findUnique({ where: { userId } })
     if (!row) return null
     return this._toDomain(row)
+  }
+
+  async findManyByUserIds(userIds: number[]): Promise<Map<number, MatchingPreference>> {
+    if (userIds.length === 0) return new Map()
+    const rows = await this._prisma.matchingPreference.findMany({
+      where: { userId: { in: userIds } },
+    })
+    const map = new Map<number, MatchingPreference>()
+    for (const row of rows) map.set(row.userId, this._toDomain(row))
+    return map
   }
 
   async upsertByUserId(

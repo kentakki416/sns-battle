@@ -9,6 +9,7 @@ const mockUserRepository: UserRepository = {
   create: jest.fn(),
   findByEmail: jest.fn(),
   findById: jest.fn(),
+  findManyByIds: jest.fn(),
   findProfileById: mockFindProfileById,
   update: jest.fn(),
 }

@@ -3,9 +3,11 @@ import request from "supertest"
 import { MatchingJoinController } from "../../../src/controller/matching/join"
 import { generateAccessToken } from "../../../src/lib/jwt"
 import { PrismaBlockRepository } from "../../../src/repository/prisma/block-repository"
+import { PrismaMatchingPreferenceRepository } from "../../../src/repository/prisma/matching-preference-repository"
 import { PrismaMatchingQueueRepository } from "../../../src/repository/prisma/matching-queue-repository"
 import { PrismaMatchingSessionRepository } from "../../../src/repository/prisma/matching-session-repository"
 import { PrismaUserRepository } from "../../../src/repository/prisma/user-repository"
+import { IoRedisMatchingEventPublisher } from "../../../src/repository/redis/matching-event-publisher"
 import { IoRedisMatchingQueueRepository } from "../../../src/repository/redis/matching-queue-repository"
 import { matchingRouter } from "../../../src/routes/matching-router"
 import { attachErrorHandler, createTestApp } from "../helper"
@@ -19,13 +21,17 @@ import {
 } from "../setup"
 
 const blockRepository = new PrismaBlockRepository(testPrisma)
+const matchingPreferenceRepository = new PrismaMatchingPreferenceRepository(testPrisma)
 const matchingQueueRepository = new PrismaMatchingQueueRepository(testPrisma)
 const matchingSessionRepository = new PrismaMatchingSessionRepository(testPrisma)
 const userRepository = new PrismaUserRepository(testPrisma)
 const matchingQueueRedisRepository = new IoRedisMatchingQueueRepository(testRedis)
+const matchingEventPublisher = new IoRedisMatchingEventPublisher(testRedis)
 
 const matchingJoinController = new MatchingJoinController(
   blockRepository,
+  matchingEventPublisher,
+  matchingPreferenceRepository,
   matchingQueueRedisRepository,
   matchingQueueRepository,
   matchingSessionRepository,
@@ -186,5 +192,158 @@ describe("POST /api/matching/join", () => {
     /** 自分は WAITING のまま、peer もそのまま */
     expect(await testRedis.zscore("matching:queue", String(me.id))).not.toBeNull()
     expect(await testRedis.zscore("matching:queue", String(peer.id))).not.toBeNull()
+  })
+
+  it("最古ユーザーがブロック相手 → 次候補にスキップして成立（多段照合）", async () => {
+    const blocked = await createOnboardedUser("blocked")
+    const okPeer = await createOnboardedUser("ok")
+    const me = await createOnboardedUser("me")
+    await testPrisma.block.create({ data: { blockedId: blocked.id, blockerId: me.id } })
+    /** blocked の方が早く参加 */
+    await testRedis.zadd("matching:queue", Date.now() - 2000, String(blocked.id))
+    await testRedis.zadd("matching:queue", Date.now() - 1000, String(okPeer.id))
+    await testPrisma.matchingQueue.createMany({
+      data: [
+        { status: "WAITING", userId: blocked.id },
+        { status: "WAITING", userId: okPeer.id },
+      ],
+    })
+
+    const token = generateAccessToken(me.id)
+    const res = await request(app)
+      .post("/api/matching/join")
+      .set("Authorization", `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({ matched: true, peer: { id: okPeer.id } })
+    /** ブロック相手 (blocked) はキューに残る、me と okPeer は削除される */
+    expect(await testRedis.zscore("matching:queue", String(blocked.id))).not.toBeNull()
+    expect(await testRedis.zscore("matching:queue", String(me.id))).toBeNull()
+    expect(await testRedis.zscore("matching:queue", String(okPeer.id))).toBeNull()
+  })
+
+  it("preference: 性別不一致 → matched=false", async () => {
+    const peer = await testPrisma.user.create({
+      data: {
+        birthDate: new Date("1995-01-01"),
+        email: "peer@example.com",
+        gender: "MALE",
+        isOnboarded: true,
+        name: "Male Peer",
+      },
+    })
+    const me = await createOnboardedUser("me")
+    await testPrisma.matchingPreference.create({
+      data: { preferredGenders: ["FEMALE"], userId: me.id },
+    })
+    await testRedis.zadd("matching:queue", Date.now() - 1000, String(peer.id))
+    await testPrisma.matchingQueue.create({ data: { status: "WAITING", userId: peer.id } })
+
+    const token = generateAccessToken(me.id)
+    const res = await request(app)
+      .post("/api/matching/join")
+      .set("Authorization", `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body.matched).toBe(false)
+    /** 双方向制約で peer も保持 */
+    expect(await testRedis.zscore("matching:queue", String(me.id))).not.toBeNull()
+    expect(await testRedis.zscore("matching:queue", String(peer.id))).not.toBeNull()
+  })
+
+  it("preference: 年齢範囲外 → matched=false", async () => {
+    const youngPeer = await testPrisma.user.create({
+      data: {
+        birthDate: new Date("2010-01-01"),
+        email: "young@example.com",
+        gender: "FEMALE",
+        isOnboarded: true,
+        name: "Young",
+      },
+    })
+    const me = await createOnboardedUser("me")
+    await testPrisma.matchingPreference.create({
+      data: { ageMin: 20, userId: me.id },
+    })
+    await testRedis.zadd("matching:queue", Date.now() - 1000, String(youngPeer.id))
+    await testPrisma.matchingQueue.create({ data: { status: "WAITING", userId: youngPeer.id } })
+
+    const token = generateAccessToken(me.id)
+    const res = await request(app)
+      .post("/api/matching/join")
+      .set("Authorization", `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body.matched).toBe(false)
+  })
+
+  it("preference: 双方向適合の候補にスキップして成立", async () => {
+    const ngPeer = await testPrisma.user.create({
+      data: {
+        birthDate: new Date("1995-01-01"),
+        email: "ng@example.com",
+        gender: "MALE",
+        isOnboarded: true,
+        name: "NG",
+      },
+    })
+    const okPeer = await testPrisma.user.create({
+      data: {
+        birthDate: new Date("1996-01-01"),
+        email: "ok@example.com",
+        gender: "FEMALE",
+        isOnboarded: true,
+        name: "OK",
+      },
+    })
+    const me = await createOnboardedUser("me")
+    await testPrisma.matchingPreference.create({
+      data: { preferredGenders: ["FEMALE"], userId: me.id },
+    })
+    /** ngPeer の方が早く参加 */
+    await testRedis.zadd("matching:queue", Date.now() - 2000, String(ngPeer.id))
+    await testRedis.zadd("matching:queue", Date.now() - 1000, String(okPeer.id))
+    await testPrisma.matchingQueue.createMany({
+      data: [
+        { status: "WAITING", userId: ngPeer.id },
+        { status: "WAITING", userId: okPeer.id },
+      ],
+    })
+
+    const token = generateAccessToken(me.id)
+    const res = await request(app)
+      .post("/api/matching/join")
+      .set("Authorization", `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({ matched: true, peer: { id: okPeer.id } })
+  })
+
+  it("preference: 相手側 preference が自分を許容しない → matched=false（双方向）", async () => {
+    const peer = await testPrisma.user.create({
+      data: {
+        birthDate: new Date("1995-01-01"),
+        email: "peer@example.com",
+        gender: "FEMALE",
+        isOnboarded: true,
+        name: "Peer",
+      },
+    })
+    /** peer は MALE を希望 */
+    await testPrisma.matchingPreference.create({
+      data: { preferredGenders: ["MALE"], userId: peer.id },
+    })
+    /** me は FEMALE（onboarded ヘルパーを使用） */
+    const me = await createOnboardedUser("me")
+    await testRedis.zadd("matching:queue", Date.now() - 1000, String(peer.id))
+    await testPrisma.matchingQueue.create({ data: { status: "WAITING", userId: peer.id } })
+
+    const token = generateAccessToken(me.id)
+    const res = await request(app)
+      .post("/api/matching/join")
+      .set("Authorization", `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body.matched).toBe(false)
   })
 })

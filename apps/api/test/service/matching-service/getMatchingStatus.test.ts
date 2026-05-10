@@ -21,7 +21,7 @@ describe("getMatchingStatus", () => {
     const matchingQueueRedisRepository: MatchingQueueRedisRepository = {
       add: jest.fn(),
       findJoinedAt: jest.fn(),
-      findOldestPeer: jest.fn(),
+      findTopWaitingUsers: jest.fn(),
       findPosition: jest.fn(),
       remove: jest.fn(),
       removeBothAtomic: jest.fn(),

@@ -2,11 +2,12 @@
 process.env.DB_NAME = "sns-battle_test"
 process.env.REDIS_DB = "1"
 
-import { queueRedis, redis } from "../../src/client/redis"
+import { queueRedis, redis, redisSubscriber } from "../../src/client/redis"
 import { prisma } from "../../src/prisma/prisma.client"
 
 export { prisma as testPrisma }
 export { redis as testRedis }
+export { redisSubscriber as testRedisSubscriber }
 
 /**
  * テスト用 DB の public スキーマ配下に存在するテーブル名一覧。
@@ -55,8 +56,8 @@ export const disconnectTestDb = async (): Promise<void> => {
 
 /**
  * テスト終了時にRedis接続を切断する
- * 汎用 redis と BullMQ 用 queueRedis の両方を閉じる
+ * 汎用 redis / BullMQ 用 queueRedis / Pub/Sub subscribe 用 redisSubscriber を閉じる
  */
 export const disconnectTestRedis = async (): Promise<void> => {
-  await Promise.all([redis.quit(), queueRedis.quit()])
+  await Promise.all([redis.quit(), queueRedis.quit(), redisSubscriber.quit()])
 }

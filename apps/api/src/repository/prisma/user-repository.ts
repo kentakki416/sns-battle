@@ -57,6 +57,11 @@ export interface UserRepository {
     create(data: CreateUserInput): Promise<User>
     findByEmail(email: string): Promise<User | null>
     findById(id: number): Promise<User | null>
+    /**
+     * 指定 id 群のユーザーを一括取得する。マッチング多段照合の N+1 回避用。
+     * 戻り値の順序は ids の順序と一致しないので、呼び出し側で Map 化して使う。
+     */
+    findManyByIds(ids: number[]): Promise<User[]>
     findProfileById(id: number): Promise<UserProfileWithHobbies | null>
     update(id: number, data: UpdateUserInput): Promise<void>
 }
@@ -81,6 +86,12 @@ export class PrismaUserRepository implements UserRepository {
     const prismaUser = await this._prisma.user.findUnique({ where: { email } })
     if (!prismaUser) return null
     return this._toDomainUser(prismaUser)
+  }
+
+  async findManyByIds(ids: number[]): Promise<User[]> {
+    if (ids.length === 0) return []
+    const rows = await this._prisma.user.findMany({ where: { id: { in: ids } } })
+    return rows.map((row) => this._toDomainUser(row))
   }
 
   async findProfileById(id: number): Promise<UserProfileWithHobbies | null> {

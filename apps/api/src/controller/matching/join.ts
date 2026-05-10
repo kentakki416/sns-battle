@@ -6,11 +6,15 @@ import { logger } from "../../log"
 import { AuthRequest } from "../../middleware/auth"
 import {
   BlockRepository,
+  MatchingPreferenceRepository,
   MatchingQueueRepository,
   MatchingSessionRepository,
   UserRepository,
 } from "../../repository/prisma"
-import { MatchingQueueRedisRepository } from "../../repository/redis"
+import {
+  MatchingEventPublisher,
+  MatchingQueueRedisRepository,
+} from "../../repository/redis"
 import * as service from "../../service"
 
 /**
@@ -20,6 +24,8 @@ import * as service from "../../service"
 export class MatchingJoinController {
   constructor(
         private blockRepository: BlockRepository,
+        private matchingEventPublisher: MatchingEventPublisher,
+        private matchingPreferenceRepository: MatchingPreferenceRepository,
         private matchingQueueRedisRepository: MatchingQueueRedisRepository,
         private matchingQueueRepository: MatchingQueueRepository,
         private matchingSessionRepository: MatchingSessionRepository,
@@ -31,6 +37,8 @@ export class MatchingJoinController {
 
     const result = await service.matching.joinMatching(req.userId!, {
       blockRepository: this.blockRepository,
+      matchingEventPublisher: this.matchingEventPublisher,
+      matchingPreferenceRepository: this.matchingPreferenceRepository,
       matchingQueueRedisRepository: this.matchingQueueRedisRepository,
       matchingQueueRepository: this.matchingQueueRepository,
       matchingSessionRepository: this.matchingSessionRepository,

@@ -12,6 +12,7 @@ const mockUpsertByUserId = jest.fn<
 >()
 const mockMatchingPreferenceRepository: MatchingPreferenceRepository = {
   findByUserId: jest.fn(),
+  findManyByUserIds: jest.fn(),
   upsertByUserId: mockUpsertByUserId,
 }
 
