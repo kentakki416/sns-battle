@@ -5,7 +5,11 @@ import { authGoogleRequestSchema, authGoogleResponseSchema, ErrorResponse } from
 import { IGoogleOAuthClient } from "../../client/google-oauth"
 import { generateAccessToken, generateRefreshToken } from "../../lib/jwt"
 import { logger } from "../../log"
-import { AuthAccountRepository, UserRegistrationRepository } from "../../repository/prisma"
+import {
+  AuthAccountRepository,
+  TransactionRunner,
+  UserRepository,
+} from "../../repository/prisma"
 import { RefreshTokenRepository } from "../../repository/redis"
 import * as service from "../../service"
 
@@ -15,8 +19,9 @@ import * as service from "../../service"
 export class AuthGoogleController {
   constructor(
     private authAccountRepository: AuthAccountRepository,
-    private userRegistrationRepository: UserRegistrationRepository,
+    private userRepository: UserRepository,
     private refreshTokenRepository: RefreshTokenRepository,
+    private transactionRunner: TransactionRunner,
     private googleOAuthClient: IGoogleOAuthClient
   ) {}
 
@@ -30,7 +35,8 @@ export class AuthGoogleController {
       {
         authAccountRepository: this.authAccountRepository,
         refreshTokenRepository: this.refreshTokenRepository,
-        userRegistrationRepository: this.userRegistrationRepository,
+        transactionRunner: this.transactionRunner,
+        userRepository: this.userRepository,
       },
       this.googleOAuthClient,
       { generateAccessToken, generateRefreshToken }

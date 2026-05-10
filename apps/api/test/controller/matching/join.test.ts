@@ -6,6 +6,7 @@ import { PrismaBlockRepository } from "../../../src/repository/prisma/block-repo
 import { PrismaMatchingPreferenceRepository } from "../../../src/repository/prisma/matching-preference-repository"
 import { PrismaMatchingQueueRepository } from "../../../src/repository/prisma/matching-queue-repository"
 import { PrismaMatchingSessionRepository } from "../../../src/repository/prisma/matching-session-repository"
+import { PrismaTransactionRunner } from "../../../src/repository/prisma/transaction-runner"
 import { PrismaUserRepository } from "../../../src/repository/prisma/user-repository"
 import { IoRedisMatchingEventPublisher } from "../../../src/repository/redis/matching-event-publisher"
 import { IoRedisMatchingQueueRepository } from "../../../src/repository/redis/matching-queue-repository"
@@ -24,6 +25,7 @@ const blockRepository = new PrismaBlockRepository(testPrisma)
 const matchingPreferenceRepository = new PrismaMatchingPreferenceRepository(testPrisma)
 const matchingQueueRepository = new PrismaMatchingQueueRepository(testPrisma)
 const matchingSessionRepository = new PrismaMatchingSessionRepository(testPrisma)
+const transactionRunner = new PrismaTransactionRunner(testPrisma)
 const userRepository = new PrismaUserRepository(testPrisma)
 const matchingQueueRedisRepository = new IoRedisMatchingQueueRepository(testRedis)
 const matchingEventPublisher = new IoRedisMatchingEventPublisher(testRedis)
@@ -35,6 +37,7 @@ const matchingJoinController = new MatchingJoinController(
   matchingQueueRedisRepository,
   matchingQueueRepository,
   matchingSessionRepository,
+  transactionRunner,
   userRepository,
 )
 

@@ -1,6 +1,8 @@
 import { PrismaClient , Prisma as PrismaTypes } from "../../prisma/generated/client"
 import { AuthAccount, AuthAccountWithUser, User } from "../../types/domain"
 
+import { TransactionContext } from "./transaction-runner"
+
 /**
  * 認証アカウント作成時の入力
  */
@@ -20,7 +22,7 @@ export type CreateAuthAccountInput = {
  * 認証アカウントリポジトリのインターフェース
  */
 export interface AuthAccountRepository {
-    create(data: CreateAuthAccountInput): Promise<AuthAccount>
+    create(data: CreateAuthAccountInput, tx?: TransactionContext): Promise<AuthAccount>
     findByProvider(
         provider: string,
         providerAccountId: string
@@ -65,8 +67,9 @@ export class PrismaAuthAccountRepository implements AuthAccountRepository {
     return this._toDomainAuthAccountWithUser(prismaAuthAccount)
   }
 
-  public async create(data: CreateAuthAccountInput): Promise<AuthAccount> {
-    const prismaAuthAccount = await this._prisma.authAccount.create({
+  public async create(data: CreateAuthAccountInput, tx?: TransactionContext): Promise<AuthAccount> {
+    const client = tx ?? this._prisma
+    const prismaAuthAccount = await client.authAccount.create({
       data: {
         accessToken: data.accessToken,
         expiresAt: data.expiresAt,

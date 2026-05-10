@@ -3,6 +3,8 @@ import {
   MatchingPreferenceRepository,
   MatchingQueueRepository,
   MatchingSessionRepository,
+  TransactionContext,
+  TransactionRunner,
   UserRepository,
 } from "../../../src/repository/prisma"
 import {
@@ -113,6 +115,14 @@ describe("joinMatching", () => {
       upsertByUserId: jest.fn(),
     }
     const matchingEventPublisher: MatchingEventPublisher = { publishMatched: jest.fn() }
+    /**
+     * Fake TransactionRunner: callback をそのまま実行する。
+     * Service の挙動検証では実 tx 不要なため、tx 引数として undefined を渡し、
+     * Repository は tx 無し経路で動く。
+     */
+    const transactionRunner: TransactionRunner = {
+      run: jest.fn(async (fn) => fn(undefined as unknown as TransactionContext)),
+    }
     return {
       blockRepository,
       matchingEventPublisher,
@@ -120,6 +130,7 @@ describe("joinMatching", () => {
       matchingQueueRedisRepository,
       matchingQueueRepository,
       matchingSessionRepository,
+      transactionRunner,
       userRepository,
     }
   }
@@ -268,9 +279,14 @@ describe("joinMatching", () => {
           sessionId: 100,
         })
       }
-      expect(repo.matchingSessionRepository.create).toHaveBeenCalledWith({ user1Id: 1, user2Id: 2 })
-      expect(repo.matchingQueueRepository.deleteByUserId).toHaveBeenCalledWith(1)
-      expect(repo.matchingQueueRepository.deleteByUserId).toHaveBeenCalledWith(2)
+      /** fake runner は tx として undefined を渡すので、第2引数は undefined */
+      expect(repo.matchingSessionRepository.create).toHaveBeenCalledWith(
+        { user1Id: 1, user2Id: 2 },
+        undefined,
+      )
+      expect(repo.matchingQueueRepository.deleteByUserId).toHaveBeenCalledWith(1, undefined)
+      expect(repo.matchingQueueRepository.deleteByUserId).toHaveBeenCalledWith(2, undefined)
+      expect(repo.transactionRunner.run).toHaveBeenCalledTimes(1)
       expect(repo.matchingEventPublisher.publishMatched).toHaveBeenCalledWith([1, 2], {
         livekitRoomName: "matching:100",
         peer: expect.objectContaining({

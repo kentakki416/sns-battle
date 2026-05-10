@@ -1,6 +1,8 @@
 import { Prisma as PrismaTypes, PrismaClient } from "../../prisma/generated/client"
 import { MatchingSession } from "../../types/domain"
 
+import { TransactionContext } from "./transaction-runner"
+
 /**
  * マッチングセッション（matching_sessions）の Repository。
  *
@@ -11,7 +13,10 @@ import { MatchingSession } from "../../types/domain"
  * の 2 step を 1 つの API として提供する。
  */
 export interface MatchingSessionRepository {
-    create(input: { user1Id: number; user2Id: number }): Promise<MatchingSession>
+    create(
+        input: { user1Id: number; user2Id: number },
+        tx?: TransactionContext,
+    ): Promise<MatchingSession>
     /** 自分が user1 / user2 のどちらでも参加しており、status が ENDED 以外のセッションを 1 件返す */
     findActiveByUserId(userId: number): Promise<MatchingSession | null>
     findById(id: number): Promise<MatchingSession | null>
@@ -24,25 +29,35 @@ export class PrismaMatchingSessionRepository implements MatchingSessionRepositor
     this._prisma = prisma
   }
 
-  async create(input: { user1Id: number; user2Id: number }): Promise<MatchingSession> {
-    const session = await this._prisma.$transaction(async (tx) => {
-      /**
-       * 一時的な livekit_room_name で先に create し、確定した id でリネームする。
-       * 並行実行で衝突しないように tempName にユーザー id とタイムスタンプを入れる。
-       */
+  async create(
+    input: { user1Id: number; user2Id: number },
+    tx?: TransactionContext,
+  ): Promise<MatchingSession> {
+    /**
+     * 一時的な livekit_room_name で先に create し、確定した id でリネームする 2 step。
+     * 採番された autoincrement id を使うため insert→update の連続実行が必要。
+     * 外側の tx が渡されればそれを使い、無ければ専用 $transaction で自身の atomicity を確保する。
+     */
+    const exec = async (
+      client: TransactionContext,
+    ): Promise<PrismaTypes.MatchingSessionGetPayload<{}>> => {
       const tempName = `pending:${Date.now()}:${input.user1Id}:${input.user2Id}`
-      const created = await tx.matchingSession.create({
+      const created = await client.matchingSession.create({
         data: {
           livekitRoomName: tempName,
           user1Id: input.user1Id,
           user2Id: input.user2Id,
         },
       })
-      return tx.matchingSession.update({
+      return client.matchingSession.update({
         data: { livekitRoomName: `matching:${created.id}` },
         where: { id: created.id },
       })
-    })
+    }
+
+    const session = tx
+      ? await exec(tx)
+      : await this._prisma.$transaction(async (innerTx) => exec(innerTx))
     return this._toDomain(session)
   }
 

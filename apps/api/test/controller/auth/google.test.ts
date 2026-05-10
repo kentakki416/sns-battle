@@ -3,8 +3,9 @@ import request from "supertest"
 import { GoogleUserInfo, IGoogleOAuthClient } from "../../../src/client/google-oauth"
 import { AuthGoogleController } from "../../../src/controller/auth/google"
 import { verifyRefreshToken } from "../../../src/lib/jwt"
-import { PrismaUserRegistrationRepository } from "../../../src/repository/prisma/aggregate/user-registration-repository"
 import { PrismaAuthAccountRepository } from "../../../src/repository/prisma/auth-account-repository"
+import { PrismaTransactionRunner } from "../../../src/repository/prisma/transaction-runner"
+import { PrismaUserRepository } from "../../../src/repository/prisma/user-repository"
 import { IoRedisRefreshTokenRepository } from "../../../src/repository/redis"
 import { authRouter } from "../../../src/routes/auth-router"
 import { attachErrorHandler, createTestApp } from "../helper"
@@ -23,15 +24,17 @@ const mockGoogleOAuthClient: IGoogleOAuthClient = {
 }
 
 const authAccountRepository = new PrismaAuthAccountRepository(testPrisma)
-const userRegistrationRepository = new PrismaUserRegistrationRepository(testPrisma)
+const userRepository = new PrismaUserRepository(testPrisma)
+const transactionRunner = new PrismaTransactionRunner(testPrisma)
 const refreshTokenRepository = new IoRedisRefreshTokenRepository(testRedis)
 
 const app = createTestApp()
 
 const authGoogleController = new AuthGoogleController(
   authAccountRepository,
-  userRegistrationRepository,
+  userRepository,
   refreshTokenRepository,
+  transactionRunner,
   mockGoogleOAuthClient,
 )
 
