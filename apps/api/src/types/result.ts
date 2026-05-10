@@ -26,6 +26,7 @@ export type ApiErrorType =
   | "FORBIDDEN"
   | "GONE"
   | "NOT_FOUND"
+  | "TOO_MANY_REQUESTS"
   | "UNAUTHORIZED"
 
 /**
@@ -100,4 +101,13 @@ export const goneError = (message: string): ApiError => ({
   message,
   statusCode: 410,
   type: "GONE",
+})
+
+/**
+ * 429 Too Many Requests のエラーを生成する
+ */
+export const tooManyRequestsError = (message: string): ApiError => ({
+  message,
+  statusCode: 429,
+  type: "TOO_MANY_REQUESTS",
 })

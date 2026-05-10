@@ -18,6 +18,7 @@ import { MatchingReactionSubmitController } from "./controller/matching/reaction
 import { MatchingReactionsListController } from "./controller/matching/reactions-list"
 import { MatchingSessionDetailController } from "./controller/matching/session-detail"
 import { MatchingSessionEndController } from "./controller/matching/session-end"
+import { MatchingStampController } from "./controller/matching/stamp"
 import { MatchingStatusController } from "./controller/matching/status"
 import { MatchingTokenController } from "./controller/matching/token"
 import { MatchingPreferenceGetController } from "./controller/matching-preference/get"
@@ -40,6 +41,7 @@ import {
   PrismaBlockRepository,
   PrismaDatabaseHealthRepository,
   PrismaHobbyRepository,
+  PrismaItemRepository,
   PrismaMatchingPreferenceRepository,
   PrismaMatchingQueueRepository,
   PrismaMatchingReactionRepository,
@@ -47,6 +49,7 @@ import {
   PrismaMemoRepository,
   PrismaTalkThemeRepository,
   PrismaTransactionRunner,
+  PrismaUserInventoryRepository,
   PrismaUserRepository,
 } from "./repository/prisma"
 import {
@@ -54,6 +57,7 @@ import {
   IoRedisMatchingEventPublisher,
   IoRedisMatchingEventSubscriber,
   IoRedisMatchingQueueRepository,
+  IoRedisRateLimitRepository,
   IoRedisRefreshTokenRepository,
 } from "./repository/redis"
 import { authRouter } from "./routes/auth-router"
@@ -86,6 +90,8 @@ const matchingQueueRepository = new PrismaMatchingQueueRepository(prisma)
 const matchingSessionRepository = new PrismaMatchingSessionRepository(prisma)
 const matchingReactionRepository = new PrismaMatchingReactionRepository(prisma)
 const talkThemeRepository = new PrismaTalkThemeRepository(prisma)
+const itemRepository = new PrismaItemRepository(prisma)
+const userInventoryRepository = new PrismaUserInventoryRepository(prisma)
 const blockRepository = new PrismaBlockRepository(prisma)
 const databaseHealthRepository = new PrismaDatabaseHealthRepository(prisma)
 const redisHealthRepository = new IoRedisHealthRepository(redis)
@@ -93,6 +99,7 @@ const refreshTokenRepository = new IoRedisRefreshTokenRepository(redis)
 const matchingQueueRedisRepository = new IoRedisMatchingQueueRepository(redis)
 const matchingEventPublisher = new IoRedisMatchingEventPublisher(redis)
 const matchingEventSubscriber = new IoRedisMatchingEventSubscriber(redisSubscriber)
+const rateLimitRedisRepository = new IoRedisRateLimitRepository(redis)
 
 // Client のインスタンス化
 const googleOAuthClient = new GoogleOAuthClient(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
@@ -178,6 +185,13 @@ const matchingReactionsListController = new MatchingReactionsListController(
   matchingReactionRepository,
   matchingSessionRepository,
 )
+const matchingStampController = new MatchingStampController(
+  itemRepository,
+  livekitClient,
+  matchingSessionRepository,
+  rateLimitRedisRepository,
+  userInventoryRepository,
+)
 
 // cors設定のミドルウェア
 app.use(
@@ -259,6 +273,7 @@ app.use(
     reactionsList: matchingReactionsListController,
     sessionDetail: matchingSessionDetailController,
     sessionEnd: matchingSessionEndController,
+    stamp: matchingStampController,
     status: matchingStatusController,
     token: matchingTokenController,
   })

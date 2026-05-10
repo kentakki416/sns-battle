@@ -2,24 +2,28 @@ import type { ILiveKitClient } from "../client/livekit"
 import { logger } from "../log"
 import type {
   BlockRepository,
+  ItemRepository,
   MatchingPreferenceRepository,
   MatchingQueueRepository,
   MatchingReactionRepository,
   MatchingSessionRepository,
   TalkThemeRepository,
   TransactionRunner,
+  UserInventoryRepository,
   UserRepository,
 } from "../repository/prisma"
 import type {
   MatchingEventPublisher,
   MatchingEventSubscriber,
   MatchingQueueRedisRepository,
+  RateLimitRedisRepository,
 } from "../repository/redis"
 import type {
   Gender,
   MatchingEndReason,
   MatchingPreference,
   MatchingSession,
+  StampAnimationType,
   TalkThemeChoice,
   User,
 } from "../types/domain"
@@ -32,6 +36,7 @@ import {
   notFoundError,
   ok,
   type Result,
+  tooManyRequestsError,
 } from "../types/result"
 
 /**
@@ -856,4 +861,119 @@ export const getReactions = async (
     })
 
   return ok({ rounds })
+}
+
+/**
+ * `POST /api/matching/sessions/:id/stamp` の戻り値。
+ *
+ * - `deliveredAt`: Data Channel publish した unix epoch ms
+ * - `emoji` / `animationType`: 自分の画面でも同じ表示を再現できるようレスポンスに含める
+ */
+export type SendMatchingStampOutput = {
+    animationType: StampAnimationType
+    deliveredAt: number
+    emoji: string
+    itemId: number
+}
+
+/**
+ * 1 ユーザーあたりのスタンプ送信レート上限（1 秒ウィンドウ）。
+ * spec1 の「5 req/秒」。Service 側で拒否し、Controller は 429 を返す。
+ */
+const STAMP_RATE_LIMIT_PER_SEC = 5
+
+/**
+ * Data Channel topic 名。クライアントは購読時にこの値で分岐し
+ * `<StampFloatLayer>` 等の表示エフェクトを発火する。
+ */
+const STAMP_TOPIC = "matching:stamp"
+
+/**
+ * Redis key の生成。ユーザー単位で 1 秒ウィンドウのレート制限に使う。
+ * セッション単位ではなくユーザー単位なのは、複数セッションを同時に持たない仕様前提。
+ */
+const stampRateLimitKey = (userId: number): string => `stamp_rate:${userId}`
+
+/**
+ * セッション中にスタンプを送る。`item_id` は MATCHING スコープのスタンプであり、
+ * プレミアムなら user_inventory に所持が必要。1 ユーザー 5 req/秒のレート制限。
+ *
+ * 1. セッション参加者・status チェック（ENDED は 410）
+ * 2. レート制限超過 → 429
+ * 3. item 検証（type=STAMP / scope=MATCHING / is_active）→ 不一致なら 400
+ * 4. premium なら user_inventory チェック → なければ 403
+ * 5. Data Channel `matching:stamp` を Room 全体に publish
+ * 6. ok({ itemId, emoji, animationType, deliveredAt })
+ *
+ * DB には保存しない（揮発的）。永続化は将来 `matching_stamps` 追加で対応。
+ */
+export const sendMatchingStamp = async (
+  input: { itemId: number; sessionId: number; userId: number },
+  repo: {
+    itemRepository: ItemRepository
+    matchingSessionRepository: MatchingSessionRepository
+    rateLimitRedisRepository: RateLimitRedisRepository
+    userInventoryRepository: UserInventoryRepository
+  },
+  client: { livekitClient: ILiveKitClient },
+): Promise<Result<SendMatchingStampOutput>> => {
+  logger.debug("MatchingService: sendStamp", {
+    itemId: input.itemId,
+    sessionId: input.sessionId,
+    userId: input.userId,
+  })
+
+  const session = await repo.matchingSessionRepository.findById(input.sessionId)
+  if (!session) return err(notFoundError("Session not found"))
+  if (!isParticipant(session, input.userId)) {
+    return err(forbiddenError("Not a participant of this session"))
+  }
+  if (session.status === "ENDED") return err(goneError("Session already ended"))
+
+  /**
+   * レート制限チェックは item / inventory のクエリより前に置き、最も安いリクエストから弾く。
+   */
+  const allowed = await repo.rateLimitRedisRepository.incrementWithLimit(
+    stampRateLimitKey(input.userId),
+    STAMP_RATE_LIMIT_PER_SEC,
+  )
+  if (!allowed) return err(tooManyRequestsError("Stamp rate limit exceeded"))
+
+  const stamp = await repo.itemRepository.findActiveStampForMatching(input.itemId)
+  if (!stamp) return err(badRequestError("Invalid stamp item"))
+
+  if (stamp.isPremium) {
+    const owned = await repo.userInventoryRepository.hasItem(input.userId, input.itemId)
+    if (!owned) return err(forbiddenError("Premium stamp not owned"))
+  }
+
+  const deliveredAt = Date.now()
+  /**
+   * Data Channel 配信は best-effort。失敗してもユーザーへの 200 は返す（リアクションと同じ方針）。
+   * LiveKit 障害時に発火し過ぎないよう warn ログのみで観測可能にする。
+   */
+  try {
+    await client.livekitClient.publishData({
+      payload: {
+        animation_type: stamp.animationType,
+        emoji: stamp.emoji,
+        item_id: stamp.id,
+        sender_id: input.userId,
+      },
+      roomName: session.livekitRoomName,
+      topic: STAMP_TOPIC,
+    })
+  } catch (error) {
+    logger.warn("MatchingService: publishData failed for stamp", {
+      error,
+      sessionId: input.sessionId,
+    })
+  }
+
+  return ok({
+    animationType: stamp.animationType,
+    deliveredAt,
+    emoji: stamp.emoji,
+    itemId: stamp.id,
+  })
 }

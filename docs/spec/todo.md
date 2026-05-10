@@ -86,6 +86,7 @@ Spec1 のメイン機能。
 - [x] API: `POST /api/matching/token`（LiveKit トークン発行）
 - [x] API: `GET /api/matching/sessions/:id`、`POST /api/matching/sessions/:id/end`
 - [x] API: `POST /api/matching/sessions/:id/reaction`、`GET /api/matching/sessions/:id/reactions`
+- [x] API: `POST /api/matching/sessions/:id/stamp`
 - [ ] Server: マッチングキューサービス（Redis Sorted Set + Pub/Sub）
 - [ ] Server: テーマ進行タイマー（Data Channel `matching:theme` / `matching:hype` / `matching:timer`）
 - [ ] Frontend: `/matching` ロビー（待機ユーザー一覧 + マッチング開始 CTA）
