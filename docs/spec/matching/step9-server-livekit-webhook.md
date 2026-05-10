@@ -2,7 +2,7 @@
 
 LiveKit Cloud からの Webhook を受信する `POST /api/matching/livekit-webhook` を実装する。**API 側は signature 検証 + BullMQ enqueue のみ**で即 200 を返却し、後処理は `apps/matching-worker` の `webhook-events` queue worker が消化する。
 
-設計詳細は `docs/spec/matching/README.md` の [アーキテクチャ - BullMQ ジョブ設計](./README.md#bullmq-ジョブ設計) と [マッチング終了](./README.md#マッチング終了) を参照。依存: step0（matching-worker / queue 基盤）、step1（DB）、step5（endMatchingSession）、step8（theme-progress queue / Redis schedule）。
+設計詳細は `docs/spec/matching/README.md` の [アーキテクチャ - BullMQ ジョブ設計](./README.md#bullmq-ジョブ設計) と [マッチング終了](./README.md#マッチング終了) を参照。依存: step0（matching-worker / queue 基盤）、step1（DB）、step5（endMatchingSession）、step8b（theme-progress queue / Redis schedule）。
 
 ## 仕様
 
