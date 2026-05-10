@@ -9,8 +9,7 @@ import * as service from "../../service"
  * GET /api/matching/events (Server-Sent Events)
  *
  * クライアントは join 直前にこのエンドポイントへ接続を張り、Pub/Sub 経由で
- * `matched` / `heartbeat` / `cancelled` イベントを受け取る。接続を閉じると generator が
- * 中断され、Redis subscribe も解除される。
+ * `matched` / `heartbeat` / `cancelled` イベントを受け取る。接続を閉じるとRedis subscribe も解除される。
  */
 export class MatchingEventsController {
   constructor(private matchingEventSubscriber: MatchingEventSubscriber) {}
@@ -33,16 +32,15 @@ export class MatchingEventsController {
     req.on("close", () => ac.abort())
 
     try {
-      const events = service.matching.subscribeMatchingEvents(
+      await service.matching.subscribeMatchingEvents(
         req.userId!,
         ac.signal,
+        (ev) => {
+          res.write(`event: ${ev.type}\n`)
+          res.write(`data: ${JSON.stringify(ev)}\n\n`)
+        },
         { matchingEventSubscriber: this.matchingEventSubscriber },
       )
-
-      for await (const ev of events) {
-        res.write(`event: ${ev.type}\n`)
-        res.write(`data: ${JSON.stringify(ev)}\n\n`)
-      }
     } finally {
       if (!res.writableEnded) res.end()
     }

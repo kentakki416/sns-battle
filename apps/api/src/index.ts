@@ -127,6 +127,7 @@ const matchingPreferenceUpdateController = new MatchingPreferenceUpdateControlle
 const matchingJoinController = new MatchingJoinController(
   blockRepository,
   matchingEventPublisher,
+  matchingPreferenceRepository,
   matchingQueueRedisRepository,
   matchingQueueRepository,
   matchingSessionRepository,

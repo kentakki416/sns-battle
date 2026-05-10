@@ -5,8 +5,6 @@ import type Redis from "ioredis"
  *
  * 単一の subscribe 専用 Redis 接続を共有し、ユーザーごとに channel `matching:user:{userId}` を購読する。
  * 同一ユーザーの複数タブ（複数 handler）に対応するため、内部で userId → handlers Set のマップを保持する。
- * - subscribe: 初回 handler 登録時のみ実 SUBSCRIBE、2 回目以降は handler 追加のみ
- * - unsubscribe: handler を 1 件削除し、最後の handler が消えたら実 UNSUBSCRIBE
  */
 export type MatchingEventHandler = (payload: string) => void
 
@@ -15,7 +13,8 @@ export interface MatchingEventSubscriber {
     unsubscribe(userId: number, handler: MatchingEventHandler): Promise<void>
 }
 
-const channelOf = (userId: number): string => `matching:user:${userId}`
+const channelOf = (userId: number): string => { return `matching:user:${userId}` }
+
 const parseUserIdFromChannel = (channel: string): number | null => {
   const match = channel.match(/^matching:user:(\d+)$/)
   return match ? Number(match[1]) : null
@@ -23,10 +22,11 @@ const parseUserIdFromChannel = (channel: string): number | null => {
 
 export class IoRedisMatchingEventSubscriber implements MatchingEventSubscriber {
   private _redis: Redis
-  private _handlers = new Map<number, Set<MatchingEventHandler>>()
+  private _handlers = new Map<number, Set<MatchingEventHandler>>() // 同一ユーザーがSubscribeを重複するのを防ぐために用意
 
   constructor(redis: Redis) {
     this._redis = redis
+    // publishされた時に登録したhandler関数を実行するように設定
     this._redis.on("message", (channel: string, payload: string) => {
       const userId = parseUserIdFromChannel(channel)
       if (userId === null) return
@@ -47,7 +47,7 @@ export class IoRedisMatchingEventSubscriber implements MatchingEventSubscriber {
     if (!handlers) {
       handlers = new Set()
       this._handlers.set(userId, handlers)
-      await this._redis.subscribe(channelOf(userId))
+      await this._redis.subscribe(channelOf(userId)) // redis subscribeモードに切り替わる
     }
     handlers.add(handler)
   }

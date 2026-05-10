@@ -31,33 +31,25 @@ const buildFakeSubscriber = () => {
 }
 
 /**
- * generator から N 件取得する。N に達したら break する。
+ * サブスクライブ完了 (subscribe の Promise が解決) するまで待つ
  */
-const collectN = async (
-  iter: AsyncGenerator<MatchingSseEvent>,
-  n: number,
-): Promise<MatchingSseEvent[]> => {
-  const out: MatchingSseEvent[] = []
-  for await (const ev of iter) {
-    out.push(ev)
-    if (out.length >= n) break
-  }
-  return out
-}
+const waitForSubscribe = async () =>
+  new Promise((resolve) => setTimeout(resolve, 10))
 
 describe("subscribeMatchingEvents", () => {
-  it("Pub/Sub で受け取った payload を yield する", async () => {
+  it("Pub/Sub で受け取った payload を onEvent に渡す", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
-    const iter = subscribeMatchingEvents(1, ac.signal, {
-      matchingEventSubscriber: ctx.subscriber,
-    })
+    const events: MatchingSseEvent[] = []
 
-    /** for await を起動してから subscribe → handler 登録 → deliver の順にしないと取りこぼす */
-    const eventsPromise = collectN(iter, 2)
+    const subscribePromise = subscribeMatchingEvents(
+      1,
+      ac.signal,
+      (ev) => events.push(ev),
+      { matchingEventSubscriber: ctx.subscriber },
+    )
 
-    /** subscribe の Promise が解決して handler が captured されるのを待つ */
-    await new Promise((resolve) => setTimeout(resolve, 10))
+    await waitForSubscribe()
 
     ctx.deliver(
       JSON.stringify({
@@ -69,7 +61,6 @@ describe("subscribeMatchingEvents", () => {
     )
     ctx.deliver(JSON.stringify({ ts: 1234, type: "heartbeat" }))
 
-    const events = await eventsPromise
     expect(events).toEqual([
       {
         livekit_room_name: "matching:7",
@@ -79,66 +70,95 @@ describe("subscribeMatchingEvents", () => {
       },
       { ts: 1234, type: "heartbeat" },
     ])
+
     ac.abort()
+    await subscribePromise
   })
 
-  it("heartbeatIntervalMs ごとに heartbeat を yield する", async () => {
+  it("heartbeatIntervalMs ごとに heartbeat を onEvent に渡す", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
-    const iter = subscribeMatchingEvents(
+    const events: MatchingSseEvent[] = []
+
+    const subscribePromise = subscribeMatchingEvents(
       1,
       ac.signal,
+      (ev) => events.push(ev),
       { matchingEventSubscriber: ctx.subscriber },
       { heartbeatIntervalMs: 30 },
     )
 
-    const events = await collectN(iter, 3)
-    expect(events).toHaveLength(3)
+    /** 約 100ms 待機して 3 件以上の heartbeat が来るのを待つ */
+    await new Promise((resolve) => setTimeout(resolve, 110))
+    ac.abort()
+    await subscribePromise
+
+    expect(events.length).toBeGreaterThanOrEqual(3)
     for (const ev of events) {
       expect(ev.type).toBe("heartbeat")
     }
-    ac.abort()
   })
 
-  it("abort で generator が完了し、unsubscribe が呼ばれる", async () => {
+  it("abort で Promise が resolve し、unsubscribe が呼ばれる", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
-    const iter = subscribeMatchingEvents(42, ac.signal, {
-      matchingEventSubscriber: ctx.subscriber,
-    })
 
-    /** generator を起動 → subscribe 呼び出し → wakeup 待機 */
-    const drain = (async () => {
-      for await (const ev of iter) {
-        /** abort で抜ける想定。ev は使わない */
-        void ev
-      }
-    })()
-    /** subscribe の async 完了を待つ */
-    await new Promise((resolve) => setTimeout(resolve, 10))
+    const subscribePromise = subscribeMatchingEvents(
+      42,
+      ac.signal,
+      () => {
+        /** 本テストではイベントを受けない */
+      },
+      { matchingEventSubscriber: ctx.subscriber },
+    )
+
+    await waitForSubscribe()
     expect(ctx.subscribeMock).toHaveBeenCalledWith(42, expect.any(Function))
 
     ac.abort()
-    await drain
+    await subscribePromise
+
     expect(ctx.unsubscribeMock).toHaveBeenCalledWith(42, expect.any(Function))
     expect(ctx.isSubscribed()).toBe(false)
   })
 
-  it("不正な JSON は無視する（generator が落ちない）", async () => {
+  it("不正な JSON は無視する（Promise が reject しない）", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
-    const iter = subscribeMatchingEvents(1, ac.signal, {
-      matchingEventSubscriber: ctx.subscriber,
-    })
+    const events: MatchingSseEvent[] = []
 
-    const eventsPromise = collectN(iter, 1)
-    await new Promise((resolve) => setTimeout(resolve, 10))
+    const subscribePromise = subscribeMatchingEvents(
+      1,
+      ac.signal,
+      (ev) => events.push(ev),
+      { matchingEventSubscriber: ctx.subscriber },
+    )
+
+    await waitForSubscribe()
 
     ctx.deliver("not-a-json")
     ctx.deliver(JSON.stringify({ ts: 999, type: "heartbeat" }))
 
-    const events = await eventsPromise
     expect(events).toEqual([{ ts: 999, type: "heartbeat" }])
+
     ac.abort()
+    await subscribePromise
+  })
+
+  it("既に abort 済みの signal でも安全に終了する", async () => {
+    const ctx = buildFakeSubscriber()
+    const ac = new AbortController()
+    ac.abort()
+
+    await subscribeMatchingEvents(
+      1,
+      ac.signal,
+      () => {
+        /** 受けない */
+      },
+      { matchingEventSubscriber: ctx.subscriber },
+    )
+
+    expect(ctx.unsubscribeMock).toHaveBeenCalled()
   })
 })

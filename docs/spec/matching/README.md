@@ -42,7 +42,7 @@
   - [マッチング終了](#マッチング終了)
 - [サーバーサイドタイマー管理](#サーバーサイドタイマー管理)
 - [フロー図](#フロー図)
-- [マッチングフィルタリング（将来フェーズ）](#マッチングフィルタリング将来フェーズ)
+- [マッチングフィルタリング](#マッチングフィルタリング)
 - [マッチング後のリレーション形成（将来フェーズ）](#マッチング後のリレーション形成将来フェーズ)
 - [注意事項](#注意事項)
 - [実装ステップ](#実装ステップ)
@@ -705,14 +705,20 @@ matching_queue (Sorted Set): score=timestamp, member=userId
 matching:{userId} (Pub/Sub channel): マッチング成立通知
 ```
 
-**マッチングロジック**:
-1. `ZADD matching_queue {timestamp} {userId}`
-2. `ZRANGE matching_queue 0 0` で最古の待機ユーザーを取得
-3. 自分以外がいればマッチング成立 → `WATCH` + `MULTI/EXEC` で排他制御
-4. 両ユーザーをキューから削除 + セッション作成
-5. Redis Pub/Sub で両ユーザーに SSE 通知
+**マッチングロジック**（多段照合方式）:
+1. `ZADD matching_queue {timestamp} {userId}` でキュー登録
+2. `ZRANGE matching_queue 0 N` で待機時間が長い順に上位 N 人（=100）の候補を取得
+3. ブロック関係（双方向）にあるユーザー id を一括取得 → 候補から除外
+4. 残り候補の User と `matching_preferences` を一括取得（N+1 回避）
+5. 候補を待機時間順にループし、**双方向 preference 適合チェック** をパスした最初の候補を選定
+6. その候補と自分を `WATCH` + `MULTI/EXEC` で排他削除
+   - 競合（他リクエストに先取りされた等）で失敗したら次の候補へリトライ
+7. 全候補が除外/不適合/競合敗北なら `matched=false` で待機継続
+8. 成立したら `MatchingSession` 作成 + DB queue 削除 + Pub/Sub で SSE 通知
 
-**ブロック済みユーザー同士はマッチングしない**（キュー走査時にブロック関係をチェック）。
+**ブロック済みユーザー同士はマッチングしない**。最古ユーザーがブロック相手だった場合も、次の候補にスキップして探索を継続する。
+
+**双方向 preference 適合**: 「自分の preference が相手を許容」かつ「相手の preference が自分を許容」で初めてマッチ成立（[マッチングフィルタリング](#マッチングフィルタリング) 参照）。
 
 ### マッチング成立
 
@@ -850,7 +856,11 @@ sequenceDiagram
     A->>API: GET /api/matching/events (SSE)
 
     B->>API: POST /api/matching/join
-    API->>Redis: ZADD (B) → A発見 → マッチング成立
+    API->>Redis: ZADD (B)
+    API->>Redis: ZRANGE 上位 100 候補取得
+    API->>API: ブロック / preference の双方向適合チェック
+    Note over API: 適合した最初の候補を選定
+    API->>Redis: WATCH/MULTI/EXEC で 2 ユーザー排他削除
     API->>Redis: PUBLISH matching:A, matching:B
     Redis-->>API: SSE → A: matched
     Redis-->>API: SSE → B: matched
@@ -880,24 +890,47 @@ sequenceDiagram
 
 ---
 
-## マッチングフィルタリング（将来フェーズ）
+## マッチングフィルタリング
 
-マッチングキュー参加時に、ユーザーが設定したフィルタ条件に基づいて相手を絞り込む。DB設計は Spec1 で実施、実装は将来フェーズ。
+マッチングキュー参加時に、`matching_preferences` テーブルに保存されたフィルタ条件で相手を絞り込む。Spec1 で実装済み。
 
 ### フィルタ項目
 
 | フィルタ | 説明 | Spec1 | 将来 |
 |---------|------|-------|------|
-| 性別 | 相手の性別を指定（男性 / 女性 / その他 / 指定なし） | DB設計のみ | 実装 |
-| 年齢範囲 | 相手の年齢の最小・最大を指定 | DB設計のみ | 実装 |
-| MBTI | 相性の良いタイプを優先マッチング | - | DB設計 + 実装 |
+| 性別 | 相手の性別を指定（`Gender` 列挙：MALE / FEMALE / OTHER） | ✅ 実装済み | - |
+| 年齢範囲 | 相手の年齢の最小（`ageMin`）・最大（`ageMax`） | ✅ 実装済み | - |
+| 居住地域 | `User.location` と `preferredLocations` で照合 | ✅ 実装済み | - |
+| 趣味 | `user_hobbies` と `preferredHobbyIds` の交差判定 | DB設計のみ | 実装 |
+| MBTI | 相性の良いタイプを優先マッチング | DB設計のみ | 実装 |
 
 ### フィルタリングロジック
 
-1. ユーザーが `matching_preferences` にフィルタを設定
-2. マッチングキュー参加時に Redis にフィルタ条件も保存
-3. マッチング照合時に双方のフィルタ条件を検証
-4. **双方向マッチ**: ユーザーA のフィルタがユーザーB に合致し、かつ B のフィルタが A に合致する場合のみマッチング成立
+1. ユーザーが `PUT /api/matching/preferences` でフィルタを設定（空配列 / null = 制限なし）
+2. マッチング多段照合の中で、各候補に対して **双方向 preference 適合チェック** を実行
+3. **双方向マッチ**: ユーザー A の preference が B を許容、かつ B の preference が A を許容で初めて成立
+4. 候補のうち適合する最初のユーザーが peer に選ばれる（待機時間が長い順）
+
+### 単方向適合判定の詳細
+
+各フィルタ項目は **「制限なし」を空配列または null** で表現する:
+
+| フィールド | 制限なし扱い | 適合条件 |
+|----------|------------|---------|
+| `preferredGenders` | `[]` | target の `gender` が配列に含まれる（または配列が空） |
+| `ageMin` / `ageMax` | `null` | target の年齢（生年月日から算出）が範囲内 |
+| `preferredLocations` | `[]` | target の `location` が配列に含まれる |
+
+**target の属性が null の場合**:
+- `gender` が null かつ `preferredGenders` に制限あり → 不適合
+- `birthDate` が null かつ年齢制限あり → 不適合
+- `location` が null かつ `preferredLocations` に制限あり → 不適合
+
+### 候補スキャンの効率化
+
+- 上位 100 件の候補を Redis から一括取得
+- `User.findManyByIds` / `MatchingPreference.findManyByUserIds` で N+1 を回避
+- アプリケーション層でフィルタ判定（候補が少数なので SQL での絞り込みより簡潔）
 
 ### matching_preferences テーブル
 

@@ -12,12 +12,14 @@ import type Redis from "ioredis"
 export interface MatchingQueueRedisRepository {
     /** ZADD でユーザーを登録する。既に WAITING（=メンバー存在）なら false を返し、何もしない。 */
     add(userId: number, joinedAtMs: number): Promise<boolean>
-    /** 自分以外の最古ユーザー id を 1 件返す（いない / 自分のみなら null）。 */
-    findOldestPeer(myUserId: number): Promise<number | null>
     /** ZSCORE で参加時刻 ms を取得する。いなければ null。 */
     findJoinedAt(userId: number): Promise<number | null>
     /** ZRANK で 0 始まりの位置を取得する。いなければ null。 */
     findPosition(userId: number): Promise<number | null>
+    /**
+     * 自分以外の待機ユーザーを「待機時間が長い順」に最大 limit 件返す。
+     */
+    findTopWaitingUsers(myUserId: number, limit: number): Promise<number[]>
     /** ZREM 単体で削除する。 */
     remove(userId: number): Promise<void>
     /** WATCH/MULTI/EXEC で 2 ユーザーを排他的に削除する。両者を同時に削除できなければ false。 */
@@ -44,17 +46,20 @@ export class IoRedisMatchingQueueRepository implements MatchingQueueRedisReposit
     return added === 1
   }
 
-  async findOldestPeer(myUserId: number): Promise<number | null> {
+  async findTopWaitingUsers(myUserId: number, limit: number): Promise<number[]> {
     /**
-     * 先頭から最大 2 件取得し、自分以外の最初のユーザーを返す。
-     * 自分のみなら null、誰もいなければ null。
+     * 自分が先頭にいる可能性を考慮し limit + 1 件取得して自分を除外する。
+     * これにより自分の有無に関わらず最大 limit 件の他ユーザーが取得できる。
      */
-    const members = await this._redis.zrange(QUEUE_KEY, 0, 1)
+    const members = await this._redis.zrange(QUEUE_KEY, 0, limit)
+    const ids: number[] = []
     for (const member of members) {
       const id = Number(member)
-      if (id !== myUserId) return id
+      if (id === myUserId) continue
+      ids.push(id)
+      if (ids.length >= limit) break
     }
-    return null
+    return ids
   }
 
   async findJoinedAt(userId: number): Promise<number | null> {
