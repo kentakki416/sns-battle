@@ -33,11 +33,13 @@ export class MatchingEventsController {
     req.on("close", () => ac.abort())
 
     try {
-      for await (const ev of service.matching.subscribeMatchingEvents(
+      const events = service.matching.subscribeMatchingEvents(
         req.userId!,
         ac.signal,
         { matchingEventSubscriber: this.matchingEventSubscriber },
-      )) {
+      )
+
+      for await (const ev of events) {
         res.write(`event: ${ev.type}\n`)
         res.write(`data: ${JSON.stringify(ev)}\n\n`)
       }
