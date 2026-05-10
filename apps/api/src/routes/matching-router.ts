@@ -1,8 +1,9 @@
-import { Router } from "express"
+import express, { Router } from "express"
 
 import { MatchingEventsController } from "../controller/matching/events"
 import { MatchingJoinController } from "../controller/matching/join"
 import { MatchingLeaveController } from "../controller/matching/leave"
+import { LiveKitWebhookController } from "../controller/matching/livekit-webhook"
 import { MatchingReactionSubmitController } from "../controller/matching/reaction-submit"
 import { MatchingReactionsListController } from "../controller/matching/reactions-list"
 import { MatchingSessionDetailController } from "../controller/matching/session-detail"
@@ -15,6 +16,7 @@ type MatchingRouterControllers = {
   events?: MatchingEventsController
   join?: MatchingJoinController
   leave?: MatchingLeaveController
+  livekitWebhook?: LiveKitWebhookController
   reactionSubmit?: MatchingReactionSubmitController
   reactionsList?: MatchingReactionsListController
   sessionDetail?: MatchingSessionDetailController
@@ -90,6 +92,22 @@ export const matchingRouter = (controllers: MatchingRouterControllers): Router =
   if (controllers.sessionDetail) {
     const controller = controllers.sessionDetail
     router.get("/sessions/:id", async (req, res) => controller.execute(req, res))
+  }
+
+  /**
+   * POST /api/matching/livekit-webhook
+   * 署名検証は raw body で行う必要があるため、グローバルの express.json() より先に
+   * このルートに raw body middleware を適用する。`type: "*\/*"` で全 Content-Type
+   * を Buffer として受け取り（LiveKit は `application/webhook+json` 等を送る）、
+   * Buffer のまま controller に渡す。
+   */
+  if (controllers.livekitWebhook) {
+    const controller = controllers.livekitWebhook
+    router.post(
+      "/livekit-webhook",
+      express.raw({ type: "*/*" }),
+      async (req, res) => controller.execute(req, res),
+    )
   }
 
   return router

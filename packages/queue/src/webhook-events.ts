@@ -31,5 +31,8 @@ export const createWebhookEventsQueue = (redis: Redis): Queue<WebhookEventsJob> 
   })
 }
 
-/** Webhook event の id を流用して重複 enqueue を防ぐ */
-export const buildLivekitEventJobId = (eventId: string): string => { return `livekit:${eventId}`}
+/**
+ * Webhook event の id を流用して重複 enqueue を防ぐ。
+ * BullMQ は customId に `:` を許容しない（内部キー区切り文字）ため `-` で区切る。
+ */
+export const buildLivekitEventJobId = (eventId: string): string => `livekit-${eventId}`

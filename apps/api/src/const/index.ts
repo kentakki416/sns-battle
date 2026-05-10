@@ -34,6 +34,7 @@ export const PUBLIC_PATHS = [
   "/api/auth/google",
   "/api/auth/refresh",
   "/api/health",
+  "/api/matching/livekit-webhook",
   "/api/memo",
 ] as const
 

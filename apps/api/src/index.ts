@@ -1,8 +1,10 @@
 import cors from "cors"
 import express from "express"
 
+import { createWebhookEventsQueue } from "@repo/queue"
+
 import { GoogleOAuthClient } from "./client/google-oauth"
-import { LiveKitClient } from "./client/livekit"
+import { LiveKitClient, LiveKitWebhookReceiverImpl } from "./client/livekit"
 import { queueRedis, redis, redisSubscriber } from "./client/redis"
 import { AuthGoogleController } from "./controller/auth/google"
 import { AuthLogoutController } from "./controller/auth/logout"
@@ -14,6 +16,7 @@ import { HobbyListController } from "./controller/hobby/list"
 import { MatchingEventsController } from "./controller/matching/events"
 import { MatchingJoinController } from "./controller/matching/join"
 import { MatchingLeaveController } from "./controller/matching/leave"
+import { LiveKitWebhookController } from "./controller/matching/livekit-webhook"
 import { MatchingReactionSubmitController } from "./controller/matching/reaction-submit"
 import { MatchingReactionsListController } from "./controller/matching/reactions-list"
 import { MatchingSessionDetailController } from "./controller/matching/session-detail"
@@ -104,6 +107,10 @@ const rateLimitRedisRepository = new IoRedisRateLimitRepository(redis)
 // Client のインスタンス化
 const googleOAuthClient = new GoogleOAuthClient(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
 const livekitClient = new LiveKitClient(LIVEKIT_HOST, LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
+const livekitWebhookReceiver = new LiveKitWebhookReceiverImpl(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
+
+// BullMQ Queue（enqueue 専用）
+const webhookEventsQueue = createWebhookEventsQueue(queueRedis)
 
 // Health Controller のインスタンス化
 const healthLivenessController = new HealthLivenessController()
@@ -192,6 +199,10 @@ const matchingStampController = new MatchingStampController(
   rateLimitRedisRepository,
   userInventoryRepository,
 )
+const livekitWebhookController = new LiveKitWebhookController(
+  livekitWebhookReceiver,
+  webhookEventsQueue,
+)
 
 // cors設定のミドルウェア
 app.use(
@@ -201,8 +212,16 @@ app.use(
   })
 )
 
-// jsonを変換するミドルウェア
-app.use(express.json())
+/**
+ * jsonを変換するミドルウェア
+ * LiveKit Webhook ルートのみは raw body で署名検証する必要があるため、
+ * 該当パスでは express.json() をスキップしてルーター側の express.raw() に委ねる。
+ */
+const jsonParser = express.json()
+app.use((req, res, next) => {
+  if (req.path === "/api/matching/livekit-webhook") return next()
+  return jsonParser(req, res, next)
+})
 
 // 認証ミドルウェア
 app.use(authMiddleware)
@@ -269,6 +288,7 @@ app.use(
     events: matchingEventsController,
     join: matchingJoinController,
     leave: matchingLeaveController,
+    livekitWebhook: livekitWebhookController,
     reactionSubmit: matchingReactionSubmitController,
     reactionsList: matchingReactionsListController,
     sessionDetail: matchingSessionDetailController,
@@ -294,6 +314,11 @@ app.listen(PORT, () => {
 // Graceful shutdown
 process.on("SIGTERM", async () => {
   logger.info("SIGTERM signal received: closing HTTP server")
+  /**
+   * BullMQ Queue は内部で queueRedis 接続を共有しているため、queueRedis.quit() の前に
+   * close() してジョブ追加を停止しないと、quit 中に新規 enqueue が失敗で例外を投げる。
+   */
+  await webhookEventsQueue.close()
   await Promise.all([
     prisma.$disconnect(),
     redis.quit(),
