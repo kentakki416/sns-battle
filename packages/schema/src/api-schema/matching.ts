@@ -58,8 +58,52 @@ export const getMatchingStatusResponseSchema = z.object({
   waited_seconds: z.number().int().nonnegative().nullable(),
 })
 
+// ========================================================
+// GET /api/matching/events - SSE イベントストリーム
+// ========================================================
+
+/**
+ * マッチング成立イベント。両ユーザーの SSE 接続に publish される。
+ */
+export const matchedMatchingEventSchema = z.object({
+  livekit_room_name: z.string(),
+  peer: matchingPeerSchema,
+  session_id: z.number().int().positive(),
+  type: z.literal("matched"),
+})
+
+/**
+ * 30 秒間隔で送られるハートビート。クライアント側でタイムアウト検知に使う。
+ */
+export const heartbeatMatchingEventSchema = z.object({
+  ts: z.number().int(),
+  type: z.literal("heartbeat"),
+})
+
+/**
+ * サーバー側からのキャンセル通知（メンテナンス・タイムアウト等）。
+ */
+export const cancelledMatchingEventSchema = z.object({
+  reason: z.string(),
+  type: z.literal("cancelled"),
+})
+
+/**
+ * SSE で配信される全イベントの discriminated union。
+ * フロントエンドは type で分岐して処理する。
+ */
+export const matchingEventSchema = z.discriminatedUnion("type", [
+  matchedMatchingEventSchema,
+  heartbeatMatchingEventSchema,
+  cancelledMatchingEventSchema,
+])
+
 export type MatchingPeer = z.infer<typeof matchingPeerSchema>
 export type JoinMatchingResponse = z.infer<typeof joinMatchingResponseSchema>
 export type LeaveMatchingResponse = z.infer<typeof leaveMatchingResponseSchema>
 export type MatchingStatus = z.infer<typeof matchingStatusSchema>
 export type GetMatchingStatusResponse = z.infer<typeof getMatchingStatusResponseSchema>
+export type MatchedMatchingEvent = z.infer<typeof matchedMatchingEventSchema>
+export type HeartbeatMatchingEvent = z.infer<typeof heartbeatMatchingEventSchema>
+export type CancelledMatchingEvent = z.infer<typeof cancelledMatchingEventSchema>
+export type MatchingEvent = z.infer<typeof matchingEventSchema>

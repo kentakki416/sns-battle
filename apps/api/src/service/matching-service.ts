@@ -1,3 +1,5 @@
+import { EventEmitter } from "node:events"
+
 import { logger } from "../log"
 import type {
   BlockRepository,
@@ -5,7 +7,11 @@ import type {
   MatchingSessionRepository,
   UserRepository,
 } from "../repository/prisma"
-import type { MatchingQueueRedisRepository } from "../repository/redis"
+import type {
+  MatchingEventPublisher,
+  MatchingEventSubscriber,
+  MatchingQueueRedisRepository,
+} from "../repository/redis"
 import type { MatchingSession } from "../types/domain"
 import {
   badRequestError,
@@ -58,6 +64,7 @@ export const joinMatching = async (
   userId: number,
   repo: {
     blockRepository: BlockRepository
+    matchingEventPublisher: MatchingEventPublisher
     matchingQueueRedisRepository: MatchingQueueRedisRepository
     matchingQueueRepository: MatchingQueueRepository
     matchingSessionRepository: MatchingSessionRepository
@@ -117,10 +124,22 @@ export const joinMatching = async (
     repo.matchingQueueRepository.deleteByUserId(peerId),
   ])
 
+  const peerSummary = { avatarUrl: peer.avatarUrl, id: peer.id, name: peer.name }
+  /**
+   * 両ユーザーの SSE 接続にマッチング成立を通知する。
+   * join のレスポンスでも matched=true を返すが、別タブで /api/matching/events を購読しているケースのため
+   * 冗長にも publish する。クライアントは session_id 一致で重複を判定する。
+   */
+  await repo.matchingEventPublisher.publishMatched([userId, peerId], {
+    livekitRoomName: session.livekitRoomName,
+    peer: peerSummary,
+    sessionId: session.id,
+  })
+
   return ok({
     livekitRoomName: session.livekitRoomName,
     matched: true,
-    peer: { avatarUrl: peer.avatarUrl, id: peer.id, name: peer.name },
+    peer: peerSummary,
     sessionId: session.id,
   })
 }
@@ -176,4 +195,81 @@ export const getMatchingStatus = async (
 
   const waitedSeconds = Math.max(0, Math.floor((Date.now() - joinedAt) / 1000))
   return ok({ position, status: "WAITING", waitedSeconds })
+}
+
+/**
+ * SSE で配信する単一イベント。`packages/schema` の `MatchingEvent` と同じ wire 形式（snake_case）。
+ * Controller は本値をそのまま JSON.stringify して `data:` 行に書き出す。
+ */
+export type MatchingSseEvent =
+    | {
+          livekit_room_name: string
+          peer: { avatar_url: string | null; id: number; name: string | null }
+          session_id: number
+          type: "matched"
+      }
+    | { ts: number; type: "heartbeat" }
+    | { reason: string; type: "cancelled" }
+
+const DEFAULT_HEARTBEAT_INTERVAL_MS = 30_000
+
+/**
+ * `/api/matching/events` 用の AsyncGenerator。
+ *
+ * - Redis Pub/Sub `matching:user:{userId}` を購読し、受信した payload を yield
+ * - heartbeat を `heartbeatIntervalMs` 間隔で yield（クライアントのタイムアウト検知用）
+ * - abort（クライアント切断）で generator を完了し、subscribe 解除
+ *
+ * テスト用に `heartbeatIntervalMs` を上書き可能にしている。
+ */
+export const subscribeMatchingEvents = async function* (
+  userId: number,
+  signal: AbortSignal,
+  repo: { matchingEventSubscriber: MatchingEventSubscriber },
+  options?: { heartbeatIntervalMs?: number },
+): AsyncGenerator<MatchingSseEvent> {
+  const heartbeatIntervalMs = options?.heartbeatIntervalMs ?? DEFAULT_HEARTBEAT_INTERVAL_MS
+  logger.debug("MatchingService: subscribe", { heartbeatIntervalMs, userId })
+
+  const queue: MatchingSseEvent[] = []
+  const wakeup = new EventEmitter()
+  const drainSignal = "data"
+
+  const handler = (payload: string) => {
+    try {
+      const ev = JSON.parse(payload) as MatchingSseEvent
+      queue.push(ev)
+    } catch {
+      /** 不正な JSON は無視（運用で起きないはずだが防御的に） */
+    }
+    wakeup.emit(drainSignal)
+  }
+
+  await repo.matchingEventSubscriber.subscribe(userId, handler)
+
+  const interval = setInterval(() => {
+    queue.push({ ts: Date.now(), type: "heartbeat" })
+    wakeup.emit(drainSignal)
+  }, heartbeatIntervalMs)
+
+  const onAbort = () => wakeup.emit(drainSignal)
+  signal.addEventListener("abort", onAbort)
+
+  try {
+    while (!signal.aborted) {
+      while (queue.length > 0) {
+        yield queue.shift()!
+      }
+      if (signal.aborted) break
+      await new Promise<void>((resolve) => wakeup.once(drainSignal, resolve))
+    }
+  } finally {
+    clearInterval(interval)
+    signal.removeEventListener("abort", onAbort)
+    try {
+      await repo.matchingEventSubscriber.unsubscribe(userId, handler)
+    } catch {
+      /** unsubscribe 失敗は運用上致命的でないので無視（generator は既に完了するパス） */
+    }
+  }
 }

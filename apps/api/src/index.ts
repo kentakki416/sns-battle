@@ -2,7 +2,7 @@ import cors from "cors"
 import express from "express"
 
 import { GoogleOAuthClient } from "./client/google-oauth"
-import { queueRedis, redis } from "./client/redis"
+import { queueRedis, redis, redisSubscriber } from "./client/redis"
 import { AuthGoogleController } from "./controller/auth/google"
 import { AuthLogoutController } from "./controller/auth/logout"
 import { AuthMeController } from "./controller/auth/me"
@@ -10,6 +10,7 @@ import { AuthRefreshController } from "./controller/auth/refresh"
 import { HealthLivenessController } from "./controller/health/liveness"
 import { HealthReadinessController } from "./controller/health/readiness"
 import { HobbyListController } from "./controller/hobby/list"
+import { MatchingEventsController } from "./controller/matching/events"
 import { MatchingJoinController } from "./controller/matching/join"
 import { MatchingLeaveController } from "./controller/matching/leave"
 import { MatchingStatusController } from "./controller/matching/status"
@@ -42,6 +43,8 @@ import {
 } from "./repository/prisma"
 import {
   IoRedisHealthRepository,
+  IoRedisMatchingEventPublisher,
+  IoRedisMatchingEventSubscriber,
   IoRedisMatchingQueueRepository,
   IoRedisRefreshTokenRepository,
 } from "./repository/redis"
@@ -75,6 +78,8 @@ const databaseHealthRepository = new PrismaDatabaseHealthRepository(prisma)
 const redisHealthRepository = new IoRedisHealthRepository(redis)
 const refreshTokenRepository = new IoRedisRefreshTokenRepository(redis)
 const matchingQueueRedisRepository = new IoRedisMatchingQueueRepository(redis)
+const matchingEventPublisher = new IoRedisMatchingEventPublisher(redis)
+const matchingEventSubscriber = new IoRedisMatchingEventSubscriber(redisSubscriber)
 
 // Client のインスタンス化
 const googleOAuthClient = new GoogleOAuthClient(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
@@ -121,6 +126,7 @@ const matchingPreferenceUpdateController = new MatchingPreferenceUpdateControlle
 // Matching Controller のインスタンス化
 const matchingJoinController = new MatchingJoinController(
   blockRepository,
+  matchingEventPublisher,
   matchingQueueRedisRepository,
   matchingQueueRepository,
   matchingSessionRepository,
@@ -134,6 +140,7 @@ const matchingStatusController = new MatchingStatusController(
   matchingQueueRedisRepository,
   matchingSessionRepository,
 )
+const matchingEventsController = new MatchingEventsController(matchingEventSubscriber)
 
 // cors設定のミドルウェア
 app.use(
@@ -208,6 +215,7 @@ app.use(
 app.use(
   "/api/matching",
   matchingRouter({
+    events: matchingEventsController,
     join: matchingJoinController,
     leave: matchingLeaveController,
     status: matchingStatusController,
@@ -233,6 +241,7 @@ process.on("SIGTERM", async () => {
     prisma.$disconnect(),
     redis.quit(),
     queueRedis.quit(),
+    redisSubscriber.quit(),
   ])
   logger.info("Database and Redis connections closed")
   process.exit(0)

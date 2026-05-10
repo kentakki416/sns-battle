@@ -10,7 +10,10 @@ import {
   MatchingSessionRepository,
   UserRepository,
 } from "../../repository/prisma"
-import { MatchingQueueRedisRepository } from "../../repository/redis"
+import {
+  MatchingEventPublisher,
+  MatchingQueueRedisRepository,
+} from "../../repository/redis"
 import * as service from "../../service"
 
 /**
@@ -20,6 +23,7 @@ import * as service from "../../service"
 export class MatchingJoinController {
   constructor(
         private blockRepository: BlockRepository,
+        private matchingEventPublisher: MatchingEventPublisher,
         private matchingQueueRedisRepository: MatchingQueueRedisRepository,
         private matchingQueueRepository: MatchingQueueRepository,
         private matchingSessionRepository: MatchingSessionRepository,
@@ -31,6 +35,7 @@ export class MatchingJoinController {
 
     const result = await service.matching.joinMatching(req.userId!, {
       blockRepository: this.blockRepository,
+      matchingEventPublisher: this.matchingEventPublisher,
       matchingQueueRedisRepository: this.matchingQueueRedisRepository,
       matchingQueueRepository: this.matchingQueueRepository,
       matchingSessionRepository: this.matchingSessionRepository,

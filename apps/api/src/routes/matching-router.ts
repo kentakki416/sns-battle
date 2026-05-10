@@ -1,10 +1,12 @@
 import { Router } from "express"
 
+import { MatchingEventsController } from "../controller/matching/events"
 import { MatchingJoinController } from "../controller/matching/join"
 import { MatchingLeaveController } from "../controller/matching/leave"
 import { MatchingStatusController } from "../controller/matching/status"
 
 type MatchingRouterControllers = {
+  events?: MatchingEventsController
   join?: MatchingJoinController
   leave?: MatchingLeaveController
   status?: MatchingStatusController
@@ -33,6 +35,12 @@ export const matchingRouter = (controllers: MatchingRouterControllers): Router =
   if (controllers.status) {
     const controller = controllers.status
     router.get("/status", async (req, res) => controller.execute(req, res))
+  }
+
+  // GET /api/matching/events (SSE)
+  if (controllers.events) {
+    const controller = controllers.events
+    router.get("/events", async (req, res) => controller.execute(req, res))
   }
 
   return router

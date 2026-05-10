@@ -4,7 +4,10 @@ import {
   MatchingSessionRepository,
   UserRepository,
 } from "../../../src/repository/prisma"
-import { MatchingQueueRedisRepository } from "../../../src/repository/redis"
+import {
+  MatchingEventPublisher,
+  MatchingQueueRedisRepository,
+} from "../../../src/repository/redis"
 import { joinMatching } from "../../../src/service/matching-service"
 import {
   MatchingQueue,
@@ -79,8 +82,10 @@ describe("joinMatching", () => {
       findById: jest.fn(),
     }
     const blockRepository: BlockRepository = { existsBetween: jest.fn() }
+    const matchingEventPublisher: MatchingEventPublisher = { publishMatched: jest.fn() }
     return {
       blockRepository,
+      matchingEventPublisher,
       matchingQueueRedisRepository,
       matchingQueueRepository,
       matchingSessionRepository,
@@ -194,6 +199,12 @@ describe("joinMatching", () => {
     expect(repo.matchingSessionRepository.create).toHaveBeenCalledWith({ user1Id: 1, user2Id: 2 })
     expect(repo.matchingQueueRepository.deleteByUserId).toHaveBeenCalledWith(1)
     expect(repo.matchingQueueRepository.deleteByUserId).toHaveBeenCalledWith(2)
+    /** 両ユーザーの SSE 接続に matched イベントを publish する */
+    expect(repo.matchingEventPublisher.publishMatched).toHaveBeenCalledWith([1, 2], {
+      livekitRoomName: "matching:100",
+      peer: { avatarUrl: "https://x", id: 2, name: "Peer" },
+      sessionId: 100,
+    })
   })
 
   it("removeBothAtomic 競合 → matched: false（セッション作成しない）", async () => {
