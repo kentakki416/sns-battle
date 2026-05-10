@@ -135,6 +135,39 @@
 
 `setTimeout` を一切使わない。すべて **BullMQ の delayed job** で表現する。worker が落ちても他の worker が拾うため耐障害性が高く、setTimeout のように「特定インスタンスのメモリに依存」しない。
 
+#### Producer / Broker / Consumer の役割分担
+
+BullMQ は典型的な **「producer が enqueue → broker が保持 → consumer が消化」** の構造。本プロジェクトでは以下のように分離する。
+
+| 役割 | 担当プロセス | やること |
+|------|------------|---------|
+| **Producer** | `apps/api`（REST / Webhook ハンドラ）<br>`apps/matching-worker`（自己ループの再 enqueue） | `Queue.add(name, payload, { jobId, delay })` でジョブを積む。decisive な `jobId` を渡すことで重複 enqueue を冪等に吸収する |
+| **Broker** | Redis（ElastiCache） | BullMQ が内部で Sorted Set / Stream / Hash を使って delayed / pending / active / completed / failed の状態を管理する。api と worker は **直接通信せず、必ず Redis 越し**に受け渡す |
+| **Consumer** | `apps/matching-worker`（`Worker` インスタンス） | 該当キューを listen し、`delay` が切れたジョブから順に `process` ハンドラ（`advanceTheme()` 等）を呼ぶ |
+| **共有定義** | `packages/queue` | キュー名・ペイロード型・Job ID 命名・キュー設定（attempts / backoff / removeOnComplete）を 1 箇所に集約。api と worker の両方が同じ型で参照する |
+
+```
+┌─ apps/api ────────────┐                                      ┌─ apps/matching-worker ────┐
+│ session ACTIVE 化時    │                                      │                           │
+│ themeProgressQueue    │                                      │ Worker("theme-progress",  │
+│   .add("advance-theme",│       Redis (ElastiCache)            │        processor)         │
+│        { sessionId,   │   ┌──────────────────────────┐        │                           │
+│          nextRound:1 },├──►│ delayed set / stream /   │        │ ◄── poll ─────┐          │
+│        { jobId,       │   │ hash で状態を保持         │ ─────► │ processor:    │          │
+│          delay: 0 })  │   │                          │ delay  │  advanceTheme() │          │
+│                       │   └──────────────────────────┘ 切れ  │   ├─ DB 更新    │          │
+└───────────────────────┘                                      │   ├─ Data Ch 配信 │         │
+                                                               │   └─ next を    │          │
+┌─ LiveKit Webhook ─────┐                                      │      Queue.add ─┘          │
+│ webhookEventsQueue    │                                      │                           │
+│   .add("livekit-event"├─►───────────────────────────────────► │  Worker(webhook-events,…) │
+└───────────────────────┘                                      └───────────────────────────┘
+```
+
+`apps/api` と `apps/matching-worker` は ECS 上で **独立した service として動き、独立スケールする**（[3 サービス分離構成](#3-サービス分離構成) 参照）。api を 30 レプリカに増やしても worker は 2〜10 で別軸スケール、という運用が可能。
+
+#### ジョブ定義のフォーマット
+
 ジョブは **「いつ発火」「ペイロード」「やること」「Data Channel 出力」「次にどう繋がる」** の 5 点で定義する。
 
 #### `advance-theme`（テーマ進行）
