@@ -26,6 +26,7 @@ describe("issueMatchingToken", () => {
     }
     const livekitClient: ILiveKitClient = {
       generateRoomToken: jest.fn(),
+      publishData: jest.fn(),
     }
     return {
       client: { livekitClient, livekitUrl: "https://dummy.livekit.cloud" },

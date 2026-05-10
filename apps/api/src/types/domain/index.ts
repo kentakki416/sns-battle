@@ -21,3 +21,12 @@ export type { MatchingReaction } from "./matching-reaction"
 
 // MatchingSession
 export type { MatchingEndReason, MatchingSession, MatchingSessionStatus } from "./matching-session"
+
+// TalkTheme
+export type {
+  TalkTheme,
+  TalkThemeCategory,
+  TalkThemeChoice,
+  TalkThemeType,
+  TalkThemeWithChoices,
+} from "./talk-theme"

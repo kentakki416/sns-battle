@@ -3,6 +3,8 @@ import { Router } from "express"
 import { MatchingEventsController } from "../controller/matching/events"
 import { MatchingJoinController } from "../controller/matching/join"
 import { MatchingLeaveController } from "../controller/matching/leave"
+import { MatchingReactionSubmitController } from "../controller/matching/reaction-submit"
+import { MatchingReactionsListController } from "../controller/matching/reactions-list"
 import { MatchingSessionDetailController } from "../controller/matching/session-detail"
 import { MatchingSessionEndController } from "../controller/matching/session-end"
 import { MatchingStatusController } from "../controller/matching/status"
@@ -12,6 +14,8 @@ type MatchingRouterControllers = {
   events?: MatchingEventsController
   join?: MatchingJoinController
   leave?: MatchingLeaveController
+  reactionSubmit?: MatchingReactionSubmitController
+  reactionsList?: MatchingReactionsListController
   sessionDetail?: MatchingSessionDetailController
   sessionEnd?: MatchingSessionEndController
   status?: MatchingStatusController
@@ -60,6 +64,18 @@ export const matchingRouter = (controllers: MatchingRouterControllers): Router =
   if (controllers.sessionEnd) {
     const controller = controllers.sessionEnd
     router.post("/sessions/:id/end", async (req, res) => controller.execute(req, res))
+  }
+
+  // POST /api/matching/sessions/:id/reaction
+  if (controllers.reactionSubmit) {
+    const controller = controllers.reactionSubmit
+    router.post("/sessions/:id/reaction", async (req, res) => controller.execute(req, res))
+  }
+
+  // GET /api/matching/sessions/:id/reactions
+  if (controllers.reactionsList) {
+    const controller = controllers.reactionsList
+    router.get("/sessions/:id/reactions", async (req, res) => controller.execute(req, res))
   }
 
   // GET /api/matching/sessions/:id
