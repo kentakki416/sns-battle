@@ -259,10 +259,12 @@ export const joinMatching = async (
       { user1Id: userId, user2Id: chosenPeer.id },
       tx,
     )
-    await Promise.all([
-      repo.matchingQueueRepository.deleteByUserId(userId, tx),
-      repo.matchingQueueRepository.deleteByUserId(chosenPeer.id, tx),
-    ])
+    /**
+     * tx 内のクエリは Prisma 側で同一接続上に直列化されるため、Promise.all で並列に
+     * 見せても実行は逐次。意図を明確にするため await を 2 つ並べる。
+     */
+    await repo.matchingQueueRepository.deleteByUserId(userId, tx)
+    await repo.matchingQueueRepository.deleteByUserId(chosenPeer.id, tx)
     return newSession
   })
 
