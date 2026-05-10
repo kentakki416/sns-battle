@@ -14,6 +14,8 @@ import { HobbyListController } from "./controller/hobby/list"
 import { MatchingEventsController } from "./controller/matching/events"
 import { MatchingJoinController } from "./controller/matching/join"
 import { MatchingLeaveController } from "./controller/matching/leave"
+import { MatchingReactionSubmitController } from "./controller/matching/reaction-submit"
+import { MatchingReactionsListController } from "./controller/matching/reactions-list"
 import { MatchingSessionDetailController } from "./controller/matching/session-detail"
 import { MatchingSessionEndController } from "./controller/matching/session-end"
 import { MatchingStatusController } from "./controller/matching/status"
@@ -40,8 +42,10 @@ import {
   PrismaHobbyRepository,
   PrismaMatchingPreferenceRepository,
   PrismaMatchingQueueRepository,
+  PrismaMatchingReactionRepository,
   PrismaMatchingSessionRepository,
   PrismaMemoRepository,
+  PrismaTalkThemeRepository,
   PrismaTransactionRunner,
   PrismaUserRepository,
 } from "./repository/prisma"
@@ -80,6 +84,8 @@ const hobbyRepository = new PrismaHobbyRepository(prisma)
 const matchingPreferenceRepository = new PrismaMatchingPreferenceRepository(prisma)
 const matchingQueueRepository = new PrismaMatchingQueueRepository(prisma)
 const matchingSessionRepository = new PrismaMatchingSessionRepository(prisma)
+const matchingReactionRepository = new PrismaMatchingReactionRepository(prisma)
+const talkThemeRepository = new PrismaTalkThemeRepository(prisma)
 const blockRepository = new PrismaBlockRepository(prisma)
 const databaseHealthRepository = new PrismaDatabaseHealthRepository(prisma)
 const redisHealthRepository = new IoRedisHealthRepository(redis)
@@ -90,7 +96,7 @@ const matchingEventSubscriber = new IoRedisMatchingEventSubscriber(redisSubscrib
 
 // Client のインスタンス化
 const googleOAuthClient = new GoogleOAuthClient(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
-const livekitClient = new LiveKitClient(LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
+const livekitClient = new LiveKitClient(LIVEKIT_HOST, LIVEKIT_API_KEY, LIVEKIT_API_SECRET)
 
 // Health Controller のインスタンス化
 const healthLivenessController = new HealthLivenessController()
@@ -162,6 +168,16 @@ const matchingSessionDetailController = new MatchingSessionDetailController(
   userRepository,
 )
 const matchingSessionEndController = new MatchingSessionEndController(matchingSessionRepository)
+const matchingReactionSubmitController = new MatchingReactionSubmitController(
+  livekitClient,
+  matchingReactionRepository,
+  matchingSessionRepository,
+  talkThemeRepository,
+)
+const matchingReactionsListController = new MatchingReactionsListController(
+  matchingReactionRepository,
+  matchingSessionRepository,
+)
 
 // cors設定のミドルウェア
 app.use(
@@ -239,6 +255,8 @@ app.use(
     events: matchingEventsController,
     join: matchingJoinController,
     leave: matchingLeaveController,
+    reactionSubmit: matchingReactionSubmitController,
+    reactionsList: matchingReactionsListController,
     sessionDetail: matchingSessionDetailController,
     sessionEnd: matchingSessionEndController,
     status: matchingStatusController,

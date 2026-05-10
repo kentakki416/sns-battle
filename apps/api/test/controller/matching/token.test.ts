@@ -22,6 +22,7 @@ const matchingSessionRepository = new PrismaMatchingSessionRepository(testPrisma
  */
 const livekitClient: ILiveKitClient = {
   generateRoomToken: jest.fn().mockResolvedValue("fake-jwt-token"),
+  publishData: jest.fn(),
 }
 const livekitUrl = "https://dummy.livekit.cloud"
 

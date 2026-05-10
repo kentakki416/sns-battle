@@ -4,7 +4,9 @@ import type {
   BlockRepository,
   MatchingPreferenceRepository,
   MatchingQueueRepository,
+  MatchingReactionRepository,
   MatchingSessionRepository,
+  TalkThemeRepository,
   TransactionRunner,
   UserRepository,
 } from "../repository/prisma"
@@ -18,6 +20,7 @@ import type {
   MatchingEndReason,
   MatchingPreference,
   MatchingSession,
+  TalkThemeChoice,
   User,
 } from "../types/domain"
 import {
@@ -613,4 +616,244 @@ export const endMatchingSession = async (
 
   const updated = await repo.matchingSessionRepository.markEnded(input.sessionId, input.reason)
   return ok(updated)
+}
+
+/**
+ * UI 用に整形した片側のリアクション選択肢。
+ */
+export type ReactionChoiceView = { id: number; label: string }
+
+/**
+ * `POST /api/matching/sessions/:id/reaction` の戻り値。
+ *
+ * - `matched`: 相手が同 round 未回答なら null。両者揃えば true / false
+ * - `myChoice` / `peerChoice`: CHOICE テーマで両者揃ったときのみ非 null
+ */
+export type SubmitReactionOutput = {
+    matched: boolean | null
+    myChoice: ReactionChoiceView | null
+    peerChoice: ReactionChoiceView | null
+    reactionId: number
+}
+
+/**
+ * `GET /api/matching/sessions/:id/reactions` の戻り値。1 ラウンドごとに正規化済。
+ */
+export type ReactionRoundView = {
+    isMatch: boolean
+    myChoice: ReactionChoiceView | null
+    peerChoice: ReactionChoiceView | null
+    roundNumber: number
+    theme: { id: number; title: string; type: "CHOICE" | "FREE_TALK" }
+}
+
+export type GetReactionsOutput = { rounds: ReactionRoundView[] }
+
+/**
+ * Data Channel の topic 名。クライアントは購読時にこの値で分岐する。
+ */
+const REACTION_MATCH_TOPIC = "matching:reaction_match"
+
+/**
+ * choice → ReactionChoiceView 変換。null は素通り。
+ */
+const toChoiceView = (choice: TalkThemeChoice | null): ReactionChoiceView | null =>
+  choice ? { id: choice.id, label: choice.label } : null
+
+/**
+ * `POST /api/matching/sessions/:id/reaction`
+ *
+ * 1. セッション参加者・status チェック（ENDED は 410）
+ * 2. 同セッション同 round に既に回答していれば 409（unique 制約）
+ * 3. theme を取得し、CHOICE テーマで choice_id=null は 400
+ * 4. matching_reactions に保存
+ * 5. 相手の同 round リアクションを検索
+ *    - 揃ってない → matched=null で返す
+ *    - 揃った かつ CHOICE → 一致判定 + Data Channel 配信 + my/peer の choice ラベル付き返却
+ *    - 揃った かつ FREE_TALK → matched=null（一致判定なし）で返す
+ */
+export const submitReaction = async (
+  input: {
+    choiceId: number | null
+    roundNumber: number
+    sessionId: number
+    themeId: number
+    userId: number
+  },
+  repo: {
+    matchingReactionRepository: MatchingReactionRepository
+    matchingSessionRepository: MatchingSessionRepository
+    talkThemeRepository: TalkThemeRepository
+  },
+  client: { livekitClient: ILiveKitClient },
+): Promise<Result<SubmitReactionOutput>> => {
+  logger.debug("MatchingService: submitReaction", {
+    roundNumber: input.roundNumber,
+    sessionId: input.sessionId,
+    themeId: input.themeId,
+    userId: input.userId,
+  })
+
+  const session = await repo.matchingSessionRepository.findById(input.sessionId)
+  if (!session) return err(notFoundError("Session not found"))
+  if (!isParticipant(session, input.userId)) {
+    return err(forbiddenError("Not a participant of this session"))
+  }
+  if (session.status === "ENDED") return err(goneError("Session already ended"))
+
+  /**
+   * theme 取得 + CHOICE テーマで choice_id=null は 400。
+   * 提示された choice_id がそのテーマに属するかの厳密検証は行わない（UI 側の選択肢から
+   * 選ばせる前提 + DB FK で守られているため）。将来必要なら choices 配列で判定する。
+   */
+  const themeWithChoices = await repo.talkThemeRepository.findById(input.themeId)
+  if (!themeWithChoices) return err(notFoundError("Theme not found"))
+  if (themeWithChoices.theme.type === "CHOICE" && input.choiceId === null) {
+    return err(badRequestError("choice_id is required for CHOICE theme"))
+  }
+
+  /**
+   * 同 round 重複は DB の (sessionId, userId, roundNumber) unique で守られている。
+   * 事前 SELECT を挟まず、Prisma のエラーコード P2002 を 409 に変換する。
+   */
+  let reaction
+  try {
+    reaction = await repo.matchingReactionRepository.create({
+      choiceId: input.choiceId,
+      roundNumber: input.roundNumber,
+      sessionId: input.sessionId,
+      themeId: input.themeId,
+      userId: input.userId,
+    })
+  } catch (e: unknown) {
+    if (typeof e === "object" && e !== null && "code" in e && (e as { code: string }).code === "P2002") {
+      return err(conflictError("Reaction already submitted for this round"))
+    }
+    throw e
+  }
+
+  const opponent = await repo.matchingReactionRepository.findOpponentInSameRound({
+    myUserId: input.userId,
+    roundNumber: input.roundNumber,
+    sessionId: input.sessionId,
+  })
+
+  /** 相手未回答 → matched=null で返す */
+  if (!opponent) {
+    return ok({ matched: null, myChoice: null, peerChoice: null, reactionId: reaction.id })
+  }
+
+  /**
+   * 両者揃ったケース。FREE_TALK は matched 概念が無いので null のまま。
+   * CHOICE は choice id 一致で matched true/false を判定し、Data Channel に配信。
+   */
+  if (themeWithChoices.theme.type === "FREE_TALK") {
+    return ok({ matched: null, myChoice: null, peerChoice: null, reactionId: reaction.id })
+  }
+
+  const myChoice = themeWithChoices.choices.find((c) => c.id === input.choiceId) ?? null
+  const peerChoice = opponent.choice
+  const matched = myChoice !== null && peerChoice !== null && myChoice.id === peerChoice.id
+
+  /**
+   * Data Channel 配信は失敗してもユーザーへのレスポンスは返す（best-effort）。
+   * LiveKit 障害時にリアクション保存自体まで巻き戻すと UX が悪化するため、warn ログのみ残す。
+   */
+  try {
+    await client.livekitClient.publishData({
+      payload: {
+        matched,
+        round_number: input.roundNumber,
+        theme_id: input.themeId,
+        user1_choice_id: session.user1Id === input.userId ? myChoice?.id ?? null : peerChoice?.id ?? null,
+        user2_choice_id: session.user2Id === input.userId ? myChoice?.id ?? null : peerChoice?.id ?? null,
+      },
+      roomName: session.livekitRoomName,
+      topic: REACTION_MATCH_TOPIC,
+    })
+  } catch (error) {
+    logger.warn("MatchingService: publishData failed for reaction_match", {
+      error,
+      sessionId: input.sessionId,
+    })
+  }
+
+  return ok({
+    matched,
+    myChoice: toChoiceView(myChoice),
+    peerChoice: toChoiceView(peerChoice),
+    reactionId: reaction.id,
+  })
+}
+
+/**
+ * `GET /api/matching/sessions/:id/reactions`
+ *
+ * 全リアクションを round ごとにグルーピングし、各 round で自分 / 相手の choice と
+ * is_match を計算して返す。相手未回答の round も含める（peer_choice=null）。
+ */
+export const getReactions = async (
+  input: { sessionId: number; userId: number },
+  repo: {
+    matchingReactionRepository: MatchingReactionRepository
+    matchingSessionRepository: MatchingSessionRepository
+  },
+): Promise<Result<GetReactionsOutput>> => {
+  logger.debug("MatchingService: getReactions", {
+    sessionId: input.sessionId,
+    userId: input.userId,
+  })
+
+  const session = await repo.matchingSessionRepository.findById(input.sessionId)
+  if (!session) return err(notFoundError("Session not found"))
+  if (!isParticipant(session, input.userId)) {
+    return err(forbiddenError("Not a participant of this session"))
+  }
+
+  const all = await repo.matchingReactionRepository.findAllForSession(input.sessionId)
+
+  /** round ごとにまとめる。Map のキーは roundNumber、値は { theme, mine, peer } */
+  type Bucket = {
+        mine: { choice: TalkThemeChoice | null } | null
+        peer: { choice: TalkThemeChoice | null } | null
+        theme: { id: number; title: string; type: "CHOICE" | "FREE_TALK" }
+    }
+  const buckets = new Map<number, Bucket>()
+
+  for (const r of all) {
+    const themeView = { id: r.theme.id, title: r.theme.title, type: r.theme.type }
+    const bucket: Bucket = buckets.get(r.reaction.roundNumber) ?? {
+      mine: null,
+      peer: null,
+      theme: themeView,
+    }
+    if (r.reaction.userId === input.userId) {
+      bucket.mine = { choice: r.choice }
+    } else {
+      bucket.peer = { choice: r.choice }
+    }
+    bucket.theme = themeView
+    buckets.set(r.reaction.roundNumber, bucket)
+  }
+
+  const rounds: ReactionRoundView[] = Array.from(buckets.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([roundNumber, b]) => {
+      const myChoice = toChoiceView(b.mine?.choice ?? null)
+      const peerChoice = toChoiceView(b.peer?.choice ?? null)
+      const isMatch =
+                b.theme.type === "CHOICE" &&
+                myChoice !== null &&
+                peerChoice !== null &&
+                myChoice.id === peerChoice.id
+      return {
+        isMatch,
+        myChoice,
+        peerChoice,
+        roundNumber,
+        theme: b.theme,
+      }
+    })
+
+  return ok({ rounds })
 }

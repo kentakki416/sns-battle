@@ -213,6 +213,84 @@ export const endMatchingSessionResponseSchema = z.object({
   status: z.literal("ENDED"),
 })
 
+// ========================================================
+// POST /api/matching/sessions/:id/reaction - リアクション送信
+// ========================================================
+
+/**
+ * トークテーマの種類。
+ * - CHOICE: 選択肢から 1 つ選んで送信
+ * - FREE_TALK: 選択肢無し（matched は常に null になる）
+ */
+export const talkThemeTypeSchema = z.enum(["CHOICE", "FREE_TALK"])
+
+/**
+ * 単一の選択肢（自分 / 相手）。`label` は表示文字列。
+ */
+export const reactionChoiceSchema = z.object({
+  id: z.number().int().positive(),
+  label: z.string(),
+})
+
+export const submitReactionPathParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+})
+
+/**
+ * POST /api/matching/sessions/:id/reaction のリクエスト。
+ *
+ * - `round_number` は 1〜20 の整数。step8 のテーマ進行と同期する想定
+ * - `choice_id` は CHOICE テーマでは必須、FREE_TALK では null
+ */
+export const submitReactionRequestSchema = z.object({
+  choice_id: z.number().int().positive().nullable(),
+  round_number: z.number().int().min(1).max(20),
+  theme_id: z.number().int().positive(),
+})
+
+/**
+ * POST /api/matching/sessions/:id/reaction のレスポンス。
+ *
+ * - `matched`: 相手が同 round 未回答なら null。両者揃えば true / false
+ * - `my_choice` / `peer_choice`: CHOICE テーマで揃ったときのみ非 null
+ */
+export const submitReactionResponseSchema = z.object({
+  matched: z.boolean().nullable(),
+  my_choice: reactionChoiceSchema.nullable(),
+  peer_choice: reactionChoiceSchema.nullable(),
+  reaction_id: z.number().int().positive(),
+})
+
+// ========================================================
+// GET /api/matching/sessions/:id/reactions - リアクション履歴取得
+// ========================================================
+
+export const getReactionsPathParamSchema = z.object({
+  id: z.coerce.number().int().positive(),
+})
+
+/**
+ * 1 ラウンド分のリアクションサマリ。結果画面（step12）で使う。
+ *
+ * - 相手未回答（peer_choice=null）の round も含める
+ * - is_match は CHOICE で両者一致したときのみ true
+ */
+export const reactionRoundSchema = z.object({
+  is_match: z.boolean(),
+  my_choice: reactionChoiceSchema.nullable(),
+  peer_choice: reactionChoiceSchema.nullable(),
+  round_number: z.number().int().positive(),
+  theme: z.object({
+    id: z.number().int().positive(),
+    title: z.string(),
+    type: talkThemeTypeSchema,
+  }),
+})
+
+export const getReactionsResponseSchema = z.object({
+  rounds: z.array(reactionRoundSchema),
+})
+
 export type MatchingPeer = z.infer<typeof matchingPeerSchema>
 export type JoinMatchingResponse = z.infer<typeof joinMatchingResponseSchema>
 export type LeaveMatchingResponse = z.infer<typeof leaveMatchingResponseSchema>
@@ -231,3 +309,11 @@ export type GetMatchingSessionPathParam = z.infer<typeof getMatchingSessionPathP
 export type GetMatchingSessionResponse = z.infer<typeof getMatchingSessionResponseSchema>
 export type EndMatchingSessionPathParam = z.infer<typeof endMatchingSessionPathParamSchema>
 export type EndMatchingSessionResponse = z.infer<typeof endMatchingSessionResponseSchema>
+export type TalkThemeType = z.infer<typeof talkThemeTypeSchema>
+export type ReactionChoice = z.infer<typeof reactionChoiceSchema>
+export type SubmitReactionPathParam = z.infer<typeof submitReactionPathParamSchema>
+export type SubmitReactionRequest = z.infer<typeof submitReactionRequestSchema>
+export type SubmitReactionResponse = z.infer<typeof submitReactionResponseSchema>
+export type GetReactionsPathParam = z.infer<typeof getReactionsPathParamSchema>
+export type ReactionRound = z.infer<typeof reactionRoundSchema>
+export type GetReactionsResponse = z.infer<typeof getReactionsResponseSchema>
