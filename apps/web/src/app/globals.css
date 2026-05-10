@@ -139,3 +139,12 @@ body {
   from { width: 100%; }
   to { width: 0%; }
 }
+
+/**
+ * グラデーションをループで動かす（マッチングロビー CTA など）。
+ * `background-size: 200% 200%` と組み合わせる前提。
+ */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
