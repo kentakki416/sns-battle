@@ -20,7 +20,7 @@ describe("getUserById", () => {
     jest.clearAllMocks()
   })
 
-  it("ユーザーが存在する場合、ok: true とユーザー情報を返す", async () => {
+  it("【正常系】ユーザーが存在する場合、ok: true とユーザー情報を返す", async () => {
     // Arrange
     const mockUser: User = {
       avatarUrl: "https://example.com/avatar.jpg",
@@ -52,7 +52,7 @@ describe("getUserById", () => {
     expect(mockFindById).toHaveBeenCalledTimes(1)
   })
 
-  it("ユーザーが存在しない場合、ok: false と NOT_FOUND エラーを返す", async () => {
+  it("【異常系】ユーザーが存在しない場合、ok: false と NOT_FOUND エラーを返す", async () => {
     // Arrange
     mockFindById.mockResolvedValue(null)
 
@@ -71,7 +71,7 @@ describe("getUserById", () => {
     expect(mockFindById).toHaveBeenCalledTimes(1)
   })
 
-  it("データベースエラー時にエラーをスローする", async () => {
+  it("【異常系】データベースエラー時にエラーをスローする", async () => {
     // Arrange
     const mockError = new Error("Database connection failed")
     mockFindById.mockRejectedValue(mockError)

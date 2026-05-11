@@ -18,7 +18,7 @@ describe("getMemoById", () => {
     jest.clearAllMocks()
   })
 
-  it("メモが存在する場合、ok: true とメモを返す", async () => {
+  it("【正常系】メモが存在する場合、ok: true とメモを返す", async () => {
     // Arrange
     const mockMemo: Memo = {
       body: "Test Body",
@@ -42,7 +42,7 @@ describe("getMemoById", () => {
     expect(mockFindById).toHaveBeenCalledTimes(1)
   })
 
-  it("メモが存在しない場合、ok: false と NOT_FOUND エラーを返す", async () => {
+  it("【異常系】メモが存在しない場合、ok: false と NOT_FOUND エラーを返す", async () => {
     // Arrange
     mockFindById.mockResolvedValue(null)
 
@@ -61,7 +61,7 @@ describe("getMemoById", () => {
     expect(mockFindById).toHaveBeenCalledTimes(1)
   })
 
-  it("データベースエラー時にエラーをスローする", async () => {
+  it("【異常系】データベースエラー時にエラーをスローする", async () => {
     // Arrange
     const mockError = new Error("Database connection failed")
     mockFindById.mockRejectedValue(mockError)

@@ -94,7 +94,7 @@ afterAll(async () => {
 })
 
 describe("POST /api/matching/sessions/:id/reaction", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).post("/api/matching/sessions/1/reaction").send({
       choice_id: 1,
       round_number: 1,
@@ -103,7 +103,7 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
     expect(res.status).toBe(401)
   })
 
-  it("body 不正 → 400", async () => {
+  it("【異常系】body 不正 → 400", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -117,7 +117,7 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
     expect(res.status).toBe(400)
   })
 
-  it("自分が先に POST → 200 + matched=null + DB に保存される", async () => {
+  it("【正常系】自分が先に POST → 200 + matched=null + DB に保存される", async () => {
     const { choiceA, themeId } = await seedChoiceTheme()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
@@ -167,7 +167,7 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
     expect(livekitClient.publishData).not.toHaveBeenCalled()
   })
 
-  it("両者一致 → 200 + matched=true + publishData 呼び出し", async () => {
+  it("【正常系】両者一致 → 200 + matched=true + publishData 呼び出し", async () => {
     const { choiceA, themeId } = await seedChoiceTheme()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
@@ -215,7 +215,7 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
     )
   })
 
-  it("CHOICE で choice_id=null → 400", async () => {
+  it("【異常系】CHOICE で choice_id=null → 400", async () => {
     const { themeId } = await seedChoiceTheme()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
@@ -242,7 +242,7 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
     expect(res.status).toBe(400)
   })
 
-  it("FREE_TALK で choice_id=null OK → 200 + matched=null", async () => {
+  it("【正常系】FREE_TALK で choice_id=null OK → 200 + matched=null", async () => {
     const themeId = await seedFreeTalkTheme()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
@@ -270,7 +270,7 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
     expect(res.body.matched).toBeNull()
   })
 
-  it("同 round 2 度目 → 409", async () => {
+  it("【異常系】同 round 2 度目 → 409", async () => {
     const { choiceA, themeId } = await seedChoiceTheme()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
@@ -306,7 +306,7 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
     expect(res.status).toBe(409)
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const { choiceA, themeId } = await seedChoiceTheme()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
@@ -336,7 +336,7 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
     expect(res.status).toBe(403)
   })
 
-  it("ENDED → 410", async () => {
+  it("【異常系】ENDED → 410", async () => {
     const { choiceA, themeId } = await seedChoiceTheme()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
@@ -366,12 +366,12 @@ describe("POST /api/matching/sessions/:id/reaction", () => {
 })
 
 describe("GET /api/matching/sessions/:id/reactions", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).get("/api/matching/sessions/1/reactions")
     expect(res.status).toBe(401)
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -398,7 +398,7 @@ describe("GET /api/matching/sessions/:id/reactions", () => {
     expect(res.status).toBe(403)
   })
 
-  it("複数 round 集約 → round 昇順で正しい is_match / my_choice / peer_choice", async () => {
+  it("【正常系】複数 round 集約 → round 昇順で正しい is_match / my_choice / peer_choice", async () => {
     const { choiceA, choiceB, themeId } = await seedChoiceTheme()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },

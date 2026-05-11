@@ -14,7 +14,7 @@ describe("getMatchingPreference", () => {
     jest.clearAllMocks()
   })
 
-  it("レコード存在 → ok、保存値を返す", async () => {
+  it("【正常系】レコード存在 → ok、保存値を返す", async () => {
     const stored: MatchingPreference = {
       ageMax: 35,
       ageMin: 25,
@@ -38,7 +38,7 @@ describe("getMatchingPreference", () => {
     expect(mockFindByUserId).toHaveBeenCalledWith(1)
   })
 
-  it("レコード未作成 → ok、デフォルト値（全配列空、age_min/max=null）を返す", async () => {
+  it("【正常系】レコード未作成 → ok、デフォルト値（全配列空、age_min/max=null）を返す", async () => {
     mockFindByUserId.mockResolvedValue(null)
 
     const result = await getMatchingPreference(1, {
@@ -60,7 +60,7 @@ describe("getMatchingPreference", () => {
     }
   })
 
-  it("DB エラー時は throw（業務エラーではない）", async () => {
+  it("【異常系】DB エラー時は throw（業務エラーではない）", async () => {
     mockFindByUserId.mockRejectedValue(new Error("DB error"))
 
     await expect(

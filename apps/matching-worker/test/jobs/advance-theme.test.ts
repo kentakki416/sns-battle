@@ -108,7 +108,7 @@ describe("advanceTheme job", () => {
     await disconnectTestRedis()
   })
 
-  it("schedule が Redis に無い場合は生成して保存される", async () => {
+  it("【正常系】schedule が Redis に無い場合は生成して保存される", async () => {
     const session = await createSessionWithUsers()
     const publisher = buildPublisher()
 
@@ -136,7 +136,7 @@ describe("advanceTheme job", () => {
     expect(ttl).toBeLessThanOrEqual(1800)
   })
 
-  it("round=1 は matching:hype を publish せず matching:theme のみ", async () => {
+  it("【正常系】round=1 は matching:hype を publish せず matching:theme のみ", async () => {
     const session = await createSessionWithUsers()
     const publisher = buildPublisher()
 
@@ -160,7 +160,7 @@ describe("advanceTheme job", () => {
     })
   })
 
-  it("round=2 は matching:hype → matching:theme の順で publish", async () => {
+  it("【正常系】round=2 は matching:hype → matching:theme の順で publish", async () => {
     const session = await createSessionWithUsers()
     const publisher = buildPublisher()
 
@@ -194,7 +194,7 @@ describe("advanceTheme job", () => {
     expect(topics).toEqual(["matching:hype", "matching:theme"])
   })
 
-  it("round<10 のとき次ラウンドの advance-theme が delay=duration*1000 で再 enqueue", async () => {
+  it("【正常系】round<10 のとき次ラウンドの advance-theme が delay=duration*1000 で再 enqueue", async () => {
     const session = await createSessionWithUsers()
     const publisher = buildPublisher()
 
@@ -220,7 +220,7 @@ describe("advanceTheme job", () => {
     })
   })
 
-  it("round=10（最終ラウンド）は次ラウンドを再 enqueue しない", async () => {
+  it("【正常系】round=10（最終ラウンド）は次ラウンドを再 enqueue しない", async () => {
     const session = await createSessionWithUsers()
     const publisher = buildPublisher()
 
@@ -251,7 +251,7 @@ describe("advanceTheme job", () => {
     expect(await testQueue.getJob(buildAdvanceThemeJobId(session.id, 11))).toBeUndefined()
   })
 
-  it("session が ENDED → no-op（publish も enqueue もされない）", async () => {
+  it("【正常系】session が ENDED → no-op（publish も enqueue もされない）", async () => {
     const session = await createSessionWithUsers({ status: "ENDED" })
     const publisher = buildPublisher()
 
@@ -272,7 +272,7 @@ describe("advanceTheme job", () => {
     expect(await testRedis.get(`matching:schedule:${session.id}`)).toBeNull()
   })
 
-  it("nextRoundNumber > 10 → no-op", async () => {
+  it("【正常系】nextRoundNumber > 10 → no-op", async () => {
     const session = await createSessionWithUsers()
     const publisher = buildPublisher()
 

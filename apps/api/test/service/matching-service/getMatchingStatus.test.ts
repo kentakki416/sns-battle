@@ -40,7 +40,7 @@ describe("getMatchingStatus", () => {
     jest.clearAllMocks()
   })
 
-  it("アクティブセッションあり → MATCHED", async () => {
+  it("【正常系】アクティブセッションあり → MATCHED", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findActiveByUserId as jest.Mock).mockResolvedValue(
       buildSession(),
@@ -56,7 +56,7 @@ describe("getMatchingStatus", () => {
     expect(repo.matchingQueueRedisRepository.findPosition).not.toHaveBeenCalled()
   })
 
-  it("セッションなし & Redis に存在 → WAITING（position と waited_seconds を返す）", async () => {
+  it("【正常系】セッションなし & Redis に存在 → WAITING（position と waited_seconds を返す）", async () => {
     const repo = buildRepos()
     const fixedNow = 1_700_000_000_000
     jest.spyOn(Date, "now").mockReturnValue(fixedNow)
@@ -76,7 +76,7 @@ describe("getMatchingStatus", () => {
     jest.restoreAllMocks()
   })
 
-  it("セッション・Redis 両方なし → NONE", async () => {
+  it("【正常系】セッション・Redis 両方なし → NONE", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findActiveByUserId as jest.Mock).mockResolvedValue(null)
     ;(repo.matchingQueueRedisRepository.findPosition as jest.Mock).mockResolvedValue(null)

@@ -105,12 +105,12 @@ const seedStamps = async () => {
 }
 
 describe("GET /api/matching/stamps", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).get("/api/matching/stamps")
     expect(res.status).toBe(401)
   })
 
-  it("MATCHING スコープのアクティブスタンプのみ sortOrder 昇順で返る（BATTLE 専用 / 非アクティブは除外、premium は含む）", async () => {
+  it("【正常系】MATCHING スコープのアクティブスタンプのみ sortOrder 昇順で返る（BATTLE 専用 / 非アクティブは除外、premium は含む）", async () => {
     const me = await testPrisma.user.create({
       data: { email: `u-${Date.now()}@example.com`, isOnboarded: true, name: "Me" },
     })
@@ -149,7 +149,7 @@ describe("GET /api/matching/stamps", () => {
     })
   })
 
-  it("該当 0 件 → 200 / stamps: []", async () => {
+  it("【正常系】該当 0 件 → 200 / stamps: []", async () => {
     const me = await testPrisma.user.create({
       data: { email: `u-${Date.now()}@example.com`, isOnboarded: true, name: "Me" },
     })

@@ -78,12 +78,12 @@ describe("POST /api/matching/sessions/:id/start", () => {
     await disconnectTestRedis()
   })
 
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).post("/api/matching/sessions/1/start")
     expect(res.status).toBe(401)
   })
 
-  it("非数値 id → 400", async () => {
+  it("【異常系】非数値 id → 400", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -97,7 +97,7 @@ describe("POST /api/matching/sessions/:id/start", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("存在しないセッション → 404", async () => {
+  it("【異常系】存在しないセッション → 404", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -111,7 +111,7 @@ describe("POST /api/matching/sessions/:id/start", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 404 })
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -142,7 +142,7 @@ describe("POST /api/matching/sessions/:id/start", () => {
     expect(await testQueue.getJob(buildAdvanceThemeJobId(session.id, 1))).toBeUndefined()
   })
 
-  it("既に ENDED → 410", async () => {
+  it("【異常系】既に ENDED → 410", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -169,7 +169,7 @@ describe("POST /api/matching/sessions/:id/start", () => {
     expect(await testQueue.getJob(buildAdvanceThemeJobId(session.id, 1))).toBeUndefined()
   })
 
-  it("正常系（COUNTDOWN → ACTIVE） → 200 / DB が ACTIVE / queue に 3 件 enqueue", async () => {
+  it("【正常系】正常系（COUNTDOWN → ACTIVE） → 200 / DB が ACTIVE / queue に 3 件 enqueue", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -229,7 +229,7 @@ describe("POST /api/matching/sessions/:id/start", () => {
     expect(timeoutJob?.opts.delay).toBe(600_000)
   })
 
-  it("既に ACTIVE で再 POST → 200 / 既存 startedAt が返る / queue は変化しない", async () => {
+  it("【正常系】既に ACTIVE で再 POST → 200 / 既存 startedAt が返る / queue は変化しない", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -264,7 +264,7 @@ describe("POST /api/matching/sessions/:id/start", () => {
     expect(await testQueue.getJob(buildSessionTimeoutJobId(session.id))).toBeUndefined()
   })
 
-  it("同じ session に 2 回連続 POST → どちらも 200 / queue 上のジョブは 3 件のまま", async () => {
+  it("【正常系】同じ session に 2 回連続 POST → どちらも 200 / queue 上のジョブは 3 件のまま", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })

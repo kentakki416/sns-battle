@@ -57,7 +57,7 @@ describe("getMatchingSession", () => {
     jest.clearAllMocks()
   })
 
-  it("user1 として取得 → ok かつ is_self_user1=true", async () => {
+  it("【正常系】user1 として取得 → ok かつ is_self_user1=true", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ status: "COUNTDOWN", user1Id: 1, user2Id: 2 }),
@@ -81,7 +81,7 @@ describe("getMatchingSession", () => {
     }
   })
 
-  it("user2 として取得 → is_self_user1=false", async () => {
+  it("【正常系】user2 として取得 → is_self_user1=false", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 1, user2Id: 2 }),
@@ -98,7 +98,7 @@ describe("getMatchingSession", () => {
     }
   })
 
-  it("ACTIVE で 5 分以上経過 → can_end_now=true", async () => {
+  it("【正常系】ACTIVE で 5 分以上経過 → can_end_now=true", async () => {
     const repo = buildRepos()
     const startedAt = new Date(Date.now() - 6 * 60 * 1000) // 6 分前
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
@@ -117,7 +117,7 @@ describe("getMatchingSession", () => {
     }
   })
 
-  it("ACTIVE だが 5 分未満 → can_end_now=false", async () => {
+  it("【正常系】ACTIVE だが 5 分未満 → can_end_now=false", async () => {
     const repo = buildRepos()
     const startedAt = new Date(Date.now() - 30 * 1000) // 30 秒前
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
@@ -135,7 +135,7 @@ describe("getMatchingSession", () => {
     }
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 1, user2Id: 2 }),
@@ -151,7 +151,7 @@ describe("getMatchingSession", () => {
     expect(repo.userRepository.findById).not.toHaveBeenCalled()
   })
 
-  it("存在しないセッション → 404", async () => {
+  it("【異常系】存在しないセッション → 404", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(null)
 

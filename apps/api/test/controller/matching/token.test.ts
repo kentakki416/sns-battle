@@ -51,12 +51,12 @@ afterAll(async () => {
 })
 
 describe("POST /api/matching/token", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).post("/api/matching/token").send({ session_id: 1 })
     expect(res.status).toBe(401)
   })
 
-  it("不正な body → 400", async () => {
+  it("【異常系】不正な body → 400", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -71,7 +71,7 @@ describe("POST /api/matching/token", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("存在しないセッション → 404", async () => {
+  it("【異常系】存在しないセッション → 404", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -86,7 +86,7 @@ describe("POST /api/matching/token", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 404 })
   })
 
-  it("参加者本人 → 200 + token / livekit_url / room_name / expires_at を返す", async () => {
+  it("【正常系】参加者本人 → 200 + token / livekit_url / room_name / expires_at を返す", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -122,7 +122,7 @@ describe("POST /api/matching/token", () => {
     })
   })
 
-  it("参加者でない → 403", async () => {
+  it("【異常系】参加者でない → 403", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -152,7 +152,7 @@ describe("POST /api/matching/token", () => {
     expect(livekitClient.generateRoomToken).not.toHaveBeenCalled()
   })
 
-  it("ENDED セッション → 410", async () => {
+  it("【異常系】ENDED セッション → 410", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })

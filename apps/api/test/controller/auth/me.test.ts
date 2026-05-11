@@ -27,7 +27,7 @@ afterAll(async () => {
 })
 
 describe("GET /api/auth/me", () => {
-  it("認証済みユーザーの場合、200 とユーザー情報を返す", async () => {
+  it("【正常系】認証済みユーザーの場合、200 とユーザー情報を返す", async () => {
     const user = await testPrisma.user.create({
       data: {
         avatarUrl: "https://example.com/avatar.jpg",
@@ -54,7 +54,7 @@ describe("GET /api/auth/me", () => {
     })
   })
 
-  it("ユーザーが存在しない場合、404 を返す", async () => {
+  it("【異常系】ユーザーが存在しない場合、404 を返す", async () => {
     const token = generateAccessToken(999999)
 
     const res = await request(app)
@@ -65,14 +65,14 @@ describe("GET /api/auth/me", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 404 })
   })
 
-  it("トークンがない場合、401 を返す", async () => {
+  it("【異常系】トークンがない場合、401 を返す", async () => {
     const res = await request(app).get("/api/auth/me")
 
     expect(res.status).toBe(401)
     expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
-  it("無効なトークンの場合、401 を返す", async () => {
+  it("【異常系】無効なトークンの場合、401 を返す", async () => {
     const res = await request(app)
       .get("/api/auth/me")
       .set("Authorization", "Bearer invalid-token")

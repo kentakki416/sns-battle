@@ -69,7 +69,7 @@ describe("publishTimer job", () => {
     await disconnectTestRedis()
   })
 
-  it("session ENDED → no-op", async () => {
+  it("【正常系】session ENDED → no-op", async () => {
     const session = await createSession({ startedAt: new Date(), status: "ENDED" })
     const publisher = buildPublisher()
 
@@ -82,7 +82,7 @@ describe("publishTimer job", () => {
     expect(await testQueue.getJob(buildPublishTimerJobId(session.id, 1))).toBeUndefined()
   })
 
-  it("startedAt=null（COUNTDOWN）→ no-op", async () => {
+  it("【正常系】startedAt=null（COUNTDOWN）→ no-op", async () => {
     const session = await createSession({ startedAt: null, status: "COUNTDOWN" })
     const publisher = buildPublisher()
 
@@ -94,7 +94,7 @@ describe("publishTimer job", () => {
     expect(publisher.publishData).not.toHaveBeenCalled()
   })
 
-  it("elapsed < 300 秒 → can_end_now=false で publish + 30 秒後の次 tick が enqueue", async () => {
+  it("【正常系】elapsed < 300 秒 → can_end_now=false で publish + 30 秒後の次 tick が enqueue", async () => {
     /** 60 秒前 startedAt → elapsed=60 / remaining=540 */
     const session = await createSession({
       startedAt: new Date(Date.now() - 60_000),
@@ -126,7 +126,7 @@ describe("publishTimer job", () => {
     expect(nextJob?.opts.delay).toBe(30_000)
   })
 
-  it("elapsed >= 300 秒 → can_end_now=true", async () => {
+  it("【正常系】elapsed >= 300 秒 → can_end_now=true", async () => {
     const session = await createSession({
       startedAt: new Date(Date.now() - 5 * 60_000 - 1000),
       status: "ACTIVE",
@@ -143,7 +143,7 @@ describe("publishTimer job", () => {
     })
   })
 
-  it("残り 0 秒以下（10 分超過）→ no-op、次 tick も enqueue されない", async () => {
+  it("【正常系】残り 0 秒以下（10 分超過）→ no-op、次 tick も enqueue されない", async () => {
     const session = await createSession({
       startedAt: new Date(Date.now() - 11 * 60_000),
       status: "ACTIVE",

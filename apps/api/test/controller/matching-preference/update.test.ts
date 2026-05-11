@@ -33,7 +33,7 @@ afterAll(async () => {
 })
 
 describe("PUT /api/matching/preferences", () => {
-  it("初回 PUT でレコードが作成される", async () => {
+  it("【正常系】初回 PUT でレコードが作成される", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -76,7 +76,7 @@ describe("PUT /api/matching/preferences", () => {
     })
   })
 
-  it("2 回目 PUT で更新される（同 user_id で 1 行のみ）", async () => {
+  it("【正常系】2 回目 PUT で更新される（同 user_id で 1 行のみ）", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -126,7 +126,7 @@ describe("PUT /api/matching/preferences", () => {
     })
   })
 
-  it("age_min > age_max → 400 (Service)", async () => {
+  it("【異常系】age_min > age_max → 400 (Service)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -148,7 +148,7 @@ describe("PUT /api/matching/preferences", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("preferred_hobby_ids に未登録 id → 400 (Service)", async () => {
+  it("【異常系】preferred_hobby_ids に未登録 id → 400 (Service)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -170,7 +170,7 @@ describe("PUT /api/matching/preferences", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("preferred_genders に 4 件 → 400 (Zod max(3))", async () => {
+  it("【異常系】preferred_genders に 4 件 → 400 (Zod max(3))", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -192,7 +192,7 @@ describe("PUT /api/matching/preferences", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("preferred_mbti に 'AAAA' → 400 (Zod)", async () => {
+  it("【異常系】preferred_mbti に 'AAAA' → 400 (Zod)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -214,7 +214,7 @@ describe("PUT /api/matching/preferences", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("age_min が 17（範囲下限割れ）→ 400 (Zod)", async () => {
+  it("【異常系】age_min が 17（範囲下限割れ）→ 400 (Zod)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -236,7 +236,7 @@ describe("PUT /api/matching/preferences", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("全フィールド空配列 / null → 200、DB に作成", async () => {
+  it("【正常系】全フィールド空配列 / null → 200、DB に作成", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -277,7 +277,7 @@ describe("PUT /api/matching/preferences", () => {
     })
   })
 
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).put("/api/matching/preferences").send({
       age_max: null,
       age_min: null,

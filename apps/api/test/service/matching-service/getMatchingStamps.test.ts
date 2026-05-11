@@ -22,7 +22,7 @@ const sampleStamp = (overrides?: Partial<StampForMatching>): StampForMatching =>
 describe("getMatchingStamps", () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it("リポジトリの返り値をそのまま ok で返す", async () => {
+  it("【正常系】リポジトリの返り値をそのまま ok で返す", async () => {
     const repo = buildRepo()
     const stamps = [
       sampleStamp({ emoji: "👏", id: 1, name: "拍手" }),
@@ -39,7 +39,7 @@ describe("getMatchingStamps", () => {
     expect(repo.itemRepository.findManyActiveStampsForMatching).toHaveBeenCalledTimes(1)
   })
 
-  it("空配列でも ok で返る", async () => {
+  it("【正常系】空配列でも ok で返る", async () => {
     const repo = buildRepo()
     ;(repo.itemRepository.findManyActiveStampsForMatching as jest.Mock).mockResolvedValue([])
     const result = await getMatchingStamps(repo)

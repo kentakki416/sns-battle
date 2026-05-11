@@ -24,7 +24,7 @@ afterAll(async () => {
 })
 
 describe("GET /api/memo", () => {
-  it("200 とメモ一覧を返す", async () => {
+  it("【正常系】200 とメモ一覧を返す", async () => {
     await testPrisma.memo.createMany({
       data: [
         { body: "Body 1", title: "Title 1" },
@@ -56,7 +56,7 @@ describe("GET /api/memo", () => {
     expect(res.body.memos).toHaveLength(2)
   })
 
-  it("メモが存在しない場合、200 と空配列を返す", async () => {
+  it("【正常系】メモが存在しない場合、200 と空配列を返す", async () => {
     const res = await request(app).get("/api/memo")
 
     expect(res.status).toBe(200)

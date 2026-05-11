@@ -37,7 +37,7 @@ const waitForSubscribe = async () =>
   new Promise((resolve) => setTimeout(resolve, 10))
 
 describe("subscribeMatchingEvents", () => {
-  it("Pub/Sub で受け取った payload を onEvent に渡す", async () => {
+  it("【正常系】Pub/Sub で受け取った payload を onEvent に渡す", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
     const events: MatchingSseEvent[] = []
@@ -75,7 +75,7 @@ describe("subscribeMatchingEvents", () => {
     await subscribePromise
   })
 
-  it("heartbeatIntervalMs ごとに heartbeat を onEvent に渡す", async () => {
+  it("【正常系】heartbeatIntervalMs ごとに heartbeat を onEvent に渡す", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
     const events: MatchingSseEvent[] = []
@@ -99,7 +99,7 @@ describe("subscribeMatchingEvents", () => {
     }
   })
 
-  it("abort で Promise が resolve し、unsubscribe が呼ばれる", async () => {
+  it("【正常系】abort で Promise が resolve し、unsubscribe が呼ばれる", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
 
@@ -122,7 +122,7 @@ describe("subscribeMatchingEvents", () => {
     expect(ctx.isSubscribed()).toBe(false)
   })
 
-  it("不正な JSON は無視する（Promise が reject しない）", async () => {
+  it("【異常系】不正な JSON は無視する（Promise が reject しない）", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
     const events: MatchingSseEvent[] = []
@@ -145,7 +145,7 @@ describe("subscribeMatchingEvents", () => {
     await subscribePromise
   })
 
-  it("既に abort 済みの signal でも安全に終了する", async () => {
+  it("【正常系】既に abort 済みの signal でも安全に終了する", async () => {
     const ctx = buildFakeSubscriber()
     const ac = new AbortController()
     ac.abort()

@@ -27,7 +27,7 @@ afterAll(async () => {
 })
 
 describe("PUT /api/users/:id/onboarding", () => {
-  it("必須項目のみで成功 → 200、is_onboarded=true、user_hobbies は 0 件", async () => {
+  it("【正常系】必須項目のみで成功 → 200、is_onboarded=true、user_hobbies は 0 件", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: false, name: null },
     })
@@ -66,7 +66,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(hobbies).toHaveLength(0)
   })
 
-  it("全項目指定で is_onboarded=true + hobbies が DB に保存される", async () => {
+  it("【正常系】全項目指定で is_onboarded=true + hobbies が DB に保存される", async () => {
     const h1 = await testPrisma.hobbyMaster.create({ data: { name: "h1", sortOrder: 1 } })
     const h2 = await testPrisma.hobbyMaster.create({ data: { name: "h2", sortOrder: 2 } })
     const me = await testPrisma.user.create({
@@ -121,7 +121,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(hobbies).toHaveLength(2)
   })
 
-  it("既に完了済 → 409", async () => {
+  it("【異常系】既に完了済 → 409", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Already" },
     })
@@ -136,7 +136,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 409 })
   })
 
-  it("他人の id → 403", async () => {
+  it("【異常系】他人の id → 403", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -157,7 +157,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(otherInDb?.isOnboarded).toBe(false)
   })
 
-  it("birth_date フォーマット不正 → 400 (Zod)", async () => {
+  it("【異常系】birth_date フォーマット不正 → 400 (Zod)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: false, name: null },
     })
@@ -172,7 +172,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("gender 不正値 → 400 (Zod)", async () => {
+  it("【異常系】gender 不正値 → 400 (Zod)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: false, name: null },
     })
@@ -187,7 +187,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("mbti 不正値（'AAAA'）→ 400 (Zod)", async () => {
+  it("【異常系】mbti 不正値（'AAAA'）→ 400 (Zod)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: false, name: null },
     })
@@ -202,7 +202,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("name 31 文字 → 400 (Zod)", async () => {
+  it("【異常系】name 31 文字 → 400 (Zod)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: false, name: null },
     })
@@ -217,7 +217,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("18 歳未満 birth_date → 400 (Service)", async () => {
+  it("【異常系】18 歳未満 birth_date → 400 (Service)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: false, name: null },
     })
@@ -233,7 +233,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("hobby_ids に未登録 id → 400 (Service)", async () => {
+  it("【異常系】hobby_ids に未登録 id → 400 (Service)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: false, name: null },
     })
@@ -253,7 +253,7 @@ describe("PUT /api/users/:id/onboarding", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app)
       .put("/api/users/1/onboarding")
       .send({ birth_date: "1995-05-15", gender: "MALE", name: "Alice" })

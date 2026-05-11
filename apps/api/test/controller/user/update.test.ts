@@ -27,7 +27,7 @@ afterAll(async () => {
 })
 
 describe("PUT /api/users/:id", () => {
-  it("全フィールド更新（hobby_ids 含む）→ 200、レスポンス完全一致 + DB に反映", async () => {
+  it("【正常系】全フィールド更新（hobby_ids 含む）→ 200、レスポンス完全一致 + DB に反映", async () => {
     const h1 = await testPrisma.hobbyMaster.create({ data: { name: "h1", sortOrder: 1 } })
     const h2 = await testPrisma.hobbyMaster.create({ data: { name: "h2", sortOrder: 2 } })
     const me = await testPrisma.user.create({
@@ -81,7 +81,7 @@ describe("PUT /api/users/:id", () => {
     expect(dbHobbies).toHaveLength(2)
   })
 
-  it("hobby_ids を新配列で更新すると既存趣味は完全置換される", async () => {
+  it("【正常系】hobby_ids を新配列で更新すると既存趣味は完全置換される", async () => {
     const h1 = await testPrisma.hobbyMaster.create({ data: { name: "h1", sortOrder: 1 } })
     const h2 = await testPrisma.hobbyMaster.create({ data: { name: "h2", sortOrder: 2 } })
     const h3 = await testPrisma.hobbyMaster.create({ data: { name: "h3", sortOrder: 3 } })
@@ -108,7 +108,7 @@ describe("PUT /api/users/:id", () => {
     expect(remaining[0]).toMatchObject({ hobbyId: h3.id, userId: me.id })
   })
 
-  it("hobby_ids 空配列を渡すと user_hobbies は全削除される", async () => {
+  it("【正常系】hobby_ids 空配列を渡すと user_hobbies は全削除される", async () => {
     const h1 = await testPrisma.hobbyMaster.create({ data: { name: "h1", sortOrder: 1 } })
     const me = await testPrisma.user.create({
       data: {
@@ -132,7 +132,7 @@ describe("PUT /api/users/:id", () => {
     expect(remaining).toHaveLength(0)
   })
 
-  it("mbti 不正値（'AAAA'）→ 400 (Zod)", async () => {
+  it("【異常系】mbti 不正値（'AAAA'）→ 400 (Zod)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -147,7 +147,7 @@ describe("PUT /api/users/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("location 101 文字 → 400 (Zod)", async () => {
+  it("【異常系】location 101 文字 → 400 (Zod)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -162,7 +162,7 @@ describe("PUT /api/users/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("hobby_ids に未登録 id → 400 (Service)", async () => {
+  it("【異常系】hobby_ids に未登録 id → 400 (Service)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -177,7 +177,7 @@ describe("PUT /api/users/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("18 歳未満の birth_date → 400 (Service)", async () => {
+  it("【異常系】18 歳未満の birth_date → 400 (Service)", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -193,7 +193,7 @@ describe("PUT /api/users/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("他人の更新 → 403", async () => {
+  it("【異常系】他人の更新 → 403", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -214,7 +214,7 @@ describe("PUT /api/users/:id", () => {
     expect(otherInDb?.name).toBe("Other")
   })
 
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).put("/api/users/1").send({ name: "X" })
 
     expect(res.status).toBe(401)

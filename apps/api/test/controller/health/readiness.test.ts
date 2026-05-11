@@ -26,7 +26,7 @@ afterAll(async () => {
 })
 
 describe("GET /api/health/ready", () => {
-  it("全サービス正常時、200 と status: ok を返す", async () => {
+  it("【正常系】全サービス正常時、200 と status: ok を返す", async () => {
     const res = await request(app).get("/api/health/ready")
 
     expect(res.status).toBe(200)

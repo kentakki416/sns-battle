@@ -52,12 +52,12 @@ afterAll(async () => {
 })
 
 describe("POST /api/users/:id/follow", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).post("/api/users/1/follow")
     expect(res.status).toBe(401)
   })
 
-  it("非数値 id → 400", async () => {
+  it("【異常系】非数値 id → 400", async () => {
     const me = await createUser()
     const token = generateAccessToken(me.id)
     const res = await request(app)
@@ -67,7 +67,7 @@ describe("POST /api/users/:id/follow", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("自分自身 → 400 / DB に follow row 作られない", async () => {
+  it("【異常系】自分自身 → 400 / DB に follow row 作られない", async () => {
     const me = await createUser()
     const token = generateAccessToken(me.id)
     const res = await request(app)
@@ -78,7 +78,7 @@ describe("POST /api/users/:id/follow", () => {
     expect(count).toBe(0)
   })
 
-  it("存在しないユーザー → 404", async () => {
+  it("【異常系】存在しないユーザー → 404", async () => {
     const me = await createUser()
     const token = generateAccessToken(me.id)
     const res = await request(app)
@@ -87,7 +87,7 @@ describe("POST /api/users/:id/follow", () => {
     expect(res.status).toBe(404)
   })
 
-  it("ブロック関係あり → 400", async () => {
+  it("【異常系】ブロック関係あり → 400", async () => {
     const me = await createUser()
     const peer = await createUser()
     await testPrisma.block.create({
@@ -102,7 +102,7 @@ describe("POST /api/users/:id/follow", () => {
     expect(count).toBe(0)
   })
 
-  it("正常系 → 200、DB に follow row が作られる、レスポンスは follower_id / followee_id", async () => {
+  it("【正常系】正常系 → 200、DB に follow row が作られる、レスポンスは follower_id / followee_id", async () => {
     const me = await createUser()
     const peer = await createUser()
     const token = generateAccessToken(me.id)
@@ -120,7 +120,7 @@ describe("POST /api/users/:id/follow", () => {
     expect(row).not.toBeNull()
   })
 
-  it("既にフォロー済 → 409 / row は重複しない", async () => {
+  it("【異常系】既にフォロー済 → 409 / row は重複しない", async () => {
     const me = await createUser()
     const peer = await createUser()
     await testPrisma.follow.create({
@@ -139,12 +139,12 @@ describe("POST /api/users/:id/follow", () => {
 })
 
 describe("DELETE /api/users/:id/follow", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).delete("/api/users/1/follow")
     expect(res.status).toBe(401)
   })
 
-  it("自分自身 → 400", async () => {
+  it("【異常系】自分自身 → 400", async () => {
     const me = await createUser()
     const token = generateAccessToken(me.id)
     const res = await request(app)
@@ -153,7 +153,7 @@ describe("DELETE /api/users/:id/follow", () => {
     expect(res.status).toBe(400)
   })
 
-  it("正常系（フォロー済を解除） → 200、DB から row が消える", async () => {
+  it("【正常系】正常系（フォロー済を解除） → 200、DB から row が消える", async () => {
     const me = await createUser()
     const peer = await createUser()
     await testPrisma.follow.create({
@@ -170,7 +170,7 @@ describe("DELETE /api/users/:id/follow", () => {
     expect(remaining).toBe(0)
   })
 
-  it("元々フォローしていなくても 200（冪等）", async () => {
+  it("【正常系】元々フォローしていなくても 200（冪等）", async () => {
     const me = await createUser()
     const peer = await createUser()
     const token = generateAccessToken(me.id)

@@ -73,7 +73,7 @@ describe("authenticateWithGoogle", () => {
     jest.clearAllMocks()
   })
 
-  it("既存ユーザーの場合、isNewUser=false で Access/Refresh Token を発行する", async () => {
+  it("【正常系】既存ユーザーの場合、isNewUser=false で Access/Refresh Token を発行する", async () => {
     const mockGoogleUser: GoogleUserInfo = {
       email: "test@example.com",
       id: "google-123",
@@ -140,7 +140,7 @@ describe("authenticateWithGoogle", () => {
     expect(mockRefreshTokenSave).toHaveBeenCalledWith("uuid-1", 1, expect.any(Number))
   })
 
-  it("新規ユーザーの場合、tx 内で User + AuthAccount を作成し Access/Refresh Token を発行する", async () => {
+  it("【正常系】新規ユーザーの場合、tx 内で User + AuthAccount を作成し Access/Refresh Token を発行する", async () => {
     const mockGoogleUser: GoogleUserInfo = {
       email: "newuser@example.com",
       id: "google-456",
@@ -206,7 +206,7 @@ describe("authenticateWithGoogle", () => {
     expect(mockRefreshTokenSave).toHaveBeenCalledWith("uuid-1", 2, expect.any(Number))
   })
 
-  it("Google 認証エラー時に例外が伝播する", async () => {
+  it("【異常系】Google 認証エラー時に例外が伝播する", async () => {
     mockGetUserInfo.mockRejectedValue(new Error("network"))
 
     await expect(

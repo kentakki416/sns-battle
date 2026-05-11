@@ -18,7 +18,7 @@ describe("getAllMemos", () => {
     jest.clearAllMocks()
   })
 
-  it("成功時は ok: true とメモ一覧を返す", async () => {
+  it("【正常系】成功時は ok: true とメモ一覧を返す", async () => {
     // Arrange
     const mockMemos: Memo[] = [
       {
@@ -51,7 +51,7 @@ describe("getAllMemos", () => {
     expect(mockFindAll).toHaveBeenCalledTimes(1)
   })
 
-  it("メモが存在しない場合、ok: true と空配列を返す", async () => {
+  it("【正常系】メモが存在しない場合、ok: true と空配列を返す", async () => {
     // Arrange
     mockFindAll.mockResolvedValue([])
 
@@ -67,7 +67,7 @@ describe("getAllMemos", () => {
     expect(mockFindAll).toHaveBeenCalledTimes(1)
   })
 
-  it("データベースエラー時にエラーをスローする", async () => {
+  it("【異常系】データベースエラー時にエラーをスローする", async () => {
     // Arrange
     const mockError = new Error("Database connection failed")
     mockFindAll.mockRejectedValue(mockError)

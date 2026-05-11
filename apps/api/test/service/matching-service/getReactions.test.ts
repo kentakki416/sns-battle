@@ -71,7 +71,7 @@ describe("getReactions", () => {
     jest.clearAllMocks()
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const d = buildDeps()
     ;(d.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
 
@@ -81,7 +81,7 @@ describe("getReactions", () => {
     if (!result.ok) expect(result.error.statusCode).toBe(403)
   })
 
-  it("セッション無し → 404", async () => {
+  it("【異常系】セッション無し → 404", async () => {
     const d = buildDeps()
     ;(d.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(null)
 
@@ -91,7 +91,7 @@ describe("getReactions", () => {
     if (!result.ok) expect(result.error.statusCode).toBe(404)
   })
 
-  it("リアクション 0 件 → rounds=[]", async () => {
+  it("【正常系】リアクション 0 件 → rounds=[]", async () => {
     const d = buildDeps()
     ;(d.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.matchingReactionRepository.findAllForSession as jest.Mock).mockResolvedValue([])
@@ -102,7 +102,7 @@ describe("getReactions", () => {
     if (result.ok) expect(result.value.rounds).toEqual([])
   })
 
-  it("複数 round / 自分のみ / 両者揃い / FREE_TALK の混在を正しくグルーピング", async () => {
+  it("【正常系】複数 round / 自分のみ / 両者揃い / FREE_TALK の混在を正しくグルーピング", async () => {
     const d = buildDeps()
     ;(d.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     const all: MatchingReactionWithJoins[] = [

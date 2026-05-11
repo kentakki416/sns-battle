@@ -178,7 +178,7 @@ describe("joinMatching", () => {
   }
 
   describe("前提チェック", () => {
-    it("user not found → 404 NOT_FOUND", async () => {
+    it("【異常系】user not found → 404 NOT_FOUND", async () => {
       const repo = buildRepos()
       ;(repo.userRepository.findById as jest.Mock).mockResolvedValue(null)
 
@@ -191,7 +191,7 @@ describe("joinMatching", () => {
       expect(repo.matchingQueueRedisRepository.add).not.toHaveBeenCalled()
     })
 
-    it("isOnboarded=false → 400 BAD_REQUEST", async () => {
+    it("【異常系】isOnboarded=false → 400 BAD_REQUEST", async () => {
       const repo = buildRepos()
       ;(repo.userRepository.findById as jest.Mock).mockResolvedValue(
         buildUser({ isOnboarded: false }),
@@ -205,7 +205,7 @@ describe("joinMatching", () => {
       }
     })
 
-    it("既にアクティブセッション保持 → 409 CONFLICT、Redis のゾンビも掃除", async () => {
+    it("【異常系】既にアクティブセッション保持 → 409 CONFLICT、Redis のゾンビも掃除", async () => {
       const repo = buildRepos()
       ;(repo.userRepository.findById as jest.Mock).mockResolvedValue(buildUser())
       ;(repo.matchingSessionRepository.findActiveByUserId as jest.Mock).mockResolvedValue(
@@ -224,7 +224,7 @@ describe("joinMatching", () => {
       expect(repo.matchingQueueRedisRepository.add).not.toHaveBeenCalled()
     })
 
-    it("既に WAITING（add=false） → 409 CONFLICT", async () => {
+    it("【異常系】既に WAITING（add=false） → 409 CONFLICT", async () => {
       const repo = buildRepos()
       ;(repo.userRepository.findById as jest.Mock).mockResolvedValue(buildUser())
       ;(repo.matchingSessionRepository.findActiveByUserId as jest.Mock).mockResolvedValue(null)
@@ -240,7 +240,7 @@ describe("joinMatching", () => {
   })
 
   describe("候補ゼロ", () => {
-    it("待機者が自分しかいない → matched=false、DB に WAITING 登録", async () => {
+    it("【正常系】待機者が自分しかいない → matched=false、DB に WAITING 登録", async () => {
       const repo = buildRepos()
       ;(repo.userRepository.findById as jest.Mock).mockResolvedValue(buildUser())
       ;(repo.matchingQueueRedisRepository.add as jest.Mock).mockResolvedValue(true)
@@ -256,7 +256,7 @@ describe("joinMatching", () => {
   })
 
   describe("成立パス", () => {
-    it("候補 1 名・制限なし → matched=true、両者キュー削除 + セッション作成 + publishMatched", async () => {
+    it("【正常系】候補 1 名・制限なし → matched=true、両者キュー削除 + セッション作成 + publishMatched", async () => {
       const repo = buildRepos()
       const { peer } = setupBasicMatch(repo)
 
@@ -303,7 +303,7 @@ describe("joinMatching", () => {
       })
     })
 
-    it("findProfileById が hobbies を返す → peer に hobbies が反映される", async () => {
+    it("【正常系】findProfileById が hobbies を返す → peer に hobbies が反映される", async () => {
       const repo = buildRepos()
       const peer = buildUser({ avatarUrl: "https://x", id: 2, name: "Peer" })
       setupBasicMatch(repo, { peer })
@@ -328,7 +328,7 @@ describe("joinMatching", () => {
   })
 
   describe("ブロック関係のスキップ", () => {
-    it("最古ユーザーがブロック相手 → 次の候補にフォールバックして成立", async () => {
+    it("【正常系】最古ユーザーがブロック相手 → 次の候補にフォールバックして成立", async () => {
       const repo = buildRepos()
       const me = buildUser({ id: 1 })
       const blockedPeer = buildUser({ id: 2 })
@@ -356,7 +356,7 @@ describe("joinMatching", () => {
       expect(repo.matchingQueueRedisRepository.removeBothAtomic).toHaveBeenCalledWith(1, 3)
     })
 
-    it("候補全員がブロック相手 → matched=false", async () => {
+    it("【異常系】候補全員がブロック相手 → matched=false", async () => {
       const repo = buildRepos()
       ;(repo.userRepository.findById as jest.Mock).mockResolvedValue(buildUser({ id: 1 }))
       ;(repo.matchingQueueRedisRepository.add as jest.Mock).mockResolvedValue(true)
@@ -373,7 +373,7 @@ describe("joinMatching", () => {
   })
 
   describe("preference フィルタ - 性別", () => {
-    it("自分の preference に相手の gender が含まれない → 不成立", async () => {
+    it("【正常系】自分の preference に相手の gender が含まれない → 不成立", async () => {
       const repo = buildRepos()
       const me = buildUser({ id: 1, gender: "MALE" })
       const peer = buildUser({ gender: "MALE", id: 2 })
@@ -387,7 +387,7 @@ describe("joinMatching", () => {
       expect(repo.matchingQueueRedisRepository.removeBothAtomic).not.toHaveBeenCalled()
     })
 
-    it("相手の preference に自分の gender が含まれない → 不成立（双方向）", async () => {
+    it("【正常系】相手の preference に自分の gender が含まれない → 不成立（双方向）", async () => {
       const repo = buildRepos()
       const me = buildUser({ id: 1, gender: "MALE" })
       const peer = buildUser({ gender: "FEMALE", id: 2 })
@@ -400,7 +400,7 @@ describe("joinMatching", () => {
       if (result.ok) expect(result.value).toEqual({ matched: false })
     })
 
-    it("preference 空配列は無制限 → 成立", async () => {
+    it("【正常系】preference 空配列は無制限 → 成立", async () => {
       const repo = buildRepos()
       const myPref = buildPref({ preferredGenders: [], userId: 1 })
       setupBasicMatch(repo, { myPref })
@@ -411,7 +411,7 @@ describe("joinMatching", () => {
       if (result.ok) expect(result.value.matched).toBe(true)
     })
 
-    it("両者 preference に gender が含まれる → 成立", async () => {
+    it("【正常系】両者 preference に gender が含まれる → 成立", async () => {
       const repo = buildRepos()
       const me = buildUser({ id: 1, gender: "MALE" })
       const peer = buildUser({ gender: "FEMALE", id: 2 })
@@ -425,7 +425,7 @@ describe("joinMatching", () => {
       if (result.ok) expect(result.value.matched).toBe(true)
     })
 
-    it("相手の gender が null かつ preference 制限あり → 不成立", async () => {
+    it("【正常系】相手の gender が null かつ preference 制限あり → 不成立", async () => {
       const repo = buildRepos()
       const peer = buildUser({ gender: null, id: 2 })
       const myPref = buildPref({ preferredGenders: ["FEMALE"], userId: 1 })
@@ -440,7 +440,7 @@ describe("joinMatching", () => {
 
   describe("preference フィルタ - 年齢", () => {
     /** 1995-01-01 生まれ = 2026-05-10 時点で 31 歳 */
-    it("相手の年齢が ageMin 未満 → 不成立", async () => {
+    it("【正常系】相手の年齢が ageMin 未満 → 不成立", async () => {
       const repo = buildRepos()
       const peer = buildUser({ birthDate: new Date("2010-01-01"), id: 2 })
       const myPref = buildPref({ ageMin: 20, userId: 1 })
@@ -452,7 +452,7 @@ describe("joinMatching", () => {
       if (result.ok) expect(result.value).toEqual({ matched: false })
     })
 
-    it("相手の年齢が ageMax 超過 → 不成立", async () => {
+    it("【正常系】相手の年齢が ageMax 超過 → 不成立", async () => {
       const repo = buildRepos()
       const peer = buildUser({ birthDate: new Date("1980-01-01"), id: 2 })
       const myPref = buildPref({ ageMax: 30, userId: 1 })
@@ -464,7 +464,7 @@ describe("joinMatching", () => {
       if (result.ok) expect(result.value).toEqual({ matched: false })
     })
 
-    it("相手の年齢が ageMin..ageMax の範囲内 → 成立", async () => {
+    it("【正常系】相手の年齢が ageMin..ageMax の範囲内 → 成立", async () => {
       const repo = buildRepos()
       const peer = buildUser({ birthDate: new Date("2000-01-01"), id: 2 })
       const myPref = buildPref({ ageMax: 30, ageMin: 20, userId: 1 })
@@ -476,7 +476,7 @@ describe("joinMatching", () => {
       if (result.ok) expect(result.value.matched).toBe(true)
     })
 
-    it("相手の birthDate が null かつ年齢制限あり → 不成立", async () => {
+    it("【正常系】相手の birthDate が null かつ年齢制限あり → 不成立", async () => {
       const repo = buildRepos()
       const peer = buildUser({ birthDate: null, id: 2 })
       const myPref = buildPref({ ageMin: 20, userId: 1 })
@@ -490,7 +490,7 @@ describe("joinMatching", () => {
   })
 
   describe("preference フィルタ - 居住地域", () => {
-    it("自分の preferredLocations に相手の location が含まれない → 不成立", async () => {
+    it("【正常系】自分の preferredLocations に相手の location が含まれない → 不成立", async () => {
       const repo = buildRepos()
       const peer = buildUser({ id: 2, location: "Osaka" })
       const myPref = buildPref({ preferredLocations: ["Tokyo"], userId: 1 })
@@ -502,7 +502,7 @@ describe("joinMatching", () => {
       if (result.ok) expect(result.value).toEqual({ matched: false })
     })
 
-    it("相手の location が含まれる → 成立", async () => {
+    it("【正常系】相手の location が含まれる → 成立", async () => {
       const repo = buildRepos()
       const peer = buildUser({ id: 2, location: "Tokyo" })
       const myPref = buildPref({ preferredLocations: ["Tokyo", "Osaka"], userId: 1 })
@@ -516,7 +516,7 @@ describe("joinMatching", () => {
   })
 
   describe("多段照合", () => {
-    it("preference 不適合の候補をスキップして 2 番目で成立", async () => {
+    it("【正常系】preference 不適合の候補をスキップして 2 番目で成立", async () => {
       const repo = buildRepos()
       const me = buildUser({ id: 1, gender: "MALE" })
       const ngPeer = buildUser({ gender: "MALE", id: 2 })
@@ -544,7 +544,7 @@ describe("joinMatching", () => {
       expect(repo.matchingQueueRedisRepository.removeBothAtomic).toHaveBeenCalledWith(1, 3)
     })
 
-    it("removeBothAtomic 競合の場合は次の候補にリトライ", async () => {
+    it("【正常系】removeBothAtomic 競合の場合は次の候補にリトライ", async () => {
       const repo = buildRepos()
       const me = buildUser({ id: 1 })
       const peerA = buildUser({ id: 2 })
@@ -571,7 +571,7 @@ describe("joinMatching", () => {
       expect(repo.matchingQueueRedisRepository.removeBothAtomic).toHaveBeenCalledTimes(2)
     })
 
-    it("最古候補がゾンビ（既にアクティブセッション保持）→ Redis 掃除して次候補で成立", async () => {
+    it("【正常系】最古候補がゾンビ（既にアクティブセッション保持）→ Redis 掃除して次候補で成立", async () => {
       const repo = buildRepos()
       const me = buildUser({ id: 1 })
       const zombiePeer = buildUser({ id: 2 })
@@ -601,7 +601,7 @@ describe("joinMatching", () => {
       expect(repo.matchingQueueRedisRepository.removeBothAtomic).toHaveBeenCalledWith(1, 3)
     })
 
-    it("候補全員が removeBothAtomic 競合敗北 → matched=false", async () => {
+    it("【異常系】候補全員が removeBothAtomic 競合敗北 → matched=false", async () => {
       const repo = buildRepos()
       const me = buildUser({ id: 1 })
       const peerA = buildUser({ id: 2 })

@@ -68,7 +68,7 @@ describe("sendMatchingStamp", () => {
     jest.clearAllMocks()
   })
 
-  it("free スタンプ → ok / Data Channel publish される", async () => {
+  it("【正常系】free スタンプ → ok / Data Channel publish される", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.itemRepository.findActiveStampForMatching as jest.Mock).mockResolvedValue(
@@ -104,7 +104,7 @@ describe("sendMatchingStamp", () => {
     expect(d.repo.userInventoryRepository.hasItem).not.toHaveBeenCalled()
   })
 
-  it("premium スタンプで所持あり → ok", async () => {
+  it("【正常系】premium スタンプで所持あり → ok", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.itemRepository.findActiveStampForMatching as jest.Mock).mockResolvedValue(
@@ -123,7 +123,7 @@ describe("sendMatchingStamp", () => {
     expect(d.client.livekitClient.publishData).toHaveBeenCalled()
   })
 
-  it("premium スタンプで所持なし → 403 / publish 呼ばれない", async () => {
+  it("【異常系】premium スタンプで所持なし → 403 / publish 呼ばれない", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.itemRepository.findActiveStampForMatching as jest.Mock).mockResolvedValue(
@@ -145,7 +145,7 @@ describe("sendMatchingStamp", () => {
     expect(d.client.livekitClient.publishData).not.toHaveBeenCalled()
   })
 
-  it("非 STAMP / 非 MATCHING（findActiveStampForMatching が null）→ 400", async () => {
+  it("【異常系】非 STAMP / 非 MATCHING（findActiveStampForMatching が null）→ 400", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.itemRepository.findActiveStampForMatching as jest.Mock).mockResolvedValue(null)
@@ -163,7 +163,7 @@ describe("sendMatchingStamp", () => {
     }
   })
 
-  it("レート制限超過 → 429 / item 検証も publish もスキップ", async () => {
+  it("【異常系】レート制限超過 → 429 / item 検証も publish もスキップ", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.rateLimitRedisRepository.incrementWithLimit as jest.Mock).mockResolvedValue(false)
@@ -183,7 +183,7 @@ describe("sendMatchingStamp", () => {
     expect(d.client.livekitClient.publishData).not.toHaveBeenCalled()
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 1, user2Id: 2 }),
@@ -200,7 +200,7 @@ describe("sendMatchingStamp", () => {
     expect(d.repo.rateLimitRedisRepository.incrementWithLimit).not.toHaveBeenCalled()
   })
 
-  it("ENDED → 410", async () => {
+  it("【異常系】ENDED → 410", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ status: "ENDED" }),
@@ -219,7 +219,7 @@ describe("sendMatchingStamp", () => {
     }
   })
 
-  it("セッション無し → 404", async () => {
+  it("【異常系】セッション無し → 404", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(null)
 
@@ -233,7 +233,7 @@ describe("sendMatchingStamp", () => {
     if (!result.ok) expect(result.error.statusCode).toBe(404)
   })
 
-  it("publishData が失敗してもレスポンスは ok（best-effort）", async () => {
+  it("【正常系】publishData が失敗してもレスポンスは ok（best-effort）", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.itemRepository.findActiveStampForMatching as jest.Mock).mockResolvedValue(

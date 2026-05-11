@@ -57,7 +57,7 @@ afterAll(async () => {
 })
 
 describe("POST /api/auth/google", () => {
-  it("新規ユーザーの場合、200 と Access/Refresh Token を返し、DB にユーザーが作成され Redis に Refresh Token が保存される", async () => {
+  it("【正常系】新規ユーザーの場合、200 と Access/Refresh Token を返し、DB にユーザーが作成され Redis に Refresh Token が保存される", async () => {
     mockGetUserInfo.mockResolvedValue({
       email: "new@example.com",
       id: "google-456",
@@ -114,7 +114,7 @@ describe("POST /api/auth/google", () => {
     expect(await refreshTokenRepository.findUserId(payload!.jti)).toBe(createdUser!.id)
   })
 
-  it("既存ユーザーの場合、200 と is_new_user=false で Token を返し Redis に新しい Refresh Token が保存される", async () => {
+  it("【正常系】既存ユーザーの場合、200 と is_new_user=false で Token を返し Redis に新しい Refresh Token が保存される", async () => {
     const user = await testPrisma.user.create({
       data: {
         avatarUrl: "https://example.com/avatar.jpg",
@@ -162,7 +162,7 @@ describe("POST /api/auth/google", () => {
     expect(await refreshTokenRepository.findUserId(payload!.jti)).toBe(user.id)
   })
 
-  it("code が無い場合、400 を返す", async () => {
+  it("【異常系】code が無い場合、400 を返す", async () => {
     const res = await request(app)
       .post("/api/auth/google")
       .send({ redirect_uri: REDIRECT_URI })
@@ -171,7 +171,7 @@ describe("POST /api/auth/google", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("redirect_uri が URL でない場合、400 を返す", async () => {
+  it("【異常系】redirect_uri が URL でない場合、400 を返す", async () => {
     const res = await request(app)
       .post("/api/auth/google")
       .send({ code: "auth-code", redirect_uri: "not-a-url" })
@@ -180,7 +180,7 @@ describe("POST /api/auth/google", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("Google 認証エラー時、グローバルエラーハンドラが 500 を返す", async () => {
+  it("【異常系】Google 認証エラー時、グローバルエラーハンドラが 500 を返す", async () => {
     mockGetUserInfo.mockRejectedValue(new Error("Google authentication failed"))
 
     const res = await request(app)

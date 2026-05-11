@@ -20,7 +20,7 @@ describe("refreshTokens", () => {
     jest.clearAllMocks()
   })
 
-  it("正常系: 旧 jti を破棄し、新しい Access/Refresh Token を発行する", async () => {
+  it("【正常系】旧 jti を破棄し、新しい Access/Refresh Token を発行する", async () => {
     mockFindUserId.mockResolvedValue(1)
 
     const result = await refreshTokens(
@@ -41,7 +41,7 @@ describe("refreshTokens", () => {
     expect(mockSave).toHaveBeenCalledWith("new-jti", 1, expect.any(Number))
   })
 
-  it("検証失敗時、401 UNAUTHORIZED を返す", async () => {
+  it("【異常系】検証失敗時、401 UNAUTHORIZED を返す", async () => {
     const result = await refreshTokens(
       { refreshToken: "broken" },
       { refreshTokenRepository: mockRefreshTokenRepository },
@@ -60,7 +60,7 @@ describe("refreshTokens", () => {
     expect(mockSave).not.toHaveBeenCalled()
   })
 
-  it("Redis に jti が無い場合（再利用検知）、401 UNAUTHORIZED を返す", async () => {
+  it("【異常系】Redis に jti が無い場合（再利用検知）、401 UNAUTHORIZED を返す", async () => {
     mockFindUserId.mockResolvedValue(null)
 
     const result = await refreshTokens(
@@ -80,7 +80,7 @@ describe("refreshTokens", () => {
     expect(mockDelete).not.toHaveBeenCalled()
   })
 
-  it("userId が一致しない場合、401 UNAUTHORIZED を返す", async () => {
+  it("【異常系】userId が一致しない場合、401 UNAUTHORIZED を返す", async () => {
     mockFindUserId.mockResolvedValue(2)
 
     const result = await refreshTokens(

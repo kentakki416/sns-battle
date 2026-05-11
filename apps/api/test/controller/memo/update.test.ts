@@ -28,7 +28,7 @@ afterAll(async () => {
 })
 
 describe("PUT /api/memo/:id", () => {
-  it("200 と更新されたメモを返す", async () => {
+  it("【正常系】200 と更新されたメモを返す", async () => {
     const memo = await testPrisma.memo.create({
       data: { body: "Old Body", title: "Old Title" },
     })
@@ -54,7 +54,7 @@ describe("PUT /api/memo/:id", () => {
     })
   })
 
-  it("メモが存在しない場合、404 を返す", async () => {
+  it("【異常系】メモが存在しない場合、404 を返す", async () => {
     const res = await request(app)
       .put("/api/memo/999999")
       .send({ body: "Updated Body", title: "Updated Title" })
@@ -63,7 +63,7 @@ describe("PUT /api/memo/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 404 })
   })
 
-  it("無効なID形式の場合、400 を返す", async () => {
+  it("【異常系】無効なID形式の場合、400 を返す", async () => {
     const res = await request(app)
       .put("/api/memo/abc")
       .send({ body: "Updated Body", title: "Updated Title" })
@@ -72,7 +72,7 @@ describe("PUT /api/memo/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("リクエストボディが不正な場合、400 を返す", async () => {
+  it("【異常系】リクエストボディが不正な場合、400 を返す", async () => {
     const res = await request(app)
       .put("/api/memo/1")
       .send({})

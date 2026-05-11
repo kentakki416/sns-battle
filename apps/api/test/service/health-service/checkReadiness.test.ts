@@ -23,7 +23,7 @@ describe("checkReadiness", () => {
     jest.clearAllMocks()
   })
 
-  it("全サービスが正常な場合、ok: true で全てokを返す", async () => {
+  it("【正常系】全サービスが正常な場合、ok: true で全てokを返す", async () => {
     // Arrange
     mockDatabasePing.mockResolvedValue(undefined)
     mockRedisPing.mockResolvedValue(undefined)
@@ -43,7 +43,7 @@ describe("checkReadiness", () => {
     expect(mockRedisPing).toHaveBeenCalledTimes(1)
   })
 
-  it("データベースがエラーの場合、ok: true のまま database のみ error を返す", async () => {
+  it("【異常系】データベースがエラーの場合、ok: true のまま database のみ error を返す", async () => {
     // Arrange
     mockDatabasePing.mockRejectedValue(new Error("DB connection failed"))
     mockRedisPing.mockResolvedValue(undefined)
@@ -61,7 +61,7 @@ describe("checkReadiness", () => {
     }
   })
 
-  it("Redisがエラーの場合、ok: true のまま redis のみ error を返す", async () => {
+  it("【異常系】Redisがエラーの場合、ok: true のまま redis のみ error を返す", async () => {
     // Arrange
     mockDatabasePing.mockResolvedValue(undefined)
     mockRedisPing.mockRejectedValue(new Error("Redis connection failed"))
@@ -79,7 +79,7 @@ describe("checkReadiness", () => {
     }
   })
 
-  it("全サービスがエラーの場合、ok: true のまま全て error を返す", async () => {
+  it("【異常系】全サービスがエラーの場合、ok: true のまま全て error を返す", async () => {
     // Arrange
     mockDatabasePing.mockRejectedValue(new Error("DB connection failed"))
     mockRedisPing.mockRejectedValue(new Error("Redis connection failed"))

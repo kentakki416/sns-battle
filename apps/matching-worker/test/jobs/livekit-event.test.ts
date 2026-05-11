@@ -94,7 +94,7 @@ describe("livekitEvent job", () => {
     await disconnectTestRedis()
   })
 
-  it("participant_left → ENDED+USER_LEFT、matching:ended publish、関連ジョブ削除、schedule key 削除", async () => {
+  it("【正常系】participant_left → ENDED+USER_LEFT、matching:ended publish、関連ジョブ削除、schedule key 削除", async () => {
     const session = await createSession()
     const publisher = buildPublisher()
 
@@ -161,7 +161,7 @@ describe("livekitEvent job", () => {
     expect(await testRedis.get(`matching:schedule:${session.id}`)).toBeNull()
   })
 
-  it("room_finished → ENDED+USER_LEFT、matching:ended publish、関連ジョブ削除、schedule key 削除", async () => {
+  it("【正常系】room_finished → ENDED+USER_LEFT、matching:ended publish、関連ジョブ削除、schedule key 削除", async () => {
     const session = await createSession()
     const publisher = buildPublisher()
 
@@ -209,7 +209,7 @@ describe("livekitEvent job", () => {
     expect(await testRedis.get(`matching:schedule:${session.id}`)).toBeNull()
   })
 
-  it("session が既に ENDED → no-op（DB / publish / queue / Redis を変更しない）", async () => {
+  it("【正常系】session が既に ENDED → no-op（DB / publish / queue / Redis を変更しない）", async () => {
     const session = await createSession({ status: "ENDED" })
     const publisher = buildPublisher()
 
@@ -245,7 +245,7 @@ describe("livekitEvent job", () => {
     expect(await testRedis.get(`matching:schedule:${session.id}`)).toBe("should-stay")
   })
 
-  it("マッチング以外の room（room.name=battle:1）→ 無視（DB / publish に副作用なし）", async () => {
+  it("【異常系】マッチング以外の room（room.name=battle:1）→ 無視（DB / publish に副作用なし）", async () => {
     const session = await createSession()
     const publisher = buildPublisher()
 
@@ -269,7 +269,7 @@ describe("livekitEvent job", () => {
     expect(after).toMatchObject({ endReason: null, status: "ACTIVE" })
   })
 
-  it("マッチング機能で扱わないイベント（track_published）→ 無視（DB / publish に副作用なし）", async () => {
+  it("【異常系】マッチング機能で扱わないイベント（track_published）→ 無視（DB / publish に副作用なし）", async () => {
     const session = await createSession()
     const publisher = buildPublisher()
 

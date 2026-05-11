@@ -13,7 +13,7 @@ describe("logout", () => {
     jest.clearAllMocks()
   })
 
-  it("正常系: Refresh Token の jti を Redis から削除する", async () => {
+  it("【正常系】Refresh Token の jti を Redis から削除する", async () => {
     const result = await logout(
       { refreshToken: "valid.token" },
       { refreshTokenRepository: mockRefreshTokenRepository },
@@ -24,7 +24,7 @@ describe("logout", () => {
     expect(mockDelete).toHaveBeenCalledWith("target-jti")
   })
 
-  it("検証失敗時、冪等性のため成功扱い（delete は呼ばれない）", async () => {
+  it("【正常系】検証失敗時、冪等性のため成功扱い（delete は呼ばれない）", async () => {
     const result = await logout(
       { refreshToken: "broken" },
       { refreshTokenRepository: mockRefreshTokenRepository },

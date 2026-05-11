@@ -31,7 +31,7 @@ describe("endMatchingSession", () => {
     jest.clearAllMocks()
   })
 
-  it("MANUAL + 5 分以上経過 + 参加者本人 → ok / markEnded 呼び出し", async () => {
+  it("【正常系】MANUAL + 5 分以上経過 + 参加者本人 → ok / markEnded 呼び出し", async () => {
     const repo = buildRepos()
     const startedAt = new Date(Date.now() - 6 * 60 * 1000)
     const baseSession = buildSession({ startedAt, status: "ACTIVE", user1Id: 1, user2Id: 2 })
@@ -52,7 +52,7 @@ describe("endMatchingSession", () => {
     expect(repo.matchingSessionRepository.markEnded).toHaveBeenCalledWith(100, "MANUAL")
   })
 
-  it("MANUAL + 5 分未満 → 400", async () => {
+  it("【異常系】MANUAL + 5 分未満 → 400", async () => {
     const repo = buildRepos()
     const startedAt = new Date(Date.now() - 60 * 1000)
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
@@ -72,7 +72,7 @@ describe("endMatchingSession", () => {
     expect(repo.matchingSessionRepository.markEnded).not.toHaveBeenCalled()
   })
 
-  it("TIMEOUT は 5 分制約を適用せず終了できる", async () => {
+  it("【正常系】TIMEOUT は 5 分制約を適用せず終了できる", async () => {
     const repo = buildRepos()
     const startedAt = new Date(Date.now() - 30 * 1000)
     const baseSession = buildSession({ startedAt, status: "ACTIVE", user1Id: 1, user2Id: 2 })
@@ -93,7 +93,7 @@ describe("endMatchingSession", () => {
     expect(repo.matchingSessionRepository.markEnded).toHaveBeenCalledWith(100, "TIMEOUT")
   })
 
-  it("USER_LEFT も 5 分制約を適用しない", async () => {
+  it("【正常系】USER_LEFT も 5 分制約を適用しない", async () => {
     const repo = buildRepos()
     const startedAt = new Date(Date.now() - 30 * 1000)
     const baseSession = buildSession({ startedAt, status: "ACTIVE", user1Id: 1, user2Id: 2 })
@@ -113,7 +113,7 @@ describe("endMatchingSession", () => {
     expect(result.ok).toBe(true)
   })
 
-  it("既に ENDED → 410", async () => {
+  it("【異常系】既に ENDED → 410", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ status: "ENDED", user1Id: 1, user2Id: 2 }),
@@ -132,7 +132,7 @@ describe("endMatchingSession", () => {
     expect(repo.matchingSessionRepository.markEnded).not.toHaveBeenCalled()
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 1, user2Id: 2 }),
@@ -150,7 +150,7 @@ describe("endMatchingSession", () => {
     }
   })
 
-  it("存在しない → 404", async () => {
+  it("【異常系】存在しない → 404", async () => {
     const repo = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(null)
 
