@@ -1,6 +1,12 @@
 import { calculateAge, isValidAdultAge } from "../lib/age"
 import { logger } from "../log"
-import { HobbyRepository, UserRepository } from "../repository/prisma"
+import {
+  BlockRepository,
+  HobbyRepository,
+  UserRepository,
+  UserSearchRepository,
+  UserSearchResult,
+} from "../repository/prisma"
 import { Hobby, User } from "../types/domain"
 import {
   badRequestError,
@@ -278,4 +284,39 @@ export const completeOnboarding = async (
     name: fresh.user.name,
   }
   return ok(profile)
+}
+
+/**
+ * ユーザー検索。name 列の case-insensitive 部分一致。
+ * 双方向ブロック関係にあるユーザーは除外する（spec: ブロックは双方向に効果）。
+ * 自分自身は除外しない（普通の検索 UX として、自分が見つかること自体は不自然ではない）。
+ *
+ * クエリ条件は schema で 1..100 文字に絞っているため、想定不正は schema 段の 400 で弾かれる。
+ * 本サービスでは結果 0 件を「空 + nextCursor=null」で返すのみで、追加の業務エラーは無い。
+ *
+ * `nextCursor` 算出方針は getFollowers / getFollowing と同じ「limit ぴったり判定」。
+ */
+export const searchUsers = async (
+  input: {
+    cursor: number | undefined
+    currentUserId: number
+    limit: number
+    query: string
+  },
+  repo: {
+    blockRepository: BlockRepository
+    userSearchRepository: UserSearchRepository
+  },
+): Promise<Result<{ entries: UserSearchResult[]; nextCursor: number | null }>> => {
+  logger.debug("UserService: searchUsers", input)
+
+  const blockedIds = await repo.blockRepository.findBlockedUserIds(input.currentUserId)
+  const entries = await repo.userSearchRepository.searchByName({
+    cursor: input.cursor,
+    excludeIds: Array.from(blockedIds),
+    limit: input.limit,
+    query: input.query,
+  })
+  const nextCursor = entries.length === input.limit ? entries[entries.length - 1].id : null
+  return ok({ entries, nextCursor })
 }

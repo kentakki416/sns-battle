@@ -41,6 +41,7 @@ import { MemoListController } from "./controller/memo/list"
 import { MemoUpdateController } from "./controller/memo/update"
 import { UserGetController } from "./controller/user/get"
 import { UserOnboardingController } from "./controller/user/onboarding"
+import { UserSearchController } from "./controller/user/search"
 import { UserUpdateController } from "./controller/user/update"
 import { logger } from "./log"
 import { authMiddleware } from "./middleware/auth"
@@ -152,6 +153,7 @@ const memoDeleteController = new MemoDeleteController(memoRepository)
 const userGetController = new UserGetController(userRepository)
 const userUpdateController = new UserUpdateController(userRepository, hobbyRepository)
 const userOnboardingController = new UserOnboardingController(userRepository, hobbyRepository)
+const userSearchController = new UserSearchController(blockRepository, userRepository)
 
 // Hobby Controller のインスタンス化
 const hobbyListController = new HobbyListController(hobbyRepository)
@@ -305,6 +307,7 @@ app.use(
     followingList: followingListController,
     get: userGetController,
     onboarding: userOnboardingController,
+    search: userSearchController,
     update: userUpdateController,
   })
 )
