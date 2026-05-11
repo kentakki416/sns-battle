@@ -2,9 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react"
 
+import { ConfettiEffect } from "@/components/ui/confetti-effect"
+
 import { startMatchingSessionAction, submitReactionAction } from "../../actions"
 import { BottomControls } from "../active/BottomControls"
 import { HypeCommentOverlay } from "../active/HypeCommentOverlay"
+import { MediaPermissionBanner } from "../active/MediaPermissionBanner"
 import { StampFloatLayer } from "../active/StampFloatLayer"
 import { ThemeCard } from "../active/ThemeCard"
 import { ThemeTimerBar } from "../active/ThemeTimerBar"
@@ -13,6 +16,7 @@ import { useLiveKitRoom } from "../hooks/useLiveKitRoom"
 import {
   type MatchingEndedEvent,
   type MatchingHypeEvent,
+  type MatchingReactionMatchEvent,
   type MatchingStampEvent,
   type MatchingThemeEvent,
   type MatchingTimerEvent,
@@ -55,6 +59,8 @@ export function ActiveState({ isSelfUser1, onEnd, session, userId }: Props) {
   const [canEndNow, setCanEndNow] = useState(false)
   const [stamps, setStamps] = useState<ReceivedStamp[]>([])
   const [reactedRoundNumber, setReactedRoundNumber] = useState<number | null>(null)
+  /** ConfettiEffect の trigger key。`matching:reaction_match` で matched=true を受信した時に更新 */
+  const [confettiTrigger, setConfettiTrigger] = useState<number | null>(null)
 
   /** mount で start を 1 回呼ぶ */
   useEffect(() => {
@@ -101,9 +107,15 @@ export function ActiveState({ isSelfUser1, onEnd, session, userId }: Props) {
     [onEnd],
   )
 
+  /** 一致演出: matching:reaction_match 受信で matched=true なら ConfettiEffect を再発火 */
+  const handleReactionMatch = useCallback((ev: MatchingReactionMatchEvent) => {
+    if (ev.matched) setConfettiTrigger(Date.now())
+  }, [])
+
   useMatchingDataChannel(room, {
     onEnded: handleEnded,
     onHype: handleHype,
+    onReactionMatch: handleReactionMatch,
     onStamp: handleStamp,
     onTheme: handleTheme,
     onTimer: handleTimer,
@@ -157,13 +169,22 @@ export function ActiveState({ isSelfUser1, onEnd, session, userId }: Props) {
 
       <HypeCommentOverlay message={hypeMessage} />
       <StampFloatLayer stamps={stamps} />
+      {confettiTrigger !== null && <ConfettiEffect trigger={confettiTrigger} />}
 
       <BottomControls canEndNow={canEndNow} onEnd={onEnd} room={room} />
 
       {error && (
-        <div className="absolute left-1/2 top-4 -translate-x-1/2 rounded-full bg-error/80 px-4 py-1 text-xs text-white">
-          LiveKit 接続エラー: {error}
-        </div>
+        <MediaPermissionBanner
+          error={error}
+          onRetry={() => {
+            /**
+             * カメラ / マイク権限の再取得は location.reload が最も確実（permissions API で
+             * 再 prompt させる経路はブラウザによって挙動が不安定）。Room 接続失敗 / token 失敗の
+             * 場合も同じくリロードでクリーンに再試行する。
+             */
+            window.location.reload()
+          }}
+        />
       )}
     </div>
   )
