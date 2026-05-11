@@ -95,9 +95,12 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 - [x] Frontend: `/matching` ロビー（待機ユーザー一覧 + マッチング開始 CTA）（step10）
 - [x] Frontend: `/matching/session` セッション（waiting → matched → countdown → active の状態遷移）（step11）
 - [x] Frontend: `/matching/result` 結果ページ（step12）
-- [ ] Frontend: テーマカード、スポットライト、リアクションバブル、フリートーク希望ボタン、盛り上げコメント（step11 のうち active 状態の Data Channel 購読 + 詳細 UI 反映は持ち越し。後続 PR で着手）
-- [ ] Web 側 SSE 購読（`/api/matching/events`）で待機中に matched イベントを非同期受信する経路（step11 持ち越し）
-- [ ] `/matching/result?session_id=N` の存在しないセッション時のエラーハンドリング（step12 既知の未対応）
+- [x] Frontend: テーマカード、スポットライト、リアクションバブル、フリートーク希望ボタン、盛り上げコメント（step11 持ち越し / PR #64）
+- [x] Web 側 SSE 購読（`/api/matching/events`）で待機中に matched イベントを非同期受信する経路（step11 持ち越し / PR #63）
+- [x] `/matching/result?session_id=N` の存在しないセッション時のエラーハンドリング（step12 持ち越し / PR #63）
+- [ ] Active 中の `matching:reaction_match` 受信時の紙吹雪 / 一致演出（polish）
+- [ ] Active 中のスタンプ送信 UI（既存 `<StampPalette>` のテーマ進行画面への統合）
+- [ ] カメラ/マイク permission 拒否時のフォールバック UI
 
 ---
 
