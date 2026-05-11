@@ -10,6 +10,8 @@ import { AuthGoogleController } from "./controller/auth/google"
 import { AuthLogoutController } from "./controller/auth/logout"
 import { AuthMeController } from "./controller/auth/me"
 import { AuthRefreshController } from "./controller/auth/refresh"
+import { BlockCreateController } from "./controller/block/create"
+import { BlockDeleteController } from "./controller/block/delete"
 import { FollowCreateController } from "./controller/follow/create"
 import { FollowDeleteController } from "./controller/follow/delete"
 import { HealthLivenessController } from "./controller/health/liveness"
@@ -160,6 +162,16 @@ const followCreateController = new FollowCreateController(
 )
 const followDeleteController = new FollowDeleteController(followRepository)
 
+// Block Controller のインスタンス化（PrismaBlockRepository / PrismaFollowRepository が
+// クエリ系・ミューテーション系の両 interface を実装しているため、同じインスタンスを再利用する）
+const blockCreateController = new BlockCreateController(
+  blockRepository,
+  followRepository,
+  transactionRunner,
+  userRepository,
+)
+const blockDeleteController = new BlockDeleteController(blockRepository)
+
 // MatchingPreference Controller のインスタンス化
 const matchingPreferenceGetController = new MatchingPreferenceGetController(
   matchingPreferenceRepository,
@@ -281,6 +293,8 @@ app.use(
 app.use(
   "/api/users",
   userRouter({
+    blockCreate: blockCreateController,
+    blockDelete: blockDeleteController,
     followCreate: followCreateController,
     followDelete: followDeleteController,
     get: userGetController,

@@ -1,5 +1,7 @@
 import { Router } from "express"
 
+import { BlockCreateController } from "../controller/block/create"
+import { BlockDeleteController } from "../controller/block/delete"
 import { FollowCreateController } from "../controller/follow/create"
 import { FollowDeleteController } from "../controller/follow/delete"
 import { UserGetController } from "../controller/user/get"
@@ -7,6 +9,8 @@ import { UserOnboardingController } from "../controller/user/onboarding"
 import { UserUpdateController } from "../controller/user/update"
 
 type UserRouterControllers = {
+  blockCreate?: BlockCreateController
+  blockDelete?: BlockDeleteController
   followCreate?: FollowCreateController
   followDelete?: FollowDeleteController
   get?: UserGetController
@@ -17,7 +21,7 @@ type UserRouterControllers = {
 /**
  * ユーザー関連のルーター
  * 渡されたコントローラーのルートのみ登録する。
- * 長いパス（/:id/onboarding, /:id/follow）を /:id より先に登録して Express のマッチを安定させる。
+ * 長いパス（/:id/onboarding, /:id/follow, /:id/block）を /:id より先に登録して Express のマッチを安定させる。
  */
 export const userRouter = (controllers: UserRouterControllers): Router => {
   const router = Router()
@@ -38,6 +42,18 @@ export const userRouter = (controllers: UserRouterControllers): Router => {
   if (controllers.followDelete) {
     const controller = controllers.followDelete
     router.delete("/:id/follow", async (req, res) => controller.execute(req, res))
+  }
+
+  // POST /api/users/:id/block
+  if (controllers.blockCreate) {
+    const controller = controllers.blockCreate
+    router.post("/:id/block", async (req, res) => controller.execute(req, res))
+  }
+
+  // DELETE /api/users/:id/block
+  if (controllers.blockDelete) {
+    const controller = controllers.blockDelete
+    router.delete("/:id/block", async (req, res) => controller.execute(req, res))
   }
 
   // GET /api/users/:id

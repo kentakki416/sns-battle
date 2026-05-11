@@ -1,4 +1,5 @@
 export * from "./auth"
+export * from "./block"
 export * from "./common"
 export * from "./follow"
 export * from "./health"
