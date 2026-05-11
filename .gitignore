@@ -99,3 +99,13 @@ app-example
 
 # serena
 .serena
+
+# Claude Code agent worktrees（ローカル作業領域。リポジトリには含めない）
+.claude/worktrees/
+
+# Prisma generated client の tsc コンパイル出力（src/ にこぼれた残骸対策）
+# .ts ソースは `prisma generate` の出力なので git 管理するが、tsc が出力する
+# .js / .d.ts / .js.map は dist/ に行くべきで src/ に置かない。
+apps/*/src/prisma/generated/**/*.js
+apps/*/src/prisma/generated/**/*.js.map
+apps/*/src/prisma/generated/**/*.d.ts
