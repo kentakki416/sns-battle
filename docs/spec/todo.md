@@ -116,39 +116,7 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 
 ---
 
-## Phase 6: ライブ配信（streaming）
-
-Spec3。
-
-- [ ] DB: `streams`、`stream_comments`、`stream_stamps` テーブル作成
-- [ ] API: `GET /api/streams`、`GET /api/streams/:id`、`PUT /api/streams/:id`
-- [ ] API: `POST /api/streams/token`、`POST /api/streams/ingress`
-- [ ] LiveKit: Ingress 作成（WHIP）、Webhook `ingress_started/ended` で `is_live` 同期
-- [ ] Frontend: `/dashboard/stream` 配信者ダッシュボード（タイトル、設定）
-- [ ] Frontend: `/dashboard/stream/start` 配信開始（カメラ許可 → カウントダウン → 配信中）
-- [ ] Frontend: `/stream/:username` 視聴ページ（フルスクリーンビデオ + チャットオーバーレイ）
-- [ ] Frontend: `<StampFloatLayer>` 受信スタンプフロート
-
----
-
-## Phase 7: バトル（battle）
-
-Spec4。
-
-- [ ] DB: `battle_rooms`、`battle_stamps`、`battle_comments` テーブル作成
-- [ ] API: `GET /api/battles`、`POST /api/battles`、`GET /api/battles/:id`
-- [ ] API: `POST /api/battles/:id/join`、`/watch`、`/start`、`/end`
-- [ ] API: `GET /api/battles/:id/result`、`GET /api/battles/:id/comments`
-- [ ] Server: ターン制タイマーサービス（1 分ごとに `battle:turn` 配信）
-- [ ] Server: スタンプカウントサービス（Redis HINCRBY + 1 秒間隔ブロードキャスト）
-- [ ] Frontend: `/battles` 一覧（タブ）
-- [ ] Frontend: `/battles/create` 作成フォーム
-- [ ] Frontend: `/battles/:id` バトルルーム（VS レイアウト + スタンプカウント + チャット）
-- [ ] Frontend: `/battles/:id/result` 結果（勝者冠 + 紙吹雪）
-
----
-
-## Phase 8: MBTI・会話アシスト（Spec2）
+## Phase 6: MBTI・会話アシスト（Spec2）
 
 将来フェーズ。
 
@@ -160,7 +128,7 @@ Spec4。
 
 ---
 
-## Phase 9: 課金・ショップ（Spec6）
+## Phase 7: 課金・ショップ（Spec6）
 
 将来フェーズ。アイテム DB のテーブル本体は **Phase 3.5 で先行作成済み** のため、本フェーズでは API・ビジネスロジック・UI を実装する。
 
@@ -176,11 +144,32 @@ Spec4。
 
 ---
 
-## メモ
+## Phase 8: ライブ配信（streaming）
 
-- **依存関係**: Phase 0 → 1 → 2 が前提。Phase 3 と Phase 3.5 は並列可能だが、**Phase 4 着手前に Phase 3.5 が完了していること**が必須（マッチングのスタンプ送信 API が `items` を参照するため）。Phase 5〜7 は Phase 1+2+3.5 完了後に並列実装可能
-- **Spec1 リリース範囲**: Phase 0 / 1 / 2 / 3 / 3.5 / 4 が完了した時点。**Phase 4 は step1〜step12 の主要バックエンド + フロントエンドが揃った段階**（残りは active 状態の Data Channel 反映 + SSE 経由の matched 受信 + result 画面のエラーハンドリングのみ。Spec1 リリース前にフォロー）
-- **LiveKit が絡む機能**: Phase 4（マッチング）、Phase 6（配信）、Phase 7（バトル）。先にマッチングで LiveKit 連携の基本パターンを確立すると後続が楽
-- **Redis が絡む機能**: マッチングキュー、バトルスタンプカウント、テーマタイマー
-- **BullMQ が絡む機能**: Phase 4 のテーマ進行 / タイマー / タイムアウトジョブ（`theme-progress` queue）と LiveKit Webhook 後処理（`webhook-events` queue）を `apps/matching-worker` で消化。共有定義は `packages/queue` に集約
-- **テスト方針**: Service 層はユニットテスト（`jest.fn()` モック）、Controller 層は実 DB を使ったインテグレーションテスト
+Spec3。
+
+- [ ] DB: `streams`、`stream_comments`、`stream_stamps` テーブル作成
+- [ ] API: `GET /api/streams`、`GET /api/streams/:id`、`PUT /api/streams/:id`
+- [ ] API: `POST /api/streams/token`、`POST /api/streams/ingress`
+- [ ] LiveKit: Ingress 作成（WHIP）、Webhook `ingress_started/ended` で `is_live` 同期
+- [ ] Frontend: `/dashboard/stream` 配信者ダッシュボード（タイトル、設定）
+- [ ] Frontend: `/dashboard/stream/start` 配信開始（カメラ許可 → カウントダウン → 配信中）
+- [ ] Frontend: `/stream/:username` 視聴ページ（フルスクリーンビデオ + チャットオーバーレイ）
+- [ ] Frontend: `<StampFloatLayer>` 受信スタンプフロート
+
+---
+
+## Phase 9: バトル（battle）
+
+Spec4。
+
+- [ ] DB: `battle_rooms`、`battle_stamps`、`battle_comments` テーブル作成
+- [ ] API: `GET /api/battles`、`POST /api/battles`、`GET /api/battles/:id`
+- [ ] API: `POST /api/battles/:id/join`、`/watch`、`/start`、`/end`
+- [ ] API: `GET /api/battles/:id/result`、`GET /api/battles/:id/comments`
+- [ ] Server: ターン制タイマーサービス（1 分ごとに `battle:turn` 配信）
+- [ ] Server: スタンプカウントサービス（Redis HINCRBY + 1 秒間隔ブロードキャスト）
+- [ ] Frontend: `/battles` 一覧（タブ）
+- [ ] Frontend: `/battles/create` 作成フォーム
+- [ ] Frontend: `/battles/:id` バトルルーム（VS レイアウト + スタンプカウント + チャット）
+- [ ] Frontend: `/battles/:id/result` 結果（勝者冠 + 紙吹雪）
