@@ -25,6 +25,7 @@ import { MatchingSessionDetailController } from "./controller/matching/session-d
 import { MatchingSessionEndController } from "./controller/matching/session-end"
 import { MatchingSessionStartController } from "./controller/matching/session-start"
 import { MatchingStampController } from "./controller/matching/stamp"
+import { MatchingStampsListController } from "./controller/matching/stamps-list"
 import { MatchingStatusController } from "./controller/matching/status"
 import { MatchingTokenController } from "./controller/matching/token"
 import { MatchingPreferenceGetController } from "./controller/matching-preference/get"
@@ -219,6 +220,7 @@ const matchingStampController = new MatchingStampController(
   rateLimitRedisRepository,
   userInventoryRepository,
 )
+const matchingStampsListController = new MatchingStampsListController(itemRepository)
 const livekitWebhookController = new LiveKitWebhookController(
   livekitWebhookReceiver,
   webhookEventsQueue,
@@ -317,6 +319,7 @@ app.use(
     sessionEnd: matchingSessionEndController,
     sessionStart: matchingSessionStartController,
     stamp: matchingStampController,
+    stampsList: matchingStampsListController,
     status: matchingStatusController,
     token: matchingTokenController,
   })

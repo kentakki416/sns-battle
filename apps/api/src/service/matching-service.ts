@@ -25,6 +25,7 @@ import type {
   MatchingPreference,
   MatchingSession,
   StampAnimationType,
+  StampForMatching,
   TalkThemeChoice,
   User,
 } from "../types/domain"
@@ -1046,4 +1047,20 @@ export const sendMatchingStamp = async (
     emoji: stamp.emoji,
     itemId: stamp.id,
   })
+}
+
+/**
+ * マッチングセッションで使えるスタンプ一覧を取得する。
+ *
+ * - `is_active=true` + MATCHING scope を含むスタンプを sortOrder 昇順で返す
+ * - 認証必須（呼び出し側で middleware が担保）。session 参加者かどうかの厳密チェックは
+ *   行わない（一覧は match 前の preload にも使えるよう公開的な扱いで OK）
+ * - premium スタンプも一覧に含める。送信時に user_inventory チェックが入る
+ */
+export const getMatchingStamps = async (
+  repo: { itemRepository: ItemRepository },
+): Promise<Result<{ stamps: StampForMatching[] }>> => {
+  logger.debug("MatchingService: getMatchingStamps")
+  const stamps = await repo.itemRepository.findManyActiveStampsForMatching()
+  return ok({ stamps })
 }

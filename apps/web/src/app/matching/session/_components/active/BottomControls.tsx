@@ -5,7 +5,9 @@ import { useState } from "react"
 
 type Props = {
   canEndNow: boolean
+  canSendStamp: boolean
   onEnd: () => void
+  onToggleStampPalette: () => void
   room: Room | null
 }
 
@@ -13,10 +15,17 @@ type Props = {
  * セッション中のボトム操作バー。
  *
  * - ミュート / カメラのトグルは `room.localParticipant.setMicrophoneEnabled` 等を呼ぶだけ
+ * - スタンプボタンは StampPalette の表示 / 非表示をトグル。`canSendStamp=false` のときは無効
  * - 終了ボタンは `can_end_now=true`（5 分経過）でのみ enable。クリックで `onEnd` を呼ぶ
  *   （上位で endSession + /matching/result 遷移を行う）
  */
-export function BottomControls({ canEndNow, onEnd, room }: Props) {
+export function BottomControls({
+  canEndNow,
+  canSendStamp,
+  onEnd,
+  onToggleStampPalette,
+  room,
+}: Props) {
   const [micOn, setMicOn] = useState(true)
   const [camOn, setCamOn] = useState(true)
 
@@ -49,6 +58,19 @@ export function BottomControls({ canEndNow, onEnd, room }: Props) {
         type="button"
       >
         {camOn ? "📷" : "🚫"}
+      </button>
+      <button
+        aria-label="スタンプを送る"
+        className={`flex h-12 w-12 items-center justify-center rounded-full text-xl transition ${
+          canSendStamp
+            ? "bg-dark-elevated text-white hover:bg-dark-surface"
+            : "cursor-not-allowed bg-dark-elevated text-text-disabled"
+        }`}
+        disabled={!canSendStamp}
+        onClick={onToggleStampPalette}
+        type="button"
+      >
+        💬
       </button>
       <button
         aria-label="セッション終了"

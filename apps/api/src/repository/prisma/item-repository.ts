@@ -13,6 +13,11 @@ export interface ItemRepository {
      * 該当しない場合（種別違い、非アクティブ、別 scope のみ）は null。
      */
     findActiveStampForMatching(itemId: number): Promise<StampForMatching | null>
+    /**
+     * MATCHING スコープのアクティブなスタンプ一覧を sortOrder 昇順で返す。
+     * セッション画面の StampPalette が初期化時にこの API を呼んで選択肢を構築する。
+     */
+    findManyActiveStampsForMatching(): Promise<StampForMatching[]>
 }
 
 export class PrismaItemRepository implements ItemRepository {
@@ -44,5 +49,32 @@ export class PrismaItemRepository implements ItemRepository {
       isPremium: row.isPremium,
       name: row.name,
     }
+  }
+
+  async findManyActiveStampsForMatching(): Promise<StampForMatching[]> {
+    const rows = await this._prisma.item.findMany({
+      include: { stampDetail: true },
+      orderBy: { sortOrder: "asc" },
+      where: {
+        isActive: true,
+        scopes: { some: { scope: "MATCHING" } },
+        type: "STAMP",
+      },
+    })
+    /**
+     * type=STAMP の row は必ず stampDetail を持つ前提（Phase 3.5 の DB 設計）。
+     * 例外的に null が混ざっていたら防御的にスキップする。
+     */
+    return rows
+      .filter((row): row is typeof row & { stampDetail: NonNullable<typeof row.stampDetail> } =>
+        row.stampDetail !== null,
+      )
+      .map((row) => ({
+        animationType: row.stampDetail.animationType,
+        emoji: row.stampDetail.emoji,
+        id: row.id,
+        isPremium: row.isPremium,
+        name: row.name,
+      }))
   }
 }
