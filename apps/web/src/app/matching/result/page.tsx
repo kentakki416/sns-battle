@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 
 import {
   getMatchingSessionResponseSchema,
@@ -21,6 +21,17 @@ type Props = {
   searchParams: Promise<{ session_id?: string }>
 }
 
+/**
+ * apiClient はエラー時に `Error("API error: <status>")` を投げる。Server Component で
+ * Next.js の `notFound()` / `redirect()` に変換できるよう、メッセージから status を抽出する。
+ * apiClient 自体に typed error を持たせる方が綺麗だが、影響範囲が広いため本ページではインラインで処理する。
+ */
+const extractApiStatus = (e: unknown): number | null => {
+  if (!(e instanceof Error)) return null
+  const m = /^API error: (\d+)$/.exec(e.message)
+  return m ? Number(m[1]) : null
+}
+
 export default async function MatchingResultPage({ searchParams }: Props) {
   const { session_id: sessionIdParam } = await searchParams
   const sessionId = Number(sessionIdParam)
@@ -30,10 +41,28 @@ export default async function MatchingResultPage({ searchParams }: Props) {
   if (!me) redirect("/sign-in")
   if (!me.is_onboarded) redirect("/onboarding")
 
-  const [sessionJson, reactionsJson] = await Promise.all([
+  /**
+   * 存在しないセッション / 非参加者の場合は API が 404 / 403 を返すので、Next.js の
+   * 404 ページや /matching リダイレクトに振り替える。`Promise.all` のままだと一方の失敗で
+   * もう一方がキャンセルされないため `allSettled` で個別にチェックする。
+   */
+  const [sessionResult, reactionsResult] = await Promise.allSettled([
     apiClient.get<unknown>(`/api/matching/sessions/${sessionId}`),
     apiClient.get<unknown>(`/api/matching/sessions/${sessionId}/reactions`),
   ])
+
+  for (const r of [sessionResult, reactionsResult]) {
+    if (r.status === "rejected") {
+      const status = extractApiStatus(r.reason)
+      if (status === 404 || status === 410) notFound()
+      if (status === 403) redirect("/matching")
+      throw r.reason
+    }
+  }
+
+  /** allSettled の戻り値を narrow するため fulfilled を assert で取り出す */
+  const sessionJson = (sessionResult as PromiseFulfilledResult<unknown>).value
+  const reactionsJson = (reactionsResult as PromiseFulfilledResult<unknown>).value
   const session = getMatchingSessionResponseSchema.parse(sessionJson)
   const { rounds } = getReactionsResponseSchema.parse(reactionsJson)
   const peer = session.is_self_user1 ? session.user2 : session.user1

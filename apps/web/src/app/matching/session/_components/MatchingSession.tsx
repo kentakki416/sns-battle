@@ -2,12 +2,13 @@
 
 import { AnimatePresence } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
-import type { JoinMatchingResponse, MatchingPeer } from "@repo/api-schema"
+import type { JoinMatchingResponse, MatchingEvent, MatchingPeer } from "@repo/api-schema"
 
 import { joinMatchingAction, leaveMatchingAction } from "../actions"
 
+import { useMatchingEvents } from "./hooks/useMatchingEvents"
 import { ActiveState } from "./states/ActiveState"
 import { CountdownState } from "./states/CountdownState"
 import { MatchedState } from "./states/MatchedState"
@@ -44,8 +45,8 @@ const toMatchedSession = (res: JoinMatchingResponse): MatchedSession | null => {
  *
  * 1. mount: `joinMatchingAction()` を 1 回呼ぶ
  *    - matched=true なら matched 状態へ即遷移
- *    - matched=false ならそのまま waiting 状態に留まる
- *      （SSE で `matched` を受信した時点で matched 状態に進める拡張を後続 step で導入予定）
+ *    - matched=false なら waiting 状態のまま SSE `/api/matching/events` を購読し、
+ *      `type: "matched"` イベント受信で matched 状態へ非同期遷移する
  * 2. matched: 2 秒だけ peer プロフィールを表示してから countdown へ
  * 3. countdown: 3-2-1-GO! のオーバーレイ。完了で active へ
  * 4. active: LiveKit 接続 + テーマ進行 / タイマー UI（active 内部で start enqueue）
@@ -88,6 +89,21 @@ export function MatchingSession({ userId }: Props) {
       }
     }
   }, [])
+
+  /**
+   * waiting 中のみ SSE を購読し、`matched` イベント受信で session を確定する。
+   * matched 以降は SSE を切る（同じイベントを heartbeat 含めて受信し続ける必要がない）。
+   */
+  const handleSseEvent = useCallback((ev: MatchingEvent) => {
+    if (ev.type !== "matched") return
+    setSession({
+      livekitRoomName: ev.livekit_room_name,
+      peer: ev.peer,
+      sessionId: ev.session_id,
+    })
+    setState((cur) => (cur === "waiting" ? "matched" : cur))
+  }, [])
+  useMatchingEvents({ enabled: state === "waiting", onEvent: handleSseEvent })
 
   /** matched に入ったら 2 秒後に countdown */
   useEffect(() => {
