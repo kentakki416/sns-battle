@@ -78,22 +78,26 @@
 
 ## Phase 4: マッチング（matching）
 
-Spec1 のメイン機能。
+Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「実装ステップ」と各 `step{n}-*.md` を参照。
 
-- [ ] DB: `matching_queue`、`matching_sessions`、`matching_reactions` テーブル作成
-- [ ] API: `POST /api/matching/join`、`DELETE /api/matching/leave`、`GET /api/matching/status`
-- [ ] API: SSE `GET /api/matching/events`（matched / heartbeat / cancelled）
-- [x] API: `POST /api/matching/token`（LiveKit トークン発行）
-- [x] API: `GET /api/matching/sessions/:id`、`POST /api/matching/sessions/:id/end`
-- [x] API: `POST /api/matching/sessions/:id/reaction`、`GET /api/matching/sessions/:id/reactions`
-- [x] API: `POST /api/matching/sessions/:id/stamp`
-- [ ] Server: マッチングキューサービス（Redis Sorted Set + Pub/Sub）
-- [ ] Server: テーマ進行タイマー（Data Channel `matching:theme` / `matching:hype` / `matching:timer`）
-- [ ] Frontend: `/matching` ロビー（待機ユーザー一覧 + マッチング開始 CTA）
-- [ ] Frontend: `/matching/session` セッション（waiting → matched → countdown → active の状態遷移）
-- [ ] Frontend: テーマカード、スポットライト、リアクションバブル、フリートーク希望ボタン、盛り上げコメント
-- [ ] Frontend: `/matching/result` 結果ページ
-- [ ] Webhook: LiveKit `participant_left` / `room_finished` でセッション終了処理
+- [x] DB: `matching_queue`、`matching_sessions`、`matching_reactions` テーブル作成（step1）
+- [x] API: `POST /api/matching/join`、`DELETE /api/matching/leave`、`GET /api/matching/status`（step2）
+- [x] API: SSE `GET /api/matching/events`（matched / heartbeat / cancelled）（step3）
+- [x] API: `POST /api/matching/token`（LiveKit トークン発行）（step4）
+- [x] API: `GET /api/matching/sessions/:id`、`POST /api/matching/sessions/:id/end`（step5）
+- [x] API: `POST /api/matching/sessions/:id/reaction`、`GET /api/matching/sessions/:id/reactions`（step6）
+- [x] API: `POST /api/matching/sessions/:id/stamp`（step7）
+- [x] API: `POST /api/matching/sessions/:id/start`（COUNTDOWN→ACTIVE + theme-progress ジョブ enqueue）（step8a）
+- [x] Server: マッチングキューサービス（Redis Sorted Set + Pub/Sub）（step2/3）
+- [x] Server: テーマ進行タイマー（`advance-theme` / `publish-timer` / `session-timeout` を BullMQ delayed job で実装。`apps/matching-worker`）（step8b）
+- [x] Webhook: API 側 `POST /api/matching/livekit-webhook` で signature 検証 + BullMQ enqueue（step9a）
+- [x] Webhook: matching-worker 側で `livekit-event` ジョブを消化し `participant_left` / `room_finished` でセッション終了処理（step9b）
+- [x] Frontend: `/matching` ロビー（待機ユーザー一覧 + マッチング開始 CTA）（step10）
+- [x] Frontend: `/matching/session` セッション（waiting → matched → countdown → active の状態遷移）（step11）
+- [x] Frontend: `/matching/result` 結果ページ（step12）
+- [ ] Frontend: テーマカード、スポットライト、リアクションバブル、フリートーク希望ボタン、盛り上げコメント（step11 のうち active 状態の Data Channel 購読 + 詳細 UI 反映は持ち越し。後続 PR で着手）
+- [ ] Web 側 SSE 購読（`/api/matching/events`）で待機中に matched イベントを非同期受信する経路（step11 持ち越し）
+- [ ] `/matching/result?session_id=N` の存在しないセッション時のエラーハンドリング（step12 既知の未対応）
 
 ---
 
@@ -175,7 +179,8 @@ Spec4。
 ## メモ
 
 - **依存関係**: Phase 0 → 1 → 2 が前提。Phase 3 と Phase 3.5 は並列可能だが、**Phase 4 着手前に Phase 3.5 が完了していること**が必須（マッチングのスタンプ送信 API が `items` を参照するため）。Phase 5〜7 は Phase 1+2+3.5 完了後に並列実装可能
-- **Spec1 リリース範囲**: Phase 0 / 1 / 2 / 3 / 3.5 / 4 が完了した時点
+- **Spec1 リリース範囲**: Phase 0 / 1 / 2 / 3 / 3.5 / 4 が完了した時点。**Phase 4 は step1〜step12 の主要バックエンド + フロントエンドが揃った段階**（残りは active 状態の Data Channel 反映 + SSE 経由の matched 受信 + result 画面のエラーハンドリングのみ。Spec1 リリース前にフォロー）
 - **LiveKit が絡む機能**: Phase 4（マッチング）、Phase 6（配信）、Phase 7（バトル）。先にマッチングで LiveKit 連携の基本パターンを確立すると後続が楽
 - **Redis が絡む機能**: マッチングキュー、バトルスタンプカウント、テーマタイマー
+- **BullMQ が絡む機能**: Phase 4 のテーマ進行 / タイマー / タイムアウトジョブ（`theme-progress` queue）と LiveKit Webhook 後処理（`webhook-events` queue）を `apps/matching-worker` で消化。共有定義は `packages/queue` に集約
 - **テスト方針**: Service 層はユニットテスト（`jest.fn()` モック）、Controller 層は実 DB を使ったインテグレーションテスト
