@@ -2,11 +2,19 @@
 
 import { useCallback, useEffect, useState } from "react"
 
+import type { MatchingStamp } from "@repo/api-schema"
+
 import { ConfettiEffect } from "@/components/ui/confetti-effect"
 
-import { startMatchingSessionAction, submitReactionAction } from "../../actions"
+import {
+  getMatchingStampsAction,
+  sendMatchingStampAction,
+  startMatchingSessionAction,
+  submitReactionAction,
+} from "../../actions"
 import { BottomControls } from "../active/BottomControls"
 import { HypeCommentOverlay } from "../active/HypeCommentOverlay"
+import { MatchingStampPalette } from "../active/MatchingStampPalette"
 import { MediaPermissionBanner } from "../active/MediaPermissionBanner"
 import { StampFloatLayer } from "../active/StampFloatLayer"
 import { ThemeCard } from "../active/ThemeCard"
@@ -61,11 +69,28 @@ export function ActiveState({ isSelfUser1, onEnd, session, userId }: Props) {
   const [reactedRoundNumber, setReactedRoundNumber] = useState<number | null>(null)
   /** ConfettiEffect の trigger key。`matching:reaction_match` で matched=true を受信した時に更新 */
   const [confettiTrigger, setConfettiTrigger] = useState<number | null>(null)
+  const [availableStamps, setAvailableStamps] = useState<MatchingStamp[]>([])
+  const [showStampPalette, setShowStampPalette] = useState(false)
 
   /** mount で start を 1 回呼ぶ */
   useEffect(() => {
     void startMatchingSessionAction(session.sessionId)
   }, [session.sessionId])
+
+  /** mount で MATCHING スコープのスタンプ一覧を取得（StampPalette の初期化用） */
+  useEffect(() => {
+    void (async () => {
+      const result = await getMatchingStampsAction()
+      if (result.ok) setAvailableStamps(result.data.stamps)
+    })()
+  }, [])
+
+  const handleStampSelect = useCallback(
+    (itemId: number) => {
+      void sendMatchingStampAction({ itemId, sessionId: session.sessionId })
+    },
+    [session.sessionId],
+  )
 
   /** matching:theme 受信時はラウンドが変わるので reaction の disabled 状態をリセット */
   const handleTheme = useCallback((ev: MatchingThemeEvent) => {
@@ -171,7 +196,23 @@ export function ActiveState({ isSelfUser1, onEnd, session, userId }: Props) {
       <StampFloatLayer stamps={stamps} />
       {confettiTrigger !== null && <ConfettiEffect trigger={confettiTrigger} />}
 
-      <BottomControls canEndNow={canEndNow} onEnd={onEnd} room={room} />
+      {showStampPalette && (
+        <MatchingStampPalette
+          onSelect={(itemId) => {
+            handleStampSelect(itemId)
+            setShowStampPalette(false)
+          }}
+          stamps={availableStamps}
+        />
+      )}
+
+      <BottomControls
+        canEndNow={canEndNow}
+        canSendStamp={availableStamps.length > 0}
+        onEnd={onEnd}
+        onToggleStampPalette={() => setShowStampPalette((v) => !v)}
+        room={room}
+      />
 
       {error && (
         <MediaPermissionBanner

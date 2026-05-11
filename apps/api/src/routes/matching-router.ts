@@ -10,6 +10,7 @@ import { MatchingSessionDetailController } from "../controller/matching/session-
 import { MatchingSessionEndController } from "../controller/matching/session-end"
 import { MatchingSessionStartController } from "../controller/matching/session-start"
 import { MatchingStampController } from "../controller/matching/stamp"
+import { MatchingStampsListController } from "../controller/matching/stamps-list"
 import { MatchingStatusController } from "../controller/matching/status"
 import { MatchingTokenController } from "../controller/matching/token"
 
@@ -24,6 +25,7 @@ type MatchingRouterControllers = {
   sessionEnd?: MatchingSessionEndController
   sessionStart?: MatchingSessionStartController
   stamp?: MatchingStampController
+  stampsList?: MatchingStampsListController
   status?: MatchingStatusController
   token?: MatchingTokenController
 }
@@ -63,6 +65,12 @@ export const matchingRouter = (controllers: MatchingRouterControllers): Router =
   if (controllers.token) {
     const controller = controllers.token
     router.post("/token", async (req, res) => controller.execute(req, res))
+  }
+
+  // GET /api/matching/stamps（マッチング用スタンプ一覧）
+  if (controllers.stampsList) {
+    const controller = controllers.stampsList
+    router.get("/stamps", async (req, res) => controller.execute(req, res))
   }
 
   // POST /api/matching/sessions/:id/end

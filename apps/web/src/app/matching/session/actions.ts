@@ -2,8 +2,10 @@
 
 import type {
   EndMatchingSessionResponse,
+  GetMatchingStampsResponse,
   IssueMatchingTokenResponse,
   JoinMatchingResponse,
+  SendMatchingStampResponse,
   StartMatchingSessionResponse,
   SubmitReactionResponse,
 } from "@repo/api-schema"
@@ -131,6 +133,43 @@ export const endMatchingSessionAction = async (
   } catch (e) {
     return {
       error: e instanceof Error ? e.message : "end failed",
+      ok: false,
+    }
+  }
+}
+
+export type GetMatchingStampsActionResult =
+    | { error: string; ok: false }
+    | { data: GetMatchingStampsResponse; ok: true }
+
+export const getMatchingStampsAction = async (): Promise<GetMatchingStampsActionResult> => {
+  try {
+    const data = await apiClient.get<GetMatchingStampsResponse>("/api/matching/stamps")
+    return { data, ok: true }
+  } catch (e) {
+    return {
+      error: e instanceof Error ? e.message : "stamps list failed",
+      ok: false,
+    }
+  }
+}
+
+export type SendMatchingStampActionResult =
+    | { error: string; ok: false }
+    | { data: SendMatchingStampResponse; ok: true }
+
+export const sendMatchingStampAction = async (
+  input: { itemId: number; sessionId: number },
+): Promise<SendMatchingStampActionResult> => {
+  try {
+    const data = await apiClient.post<SendMatchingStampResponse>(
+      `/api/matching/sessions/${input.sessionId}/stamp`,
+      { item_id: input.itemId },
+    )
+    return { data, ok: true }
+  } catch (e) {
+    return {
+      error: e instanceof Error ? e.message : "stamp send failed",
       ok: false,
     }
   }

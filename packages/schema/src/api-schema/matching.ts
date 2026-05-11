@@ -313,7 +313,7 @@ export const getReactionsResponseSchema = z.object({
 })
 
 // ========================================================
-// POST /api/matching/sessions/:id/stamp - スタンプ送信
+// GET /api/matching/stamps - マッチング用スタンプ一覧
 // ========================================================
 
 /**
@@ -321,6 +321,32 @@ export const getReactionsResponseSchema = z.object({
  * `<StampFloatLayer>` 等の表示エフェクトを切り替える。
  */
 export const stampAnimationTypeSchema = z.enum(["NONE", "FLOAT", "BOUNCE", "EXPLODE", "SHAKE"])
+
+/**
+ * マッチングセッション中に送信可能なスタンプ 1 件の最小公開情報。
+ *
+ * - `id`: `items.id`。スタンプ送信 API の `item_id` にそのまま渡す
+ * - `is_premium`: 課金スタンプか。所持していない場合は送信 API が 403 で弾く
+ */
+export const matchingStampSchema = z.object({
+  id: z.number().int().positive(),
+  animation_type: stampAnimationTypeSchema,
+  emoji: z.string(),
+  is_premium: z.boolean(),
+  name: z.string(),
+})
+
+/**
+ * GET /api/matching/stamps のレスポンス。`is_active=true` かつ MATCHING scope を含むスタンプを
+ * sortOrder 昇順で返す。クライアントの `<StampPalette>` 初期化用。
+ */
+export const getMatchingStampsResponseSchema = z.object({
+  stamps: z.array(matchingStampSchema),
+})
+
+// ========================================================
+// POST /api/matching/sessions/:id/stamp - スタンプ送信
+// ========================================================
 
 export const sendMatchingStampPathParamSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -377,6 +403,8 @@ export type GetReactionsPathParam = z.infer<typeof getReactionsPathParamSchema>
 export type ReactionRound = z.infer<typeof reactionRoundSchema>
 export type GetReactionsResponse = z.infer<typeof getReactionsResponseSchema>
 export type StampAnimationType = z.infer<typeof stampAnimationTypeSchema>
+export type MatchingStamp = z.infer<typeof matchingStampSchema>
+export type GetMatchingStampsResponse = z.infer<typeof getMatchingStampsResponseSchema>
 export type SendMatchingStampPathParam = z.infer<typeof sendMatchingStampPathParamSchema>
 export type SendMatchingStampRequest = z.infer<typeof sendMatchingStampRequestSchema>
 export type SendMatchingStampResponse = z.infer<typeof sendMatchingStampResponseSchema>

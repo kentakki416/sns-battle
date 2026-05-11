@@ -41,6 +41,7 @@ describe("sendMatchingStamp", () => {
     }
     const itemRepository: ItemRepository = {
       findActiveStampForMatching: jest.fn(),
+      findManyActiveStampsForMatching: jest.fn(),
     }
     const userInventoryRepository: UserInventoryRepository = {
       hasItem: jest.fn(),

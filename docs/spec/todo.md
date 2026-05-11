@@ -98,9 +98,9 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 - [x] Frontend: テーマカード、スポットライト、リアクションバブル、フリートーク希望ボタン、盛り上げコメント（step11 持ち越し / PR #64）
 - [x] Web 側 SSE 購読（`/api/matching/events`）で待機中に matched イベントを非同期受信する経路（step11 持ち越し / PR #63）
 - [x] `/matching/result?session_id=N` の存在しないセッション時のエラーハンドリング（step12 持ち越し / PR #63）
-- [ ] Active 中の `matching:reaction_match` 受信時の紙吹雪 / 一致演出（polish）
-- [ ] Active 中のスタンプ送信 UI（既存 `<StampPalette>` のテーマ進行画面への統合）
-- [ ] カメラ/マイク permission 拒否時のフォールバック UI
+- [x] Active 中の `matching:reaction_match` 受信時の紙吹雪 / 一致演出（PR #67）
+- [x] Active 中のスタンプ送信 UI（PR #68 想定: GET /api/matching/stamps + StampPalette 統合）
+- [x] カメラ/マイク permission 拒否時のフォールバック UI（PR #67）
 
 ---
 
