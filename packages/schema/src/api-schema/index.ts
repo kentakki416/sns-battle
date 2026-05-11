@@ -1,5 +1,6 @@
 export * from "./auth"
 export * from "./common"
+export * from "./follow"
 export * from "./health"
 export * from "./hobby"
 export * from "./matching"

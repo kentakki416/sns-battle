@@ -1,4 +1,5 @@
 export * as auth from "./auth-service"
+export * as follow from "./follow-service"
 export * as health from "./health-service"
 export * as hobby from "./hobby-service"
 export * as matching from "./matching-service"
