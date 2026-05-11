@@ -14,6 +14,8 @@ import { BlockCreateController } from "./controller/block/create"
 import { BlockDeleteController } from "./controller/block/delete"
 import { FollowCreateController } from "./controller/follow/create"
 import { FollowDeleteController } from "./controller/follow/delete"
+import { FollowersListController } from "./controller/follow/followers"
+import { FollowingListController } from "./controller/follow/following"
 import { HealthLivenessController } from "./controller/health/liveness"
 import { HealthReadinessController } from "./controller/health/readiness"
 import { HobbyListController } from "./controller/hobby/list"
@@ -161,6 +163,8 @@ const followCreateController = new FollowCreateController(
   userRepository,
 )
 const followDeleteController = new FollowDeleteController(followRepository)
+const followersListController = new FollowersListController(followRepository, userRepository)
+const followingListController = new FollowingListController(followRepository, userRepository)
 
 // Block Controller のインスタンス化（PrismaBlockRepository / PrismaFollowRepository が
 // クエリ系・ミューテーション系の両 interface を実装しているため、同じインスタンスを再利用する）
@@ -297,6 +301,8 @@ app.use(
     blockDelete: blockDeleteController,
     followCreate: followCreateController,
     followDelete: followDeleteController,
+    followersList: followersListController,
+    followingList: followingListController,
     get: userGetController,
     onboarding: userOnboardingController,
     update: userUpdateController,

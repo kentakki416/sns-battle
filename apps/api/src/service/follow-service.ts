@@ -1,5 +1,11 @@
 import { logger } from "../log"
-import type { BlockRepository, FollowRepository, UserRepository } from "../repository/prisma"
+import type {
+  BlockRepository,
+  FollowListEntry,
+  FollowListRepository,
+  FollowRepository,
+  UserRepository,
+} from "../repository/prisma"
 import {
   badRequestError,
   conflictError,
@@ -81,4 +87,56 @@ export const unfollowUser = async (
     followerId: input.followerId,
   })
   return ok(undefined)
+}
+
+/**
+ * フォロワー一覧取得。
+ * - 対象ユーザーが存在しない → 404
+ * - limit + 1 件取得する戦略は使わず、`take=limit` で取り、`limit` 件揃った場合のみ末尾 follow.id を
+ *   `nextCursor` に返す。`limit` 未満なら次ページなしと判断（末尾エッジ）。
+ *   ※「次ページがあるかは余分に 1 件取って判定」の方が厳密だが、エンドユーザの一覧画面では
+ *   1 件多い空振りより「最後の画面で末尾を再 fetch して 0 件」の方がシンプル。今後 UI で
+ *   厳密性が必要になった時に limit+1 戦略に切り替える。
+ */
+export const getFollowers = async (
+  input: { cursor: number | undefined; limit: number; targetUserId: number },
+  repo: {
+    followListRepository: FollowListRepository
+    userRepository: UserRepository
+  },
+): Promise<Result<{ entries: FollowListEntry[]; nextCursor: number | null }>> => {
+  logger.debug("FollowService: getFollowers", input)
+
+  const target = await repo.userRepository.findById(input.targetUserId)
+  if (!target) return err(notFoundError("User not found"))
+
+  const entries = await repo.followListRepository.findFollowers(input.targetUserId, {
+    cursor: input.cursor,
+    limit: input.limit,
+  })
+  const nextCursor = entries.length === input.limit ? entries[entries.length - 1].followId : null
+  return ok({ entries, nextCursor })
+}
+
+/**
+ * フォロー中一覧取得。挙動は `getFollowers` と対称（follower_id = userId 側を引く）。
+ */
+export const getFollowing = async (
+  input: { cursor: number | undefined; limit: number; targetUserId: number },
+  repo: {
+    followListRepository: FollowListRepository
+    userRepository: UserRepository
+  },
+): Promise<Result<{ entries: FollowListEntry[]; nextCursor: number | null }>> => {
+  logger.debug("FollowService: getFollowing", input)
+
+  const target = await repo.userRepository.findById(input.targetUserId)
+  if (!target) return err(notFoundError("User not found"))
+
+  const entries = await repo.followListRepository.findFollowing(input.targetUserId, {
+    cursor: input.cursor,
+    limit: input.limit,
+  })
+  const nextCursor = entries.length === input.limit ? entries[entries.length - 1].followId : null
+  return ok({ entries, nextCursor })
 }
