@@ -10,8 +10,25 @@ type UseLiveKitRoomInput = {
   sessionId: number | null
 }
 
+/**
+ * 接続失敗の種類。UI 側でメッセージや復旧導線を切り替えるために enum 化する。
+ *
+ * - `permission_denied`: ブラウザのカメラ / マイク許可が拒否された
+ * - `connection_failed`: LiveKit Cloud との接続に失敗（network / token 不正 等）
+ * - `token_failed`: Server Action の token 発行が失敗（API 障害 / 認可エラー）
+ */
+export type LiveKitRoomErrorKind =
+    | "connection_failed"
+    | "permission_denied"
+    | "token_failed"
+
+export type UseLiveKitRoomError = {
+    kind: LiveKitRoomErrorKind
+    message: string
+}
+
 type UseLiveKitRoomResult = {
-  error: string | null
+  error: UseLiveKitRoomError | null
   remoteParticipant: RemoteParticipant | null
   room: Room | null
 }
@@ -30,7 +47,7 @@ type UseLiveKitRoomResult = {
 export function useLiveKitRoom(input: UseLiveKitRoomInput): UseLiveKitRoomResult {
   const [room, setRoom] = useState<Room | null>(null)
   const [remoteParticipant, setRemoteParticipant] = useState<RemoteParticipant | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<UseLiveKitRoomError | null>(null)
   const cancelledRef = useRef(false)
 
   useEffect(() => {
@@ -43,7 +60,7 @@ export function useLiveKitRoom(input: UseLiveKitRoomInput): UseLiveKitRoomResult
       const result = await issueMatchingTokenAction(input.sessionId!)
       if (cancelledRef.current) return
       if (!result.ok) {
-        setError(result.error)
+        setError({ kind: "token_failed", message: result.error })
         return
       }
 
@@ -51,8 +68,22 @@ export function useLiveKitRoom(input: UseLiveKitRoomInput): UseLiveKitRoomResult
         await r.connect(result.data.livekit_url, result.data.token)
         if (cancelledRef.current) return
 
-        await r.localParticipant.setCameraEnabled(true)
-        await r.localParticipant.setMicrophoneEnabled(true)
+        /**
+         * カメラ / マイクは権限拒否で個別に失敗しうるため、Room 接続成功後に try / catch で
+         * 分離して扱う。失敗時は permission_denied として UI に通知する（Room は接続済なので
+         * 相手のビデオ表示や Data Channel 受信はそのまま継続）。
+         */
+        try {
+          await r.localParticipant.setCameraEnabled(true)
+          await r.localParticipant.setMicrophoneEnabled(true)
+        } catch (mediaErr) {
+          if (!cancelledRef.current) {
+            setError({
+              kind: "permission_denied",
+              message: mediaErr instanceof Error ? mediaErr.message : "Media permission denied",
+            })
+          }
+        }
 
         r.on(RoomEvent.ParticipantConnected, (participant) => {
           if (!cancelledRef.current) setRemoteParticipant(participant)
@@ -67,7 +98,10 @@ export function useLiveKitRoom(input: UseLiveKitRoomInput): UseLiveKitRoomResult
         setRoom(r)
       } catch (e) {
         if (!cancelledRef.current) {
-          setError(e instanceof Error ? e.message : "LiveKit connection failed")
+          setError({
+            kind: "connection_failed",
+            message: e instanceof Error ? e.message : "LiveKit connection failed",
+          })
         }
       }
     }
