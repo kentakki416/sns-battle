@@ -35,7 +35,7 @@ const buildRepos = () => {
 describe("blockUser", () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it("自分自身 → 400 / create 呼び出しなし", async () => {
+  it("【異常系】自分自身 → 400 / create 呼び出しなし", async () => {
     const repo = buildRepos()
     const result = await blockUser({ blockedId: 1, blockerId: 1 }, repo)
     expect(result.ok).toBe(false)
@@ -47,7 +47,7 @@ describe("blockUser", () => {
     expect(repo.followBidirectionalRepository.deleteBidirectional).not.toHaveBeenCalled()
   })
 
-  it("対象が存在しない → 404", async () => {
+  it("【異常系】対象が存在しない → 404", async () => {
     const repo = buildRepos()
     ;(repo.userRepository.findById as jest.Mock).mockResolvedValue(null)
     const result = await blockUser({ blockedId: 999, blockerId: 1 }, repo)
@@ -59,7 +59,7 @@ describe("blockUser", () => {
     expect(repo.blockMutationRepository.create).not.toHaveBeenCalled()
   })
 
-  it("既にブロック済 → 409 / create 呼び出しなし", async () => {
+  it("【異常系】既にブロック済 → 409 / create 呼び出しなし", async () => {
     const repo = buildRepos()
     ;(repo.blockMutationRepository.exists as jest.Mock).mockResolvedValue(true)
     const result = await blockUser({ blockedId: 2, blockerId: 1 }, repo)
@@ -72,7 +72,7 @@ describe("blockUser", () => {
     expect(repo.followBidirectionalRepository.deleteBidirectional).not.toHaveBeenCalled()
   })
 
-  it("正常系 → ok / block.create と follow.deleteBidirectional が同一 tx で 1 回ずつ呼ばれる", async () => {
+  it("【正常系】ok / block.create と follow.deleteBidirectional が同一 tx で 1 回ずつ呼ばれる", async () => {
     const repo = buildRepos()
     const result = await blockUser({ blockedId: 2, blockerId: 1 }, repo)
     expect(result.ok).toBe(true)
@@ -89,7 +89,7 @@ describe("blockUser", () => {
     )
   })
 
-  it("create 中のレースで P2002 → 409 に変換", async () => {
+  it("【異常系】create 中のレースで P2002 → 409 に変換", async () => {
     const repo = buildRepos()
     ;(repo.blockMutationRepository.create as jest.Mock).mockRejectedValue({ code: "P2002" })
     const result = await blockUser({ blockedId: 2, blockerId: 1 }, repo)
@@ -100,7 +100,7 @@ describe("blockUser", () => {
     }
   })
 
-  it("create 中の想定外エラーは throw する", async () => {
+  it("【異常系】create 中の想定外エラーは throw する", async () => {
     const repo = buildRepos()
     ;(repo.blockMutationRepository.create as jest.Mock).mockRejectedValue(new Error("db down"))
     await expect(blockUser({ blockedId: 2, blockerId: 1 }, repo)).rejects.toThrow()

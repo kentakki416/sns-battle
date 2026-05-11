@@ -55,12 +55,12 @@ afterAll(async () => {
 })
 
 describe("POST /api/users/:id/block", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).post("/api/users/1/block")
     expect(res.status).toBe(401)
   })
 
-  it("非数値 id → 400", async () => {
+  it("【異常系】非数値 id → 400", async () => {
     const me = await createUser()
     const token = generateAccessToken(me.id)
     const res = await request(app)
@@ -70,7 +70,7 @@ describe("POST /api/users/:id/block", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("自分自身 → 400 / DB に block row 作られない", async () => {
+  it("【異常系】自分自身 → 400 / DB に block row 作られない", async () => {
     const me = await createUser()
     const token = generateAccessToken(me.id)
     const res = await request(app)
@@ -81,7 +81,7 @@ describe("POST /api/users/:id/block", () => {
     expect(count).toBe(0)
   })
 
-  it("存在しないユーザー → 404", async () => {
+  it("【異常系】存在しないユーザー → 404", async () => {
     const me = await createUser()
     const token = generateAccessToken(me.id)
     const res = await request(app)
@@ -90,7 +90,7 @@ describe("POST /api/users/:id/block", () => {
     expect(res.status).toBe(404)
   })
 
-  it("正常系 → 200、DB に block row が作られる、レスポンスは blocker_id / blocked_id", async () => {
+  it("【正常系】200、DB に block row が作られる、レスポンスは blocker_id / blocked_id", async () => {
     const me = await createUser()
     const peer = await createUser()
     const token = generateAccessToken(me.id)
@@ -108,7 +108,7 @@ describe("POST /api/users/:id/block", () => {
     expect(row).not.toBeNull()
   })
 
-  it("正常系: 既存の双方向 follow row が両方とも削除される", async () => {
+  it("【正常系】既存の双方向 follow row が両方とも削除される", async () => {
     const me = await createUser()
     const peer = await createUser()
     await testPrisma.follow.createMany({
@@ -133,7 +133,7 @@ describe("POST /api/users/:id/block", () => {
     expect(remaining).toBe(0)
   })
 
-  it("正常系: 第三者ユーザー間の follow は削除されない", async () => {
+  it("【正常系】第三者ユーザー間の follow は削除されない", async () => {
     const me = await createUser()
     const peer = await createUser()
     const other = await createUser()
@@ -160,7 +160,7 @@ describe("POST /api/users/:id/block", () => {
     expect(peerToOther).toBe(1)
   })
 
-  it("既にブロック済 → 409 / row は重複しない", async () => {
+  it("【異常系】既にブロック済 → 409 / row は重複しない", async () => {
     const me = await createUser()
     const peer = await createUser()
     await testPrisma.block.create({
@@ -179,12 +179,12 @@ describe("POST /api/users/:id/block", () => {
 })
 
 describe("DELETE /api/users/:id/block", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).delete("/api/users/1/block")
     expect(res.status).toBe(401)
   })
 
-  it("自分自身 → 400", async () => {
+  it("【異常系】自分自身 → 400", async () => {
     const me = await createUser()
     const token = generateAccessToken(me.id)
     const res = await request(app)
@@ -193,7 +193,7 @@ describe("DELETE /api/users/:id/block", () => {
     expect(res.status).toBe(400)
   })
 
-  it("正常系（ブロック済を解除） → 200、DB から row が消える", async () => {
+  it("【正常系】ブロック済を解除 → 200、DB から row が消える", async () => {
     const me = await createUser()
     const peer = await createUser()
     await testPrisma.block.create({
@@ -210,7 +210,7 @@ describe("DELETE /api/users/:id/block", () => {
     expect(remaining).toBe(0)
   })
 
-  it("元々ブロックしていなくても 200（冪等）", async () => {
+  it("【正常系】元々ブロックしていなくても 200（冪等）", async () => {
     const me = await createUser()
     const peer = await createUser()
     const token = generateAccessToken(me.id)
@@ -220,7 +220,7 @@ describe("DELETE /api/users/:id/block", () => {
     expect(res.status).toBe(200)
   })
 
-  it("正常系: 逆方向（peer→me）のブロックは残る", async () => {
+  it("【正常系】逆方向（peer→me）のブロックは残る", async () => {
     const me = await createUser()
     const peer = await createUser()
     await testPrisma.block.createMany({

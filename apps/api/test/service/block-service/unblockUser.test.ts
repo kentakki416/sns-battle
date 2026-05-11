@@ -13,7 +13,7 @@ const buildRepos = () => {
 describe("unblockUser", () => {
   beforeEach(() => jest.clearAllMocks())
 
-  it("自分自身 → 400 / delete 呼ばれない", async () => {
+  it("【異常系】自分自身 → 400 / delete 呼ばれない", async () => {
     const repo = buildRepos()
     const result = await unblockUser({ blockedId: 1, blockerId: 1 }, repo)
     expect(result.ok).toBe(false)
@@ -24,14 +24,14 @@ describe("unblockUser", () => {
     expect(repo.blockMutationRepository.delete).not.toHaveBeenCalled()
   })
 
-  it("正常系 → ok / delete が 1 回呼ばれる", async () => {
+  it("【正常系】ok / delete が 1 回呼ばれる", async () => {
     const repo = buildRepos()
     const result = await unblockUser({ blockedId: 2, blockerId: 1 }, repo)
     expect(result.ok).toBe(true)
     expect(repo.blockMutationRepository.delete).toHaveBeenCalledWith({ blockedId: 2, blockerId: 1 })
   })
 
-  it("元々ブロックしていなくても ok（冪等）", async () => {
+  it("【正常系】元々ブロックしていなくても ok（冪等）", async () => {
     const repo = buildRepos()
     /** deleteMany は 0 件でも例外を投げない前提 */
     const result = await unblockUser({ blockedId: 2, blockerId: 1 }, repo)
