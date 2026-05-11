@@ -1,11 +1,23 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-import { startMatchingSessionAction } from "../../actions"
+import { startMatchingSessionAction, submitReactionAction } from "../../actions"
 import { BottomControls } from "../active/BottomControls"
+import { HypeCommentOverlay } from "../active/HypeCommentOverlay"
+import { StampFloatLayer } from "../active/StampFloatLayer"
+import { ThemeCard } from "../active/ThemeCard"
+import { ThemeTimerBar } from "../active/ThemeTimerBar"
 import { VideoPanel } from "../active/VideoPanel"
 import { useLiveKitRoom } from "../hooks/useLiveKitRoom"
+import {
+  type MatchingEndedEvent,
+  type MatchingHypeEvent,
+  type MatchingStampEvent,
+  type MatchingThemeEvent,
+  type MatchingTimerEvent,
+  useMatchingDataChannel,
+} from "../hooks/useMatchingDataChannel"
 import type { MatchedSession } from "../MatchingSession"
 
 type Props = {
@@ -15,55 +27,136 @@ type Props = {
   userId: number
 }
 
+type ReceivedStamp = { emoji: string; id: string }
+
 /**
  * セッション中（active）の画面。
  *
- * 本 step 範囲では LiveKit Room 接続 + 自分／相手のビデオパネル + ミュート / カメラ / 終了の
- * 最低限のレイアウトのみ。Data Channel イベント（matching:theme / hype / reaction_match /
- * stamp / timer / ended）の購読 + UI への反映は後続 PR で `useMatchingDataChannel` フックを
- * 追加して接続する想定。
+ * 状態:
+ * - currentTheme: matching:theme 受信で更新。CHOICE / FREE_TALK に応じて UI 切替
+ * - hypeMessage: matching:hype の最新メッセージ。`HypeCommentOverlay` が 2 秒表示
+ * - remainingSeconds / canEndNow: matching:timer の最新値。バーと終了ボタンの活性に反映
+ * - stamps: matching:stamp を受信したぶんだけ追加。`StampFloatLayer` が表示 / 自然減衰
+ * - matching:ended → onEnd() で結果画面遷移
+ * - matching:reaction_match は本 PR では受信ログのみ（紙吹雪などの polish は将来）
  *
- * mount 時に `POST /matching/sessions/:id/start` を 1 回呼んで サーバー側のテーマ進行 / タイマー /
- * タイムアウトジョブを enqueue させる（step8a）。
+ * mount 時に `POST /matching/sessions/:id/start` を呼んでテーマ進行ジョブを enqueue する（step8a）。
+ * 同 jobId で冪等に作られているので 2 回 mount しても問題ない。
  */
 export function ActiveState({ isSelfUser1, onEnd, session, userId }: Props) {
   const { remoteParticipant, room, error } = useLiveKitRoom({
     enabled: true,
     sessionId: session.sessionId,
   })
-  const [canEndNow, setCanEndNow] = useState(false)
 
-  /**
-   * mount 時にテーマ進行 / タイマー / タイムアウトジョブを enqueue。冪等なので 1 セッションで
-   * 何度走っても問題ないが、再 mount を避けるため StrictMode の二重実行は許容する。
-   */
+  const [currentTheme, setCurrentTheme] = useState<MatchingThemeEvent | null>(null)
+  const [hypeMessage, setHypeMessage] = useState<string | null>(null)
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(600)
+  const [canEndNow, setCanEndNow] = useState(false)
+  const [stamps, setStamps] = useState<ReceivedStamp[]>([])
+  const [reactedRoundNumber, setReactedRoundNumber] = useState<number | null>(null)
+
+  /** mount で start を 1 回呼ぶ */
   useEffect(() => {
     void startMatchingSessionAction(session.sessionId)
   }, [session.sessionId])
 
-  /** 暫定: 5 分経過で終了ボタンを有効化（matching:timer 受信に置き換え予定） */
-  useEffect(() => {
-    const t = setTimeout(() => setCanEndNow(true), 300_000)
-    return () => clearTimeout(t)
+  /** matching:theme 受信時はラウンドが変わるので reaction の disabled 状態をリセット */
+  const handleTheme = useCallback((ev: MatchingThemeEvent) => {
+    setCurrentTheme(ev)
+    setReactedRoundNumber((cur) => (cur === ev.round_number ? cur : null))
   }, [])
+
+  const handleHype = useCallback((ev: MatchingHypeEvent) => {
+    setHypeMessage(ev.message)
+    /** 2 秒後に自動非表示。HypeCommentOverlay 側で effect を持たないことで lint ルールに準拠 */
+    setTimeout(() => {
+      setHypeMessage((cur) => (cur === ev.message ? null : cur))
+    }, 2000)
+  }, [])
+
+  const handleTimer = useCallback((ev: MatchingTimerEvent) => {
+    setRemainingSeconds(ev.remaining_seconds)
+    setCanEndNow(ev.can_end_now)
+  }, [])
+
+  const handleStamp = useCallback((ev: MatchingStampEvent) => {
+    /** 同時受信の衝突を避けるため id にカウンタを付ける */
+    setStamps((prev) => {
+      const id = `${Date.now()}-${ev.sender_id}-${prev.length}`
+      const next = [...prev, { emoji: ev.emoji, id }]
+      /** 古いスタンプを自然減衰（最新 12 件のみ保持） */
+      return next.length > 12 ? next.slice(-12) : next
+    })
+    /** 表示時間（StampFloatLayer の transition 2.4s）後に取り除く */
+    setTimeout(() => {
+      setStamps((prev) => prev.filter((_, idx) => idx !== 0))
+    }, 2400)
+  }, [])
+
+  const handleEnded = useCallback(
+    (_ev: MatchingEndedEvent) => {
+      onEnd()
+    },
+    [onEnd],
+  )
+
+  useMatchingDataChannel(room, {
+    onEnded: handleEnded,
+    onHype: handleHype,
+    onStamp: handleStamp,
+    onTheme: handleTheme,
+    onTimer: handleTimer,
+  })
+
+  /** 選択肢クリック時の reaction 送信 */
+  const handleSelectChoice = useCallback(
+    (choiceId: number | null) => {
+      if (!currentTheme) return
+      if (reactedRoundNumber === currentTheme.round_number) return
+      setReactedRoundNumber(currentTheme.round_number)
+      void submitReactionAction({
+        choiceId,
+        roundNumber: currentTheme.round_number,
+        sessionId: session.sessionId,
+        themeId: currentTheme.theme_id,
+      })
+    },
+    [currentTheme, reactedRoundNumber, session.sessionId],
+  )
 
   const localLabel = userId === session.peer.id ? "相手" : "あなた"
   const peerLabel = session.peer.name ?? "相手"
 
   return (
-    <div className="relative min-h-screen bg-dark-base">
-      <div className="grid min-h-screen grid-cols-1 gap-2 p-2 sm:grid-cols-2">
+    <div className="relative min-h-screen overflow-hidden bg-dark-base">
+      <ThemeTimerBar remainingSeconds={remainingSeconds} />
+
+      <div className="grid min-h-screen grid-cols-1 gap-2 p-2 pt-10 sm:grid-cols-2">
         <VideoPanel
-          isSpotlight={isSelfUser1}
+          isSpotlight={currentTheme?.speaker === "user1" ? isSelfUser1 : !isSelfUser1}
           label={localLabel}
           participant={room?.localParticipant ?? null}
         />
         <VideoPanel
-          isSpotlight={!isSelfUser1}
+          isSpotlight={currentTheme?.speaker === "user1" ? !isSelfUser1 : isSelfUser1}
           label={peerLabel}
           participant={remoteParticipant}
         />
       </div>
+
+      {currentTheme && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-24 z-10 px-4">
+          <ThemeCard
+            disabled={reactedRoundNumber === currentTheme.round_number}
+            onSelectChoice={handleSelectChoice}
+            theme={currentTheme}
+          />
+        </div>
+      )}
+
+      <HypeCommentOverlay message={hypeMessage} />
+      <StampFloatLayer stamps={stamps} />
 
       <BottomControls canEndNow={canEndNow} onEnd={onEnd} room={room} />
 

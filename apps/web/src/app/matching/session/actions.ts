@@ -1,9 +1,11 @@
 "use server"
 
 import type {
+  EndMatchingSessionResponse,
   IssueMatchingTokenResponse,
   JoinMatchingResponse,
   StartMatchingSessionResponse,
+  SubmitReactionResponse,
 } from "@repo/api-schema"
 
 import { apiClient } from "@/libs/api-client"
@@ -76,6 +78,59 @@ export const issueMatchingTokenAction = async (
   } catch (e) {
     return {
       error: e instanceof Error ? e.message : "token failed",
+      ok: false,
+    }
+  }
+}
+
+export type SubmitReactionActionInput = {
+    choiceId: number | null
+    roundNumber: number
+    sessionId: number
+    themeId: number
+}
+
+export type SubmitReactionActionResult =
+    | { error: string; ok: false }
+    | { data: SubmitReactionResponse; ok: true }
+
+export const submitReactionAction = async (
+  input: SubmitReactionActionInput,
+): Promise<SubmitReactionActionResult> => {
+  try {
+    const data = await apiClient.post<SubmitReactionResponse>(
+      `/api/matching/sessions/${input.sessionId}/reaction`,
+      {
+        choice_id: input.choiceId,
+        round_number: input.roundNumber,
+        theme_id: input.themeId,
+      },
+    )
+    return { data, ok: true }
+  } catch (e) {
+    return {
+      error: e instanceof Error ? e.message : "reaction failed",
+      ok: false,
+    }
+  }
+}
+
+export type EndSessionActionResult =
+    | { error: string; ok: false }
+    | { data: EndMatchingSessionResponse; ok: true }
+
+export const endMatchingSessionAction = async (
+  sessionId: number,
+): Promise<EndSessionActionResult> => {
+  try {
+    const data = await apiClient.post<EndMatchingSessionResponse>(
+      `/api/matching/sessions/${sessionId}/end`,
+      {},
+    )
+    return { data, ok: true }
+  } catch (e) {
+    return {
+      error: e instanceof Error ? e.message : "end failed",
       ok: false,
     }
   }

@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import type { JoinMatchingResponse, MatchingEvent, MatchingPeer } from "@repo/api-schema"
 
-import { joinMatchingAction, leaveMatchingAction } from "../actions"
+import { endMatchingSessionAction, joinMatchingAction, leaveMatchingAction } from "../actions"
 
 import { useMatchingEvents } from "./hooks/useMatchingEvents"
 import { ActiveState } from "./states/ActiveState"
@@ -122,6 +122,13 @@ export function MatchingSession({ userId }: Props) {
       router.push("/matching")
       return
     }
+    /**
+     * 終了ボタン経由（matching:ended 受信ではない）の場合は MANUAL で session を ENDED 化する。
+     * matching:ended 経由（タイムアウト / ユーザー離脱）でも本ハンドラが呼ばれるが、その場合
+     * サーバー側で既に ENDED になっているため endMatchingSessionAction は 410 を返す。失敗しても
+     * 結果画面遷移は止めない。
+     */
+    void endMatchingSessionAction(session.sessionId)
     router.push(`/matching/result?session_id=${session.sessionId}`)
   }
 
