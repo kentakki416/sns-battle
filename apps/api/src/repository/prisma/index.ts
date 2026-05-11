@@ -1,5 +1,6 @@
 export * from "./auth-account-repository"
 export * from "./block-repository"
+export * from "./follow-repository"
 export * from "./healthcheck-repository"
 export * from "./hobby-repository"
 export * from "./item-repository"

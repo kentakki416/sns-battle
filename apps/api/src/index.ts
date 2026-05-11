@@ -10,6 +10,8 @@ import { AuthGoogleController } from "./controller/auth/google"
 import { AuthLogoutController } from "./controller/auth/logout"
 import { AuthMeController } from "./controller/auth/me"
 import { AuthRefreshController } from "./controller/auth/refresh"
+import { FollowCreateController } from "./controller/follow/create"
+import { FollowDeleteController } from "./controller/follow/delete"
 import { HealthLivenessController } from "./controller/health/liveness"
 import { HealthReadinessController } from "./controller/health/readiness"
 import { HobbyListController } from "./controller/hobby/list"
@@ -44,6 +46,7 @@ import {
   PrismaAuthAccountRepository,
   PrismaBlockRepository,
   PrismaDatabaseHealthRepository,
+  PrismaFollowRepository,
   PrismaHobbyRepository,
   PrismaItemRepository,
   PrismaMatchingPreferenceRepository,
@@ -98,6 +101,7 @@ const talkThemeRepository = new PrismaTalkThemeRepository(prisma)
 const itemRepository = new PrismaItemRepository(prisma)
 const userInventoryRepository = new PrismaUserInventoryRepository(prisma)
 const blockRepository = new PrismaBlockRepository(prisma)
+const followRepository = new PrismaFollowRepository(prisma)
 const databaseHealthRepository = new PrismaDatabaseHealthRepository(prisma)
 const redisHealthRepository = new IoRedisHealthRepository(redis)
 const refreshTokenRepository = new IoRedisRefreshTokenRepository(redis)
@@ -146,6 +150,14 @@ const userOnboardingController = new UserOnboardingController(userRepository, ho
 
 // Hobby Controller のインスタンス化
 const hobbyListController = new HobbyListController(hobbyRepository)
+
+// Follow Controller のインスタンス化
+const followCreateController = new FollowCreateController(
+  blockRepository,
+  followRepository,
+  userRepository,
+)
+const followDeleteController = new FollowDeleteController(followRepository)
 
 // MatchingPreference Controller のインスタンス化
 const matchingPreferenceGetController = new MatchingPreferenceGetController(
@@ -267,6 +279,8 @@ app.use(
 app.use(
   "/api/users",
   userRouter({
+    followCreate: followCreateController,
+    followDelete: followDeleteController,
     get: userGetController,
     onboarding: userOnboardingController,
     update: userUpdateController,
