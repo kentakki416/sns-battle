@@ -69,9 +69,39 @@ export interface UserRepository {
 }
 
 /**
+ * ユーザー検索結果の軽量プロフィール。
+ */
+export type UserSearchResult = {
+    avatarUrl: string | null
+    bio: string | null
+    id: number
+    name: string | null
+}
+
+/**
+ * ユーザー検索 Repository。
+ *
+ * 既存の `UserRepository` 利用箇所（auth / matching / profile 等）に影響を与えないよう、検索系メソッドだけを
+ * 別 interface に分離している。`PrismaUserRepository` は両方を実装する。
+ *
+ * 検索条件:
+ * - name 列の部分一致（case-insensitive, ILIKE）
+ * - `excludeIds` 指定でブロック関係などのスキップに使う
+ * - cursor は user.id 降順を前提とし、`cursor` 未指定で最新、指定で `id < cursor` を返す
+ */
+export interface UserSearchRepository {
+    searchByName(opts: {
+        cursor: number | undefined
+        excludeIds: number[]
+        limit: number
+        query: string
+    }): Promise<UserSearchResult[]>
+}
+
+/**
  * Prisma実装のユーザーリポジトリ
  */
-export class PrismaUserRepository implements UserRepository {
+export class PrismaUserRepository implements UserRepository, UserSearchRepository {
   private _prisma: PrismaClient
 
   constructor(prisma: PrismaClient) {
@@ -185,6 +215,44 @@ export class PrismaUserRepository implements UserRepository {
         }
       }
     })
+  }
+
+  async searchByName(opts: {
+    cursor: number | undefined
+    excludeIds: number[]
+    limit: number
+    query: string
+  }): Promise<UserSearchResult[]> {
+    /**
+     * Postgres の citext ではなく、Prisma の `mode: "insensitive"` で大文字小文字を無視した ILIKE 相当を使う。
+     * `contains` は内部的に `%query%` に展開される。
+     */
+    const conditions: PrismaTypes.UserWhereInput[] = [
+      { name: { contains: opts.query, mode: "insensitive" } },
+    ]
+    if (opts.excludeIds.length > 0) {
+      conditions.push({ id: { notIn: opts.excludeIds } })
+    }
+    if (opts.cursor !== undefined) {
+      conditions.push({ id: { lt: opts.cursor } })
+    }
+    const rows = await this._prisma.user.findMany({
+      orderBy: { id: "desc" },
+      select: {
+        avatarUrl: true,
+        bio: true,
+        id: true,
+        name: true,
+      },
+      take: opts.limit,
+      where: { AND: conditions },
+    })
+    return rows.map((row) => ({
+      avatarUrl: row.avatarUrl,
+      bio: row.bio,
+      id: row.id,
+      name: row.name,
+    }))
   }
 
   /**
