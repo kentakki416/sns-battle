@@ -24,7 +24,7 @@ afterAll(async () => {
 })
 
 describe("POST /api/memo", () => {
-  it("201 と作成されたメモを返す", async () => {
+  it("【正常系】201 と作成されたメモを返す", async () => {
     const res = await request(app)
       .post("/api/memo")
       .send({ body: "New Body", title: "New Title" })
@@ -46,7 +46,7 @@ describe("POST /api/memo", () => {
     })
   })
 
-  it("リクエストボディが不正な場合、400 を返す", async () => {
+  it("【異常系】リクエストボディが不正な場合、400 を返す", async () => {
     const res = await request(app)
       .post("/api/memo")
       .send({})
@@ -55,7 +55,7 @@ describe("POST /api/memo", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("titleが空の場合、400 を返す", async () => {
+  it("【異常系】titleが空の場合、400 を返す", async () => {
     const res = await request(app)
       .post("/api/memo")
       .send({ body: "Body", title: "" })

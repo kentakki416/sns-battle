@@ -71,13 +71,13 @@ afterAll(async () => {
 })
 
 describe("POST /api/matching/join", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).post("/api/matching/join")
     expect(res.status).toBe(401)
     expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
-  it("isOnboarded=false → 400", async () => {
+  it("【異常系】isOnboarded=false → 400", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: false, name: "Me" },
     })
@@ -91,7 +91,7 @@ describe("POST /api/matching/join", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("待機者ゼロ → 200, matched: false、Redis に登録される", async () => {
+  it("【正常系】待機者ゼロ → 200, matched: false、Redis に登録される", async () => {
     const me = await createOnboardedUser("me")
     const token = generateAccessToken(me.id)
 
@@ -115,7 +115,7 @@ describe("POST /api/matching/join", () => {
     expect(queueRow).toMatchObject({ status: "WAITING", userId: me.id })
   })
 
-  it("既に WAITING のユーザーが再 join → 409", async () => {
+  it("【異常系】既に WAITING のユーザーが再 join → 409", async () => {
     const me = await createOnboardedUser("me")
     const token = generateAccessToken(me.id)
 
@@ -128,7 +128,7 @@ describe("POST /api/matching/join", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 409 })
   })
 
-  it("待機者 1 人（ブロックなし）→ matched: true、セッション作成、両者キュー削除", async () => {
+  it("【正常系】待機者 1 人（ブロックなし）→ matched: true、セッション作成、両者キュー削除", async () => {
     const peer = await createOnboardedUser("peer")
     const me = await createOnboardedUser("me")
     /** peer が先に join */
@@ -176,7 +176,7 @@ describe("POST /api/matching/join", () => {
     expect(await testPrisma.matchingQueue.findUnique({ where: { userId: peer.id } })).toBeNull()
   })
 
-  it("peer のプロフィール（hobbies / bio / location / mbti）がレスポンスに含まれる", async () => {
+  it("【正常系】peer のプロフィール（hobbies / bio / location / mbti）がレスポンスに含まれる", async () => {
     /** hobby_masters は migration / seed で投入されている前提だが、
      *  テストでは独立性のため自前で作成する */
     const hobby1 = await testPrisma.hobbyMaster.create({
@@ -228,7 +228,7 @@ describe("POST /api/matching/join", () => {
     })
   })
 
-  it("ブロック関係がある相手 → matched: false（自分は WAITING のまま）", async () => {
+  it("【異常系】ブロック関係がある相手 → matched: false（自分は WAITING のまま）", async () => {
     const peer = await createOnboardedUser("peer")
     const me = await createOnboardedUser("me")
     await testPrisma.block.create({
@@ -255,7 +255,7 @@ describe("POST /api/matching/join", () => {
     expect(await testRedis.zscore("matching:queue", String(peer.id))).not.toBeNull()
   })
 
-  it("最古ユーザーがブロック相手 → 次候補にスキップして成立（多段照合）", async () => {
+  it("【正常系】最古ユーザーがブロック相手 → 次候補にスキップして成立（多段照合）", async () => {
     const blocked = await createOnboardedUser("blocked")
     const okPeer = await createOnboardedUser("ok")
     const me = await createOnboardedUser("me")
@@ -283,7 +283,7 @@ describe("POST /api/matching/join", () => {
     expect(await testRedis.zscore("matching:queue", String(okPeer.id))).toBeNull()
   })
 
-  it("preference: 性別不一致 → matched=false", async () => {
+  it("【正常系】preference: 性別不一致 → matched=false", async () => {
     const peer = await testPrisma.user.create({
       data: {
         birthDate: new Date("1995-01-01"),
@@ -312,7 +312,7 @@ describe("POST /api/matching/join", () => {
     expect(await testRedis.zscore("matching:queue", String(peer.id))).not.toBeNull()
   })
 
-  it("preference: 年齢範囲外 → matched=false", async () => {
+  it("【正常系】preference: 年齢範囲外 → matched=false", async () => {
     const youngPeer = await testPrisma.user.create({
       data: {
         birthDate: new Date("2010-01-01"),
@@ -338,7 +338,7 @@ describe("POST /api/matching/join", () => {
     expect(res.body.matched).toBe(false)
   })
 
-  it("preference: 双方向適合の候補にスキップして成立", async () => {
+  it("【正常系】preference: 双方向適合の候補にスキップして成立", async () => {
     const ngPeer = await testPrisma.user.create({
       data: {
         birthDate: new Date("1995-01-01"),
@@ -380,7 +380,7 @@ describe("POST /api/matching/join", () => {
     expect(res.body).toMatchObject({ matched: true, peer: { id: okPeer.id } })
   })
 
-  it("preference: 相手側 preference が自分を許容しない → matched=false（双方向）", async () => {
+  it("【正常系】preference: 相手側 preference が自分を許容しない → matched=false（双方向）", async () => {
     const peer = await testPrisma.user.create({
       data: {
         birthDate: new Date("1995-01-01"),

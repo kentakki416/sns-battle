@@ -30,7 +30,7 @@ afterAll(async () => {
 })
 
 describe("POST /api/auth/refresh", () => {
-  it("正常系: 旧 jti が Redis から削除され、新 jti が保存される", async () => {
+  it("【正常系】旧 jti が Redis から削除され、新 jti が保存される", async () => {
     const userId = 1
     const { jti: oldJti, token } = generateRefreshToken(userId)
     await refreshTokenRepository.save(oldJti, userId, REFRESH_TTL_SECONDS)
@@ -54,7 +54,7 @@ describe("POST /api/auth/refresh", () => {
     expect(await refreshTokenRepository.findUserId(newPayload!.jti)).toBe(userId)
   })
 
-  it("同じ Refresh Token を 2 回連続で使うと 2 回目は 401（再利用検知）", async () => {
+  it("【異常系】同じ Refresh Token を 2 回連続で使うと 2 回目は 401（再利用検知）", async () => {
     const userId = 1
     const { jti, token } = generateRefreshToken(userId)
     await refreshTokenRepository.save(jti, userId, REFRESH_TTL_SECONDS)
@@ -71,7 +71,7 @@ describe("POST /api/auth/refresh", () => {
     expect(second.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
-  it("Refresh Token が改ざんされている場合、401 を返す", async () => {
+  it("【異常系】Refresh Token が改ざんされている場合、401 を返す", async () => {
     const res = await request(app)
       .post("/api/auth/refresh")
       .send({ refresh_token: "invalid.refresh.token" })
@@ -80,7 +80,7 @@ describe("POST /api/auth/refresh", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
-  it("Redis に jti が無い場合（再利用検知）、401 を返す", async () => {
+  it("【異常系】Redis に jti が無い場合（再利用検知）、401 を返す", async () => {
     const { token } = generateRefreshToken(1)
 
     const res = await request(app)
@@ -91,7 +91,7 @@ describe("POST /api/auth/refresh", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
-  it("refresh_token が無い場合、400 を返す", async () => {
+  it("【異常系】refresh_token が無い場合、400 を返す", async () => {
     const res = await request(app)
       .post("/api/auth/refresh")
       .send({})

@@ -40,7 +40,7 @@ describe("getUserProfile", () => {
     jest.clearAllMocks()
   })
 
-  it("自分のプロフィール取得時 isSelf=true で全情報（birthDate / coinBalance / hobbies / mbti / location）を返す", async () => {
+  it("【正常系】自分のプロフィール取得時 isSelf=true で全情報（birthDate / coinBalance / hobbies / mbti / location）を返す", async () => {
     mockFindProfileById.mockResolvedValue({ hobbies: baseHobbies, user: baseUser })
 
     const result = await getUserProfile(
@@ -64,7 +64,7 @@ describe("getUserProfile", () => {
     }
   })
 
-  it("他人のプロフィール取得時 isSelf=false で birthDate / coinBalance のみ null マスク。mbti / location / hobbies は公開", async () => {
+  it("【正常系】他人のプロフィール取得時 isSelf=false で birthDate / coinBalance のみ null マスク。mbti / location / hobbies は公開", async () => {
     mockFindProfileById.mockResolvedValue({ hobbies: baseHobbies, user: baseUser })
 
     const result = await getUserProfile(
@@ -86,7 +86,7 @@ describe("getUserProfile", () => {
     }
   })
 
-  it("ユーザーが存在しない場合、404 NOT_FOUND を返す", async () => {
+  it("【異常系】ユーザーが存在しない場合、404 NOT_FOUND を返す", async () => {
     mockFindProfileById.mockResolvedValue(null)
 
     const result = await getUserProfile(
@@ -103,7 +103,7 @@ describe("getUserProfile", () => {
     }
   })
 
-  it("birthDate が null の場合、age=null", async () => {
+  it("【正常系】birthDate が null の場合、age=null", async () => {
     mockFindProfileById.mockResolvedValue({
       hobbies: [],
       user: { ...baseUser, birthDate: null },
@@ -120,7 +120,7 @@ describe("getUserProfile", () => {
     }
   })
 
-  it("mbti / location が null の場合、レスポンスでも null", async () => {
+  it("【正常系】mbti / location が null の場合、レスポンスでも null", async () => {
     mockFindProfileById.mockResolvedValue({
       hobbies: [],
       user: { ...baseUser, location: null, mbti: null },
@@ -140,7 +140,7 @@ describe("getUserProfile", () => {
     }
   })
 
-  it("DB エラー時は throw する（業務エラーではないため）", async () => {
+  it("【異常系】DB エラー時は throw する（業務エラーではないため）", async () => {
     mockFindProfileById.mockRejectedValue(new Error("Database connection failed"))
 
     await expect(

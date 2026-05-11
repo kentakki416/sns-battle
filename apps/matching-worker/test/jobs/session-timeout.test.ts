@@ -73,7 +73,7 @@ describe("sessionTimeout job", () => {
     await disconnectTestRedis()
   })
 
-  it("session 既に ENDED → no-op", async () => {
+  it("【正常系】session 既に ENDED → no-op", async () => {
     const session = await createSession({ status: "ENDED" })
     const publisher = buildPublisher()
 
@@ -93,7 +93,7 @@ describe("sessionTimeout job", () => {
     expect(after).toMatchObject({ endReason: "MANUAL", status: "ENDED" })
   })
 
-  it("ACTIVE → ENDED+TIMEOUT、matching:ended publish、関連ジョブが queue から消え、Redis schedule key も削除", async () => {
+  it("【正常系】ACTIVE → ENDED+TIMEOUT、matching:ended publish、関連ジョブが queue から消え、Redis schedule key も削除", async () => {
     const session = await createSession()
     const publisher = buildPublisher()
 
@@ -146,7 +146,7 @@ describe("sessionTimeout job", () => {
     expect(await testRedis.get(`matching:schedule:${session.id}`)).toBeNull()
   })
 
-  it("session が存在しない id → no-op", async () => {
+  it("【正常系】session が存在しない id → no-op", async () => {
     const publisher = buildPublisher()
 
     await sessionTimeout(

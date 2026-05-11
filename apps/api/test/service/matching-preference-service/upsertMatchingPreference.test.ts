@@ -48,7 +48,7 @@ describe("upsertMatchingPreference", () => {
     jest.clearAllMocks()
   })
 
-  it("初回呼び出し → upsert で create、ok 返却", async () => {
+  it("【正常系】初回呼び出し → upsert で create、ok 返却", async () => {
     const stored = buildStored()
     mockUpsertByUserId.mockResolvedValue(stored)
 
@@ -68,7 +68,7 @@ describe("upsertMatchingPreference", () => {
     })
   })
 
-  it("既存ある場合 → upsert で update、ok 返却", async () => {
+  it("【正常系】既存ある場合 → upsert で update、ok 返却", async () => {
     const updated = buildStored({ ageMax: 40, ageMin: 30 })
     mockUpsertByUserId.mockResolvedValue(updated)
 
@@ -89,7 +89,7 @@ describe("upsertMatchingPreference", () => {
     }
   })
 
-  it("age_min > age_max → 400 BAD_REQUEST", async () => {
+  it("【異常系】age_min > age_max → 400 BAD_REQUEST", async () => {
     const result = await upsertMatchingPreference(
       {
         data: { ...baseInput, ageMax: 25, ageMin: 35, preferredGenders: ["FEMALE"] },
@@ -108,7 +108,7 @@ describe("upsertMatchingPreference", () => {
     expect(mockUpsertByUserId).not.toHaveBeenCalled()
   })
 
-  it("age_min == age_max（境界値）→ ok", async () => {
+  it("【正常系】age_min == age_max（境界値）→ ok", async () => {
     const stored = buildStored({ ageMax: 30, ageMin: 30 })
     mockUpsertByUserId.mockResolvedValue(stored)
 
@@ -126,7 +126,7 @@ describe("upsertMatchingPreference", () => {
     expect(result.ok).toBe(true)
   })
 
-  it("片方が null → age バリデーションスキップ、ok", async () => {
+  it("【正常系】片方が null → age バリデーションスキップ、ok", async () => {
     const stored = buildStored({ ageMax: null, ageMin: 25 })
     mockUpsertByUserId.mockResolvedValue(stored)
 
@@ -144,7 +144,7 @@ describe("upsertMatchingPreference", () => {
     expect(result.ok).toBe(true)
   })
 
-  it("preferredHobbyIds に存在しない id → 400", async () => {
+  it("【異常系】preferredHobbyIds に存在しない id → 400", async () => {
     mockFindActiveByIds.mockResolvedValue([{ id: 1, name: "h1", sortOrder: 1 }])
 
     const result = await upsertMatchingPreference(
@@ -169,7 +169,7 @@ describe("upsertMatchingPreference", () => {
     expect(mockUpsertByUserId).not.toHaveBeenCalled()
   })
 
-  it("preferredHobbyIds が全て有効 → ok", async () => {
+  it("【正常系】preferredHobbyIds が全て有効 → ok", async () => {
     mockFindActiveByIds.mockResolvedValue([
       { id: 1, name: "h1", sortOrder: 1 },
       { id: 2, name: "h2", sortOrder: 2 },
@@ -192,7 +192,7 @@ describe("upsertMatchingPreference", () => {
     expect(mockUpsertByUserId).toHaveBeenCalled()
   })
 
-  it("すべて空配列 / null（フィルタ無効化）→ ok", async () => {
+  it("【正常系】すべて空配列 / null（フィルタ無効化）→ ok", async () => {
     const stored = buildStored({
       ageMax: null,
       ageMin: null,

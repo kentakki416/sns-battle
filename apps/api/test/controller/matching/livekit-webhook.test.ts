@@ -90,7 +90,7 @@ describe("POST /api/matching/livekit-webhook", () => {
     await disconnectTestRedis()
   })
 
-  it("無効署名（receiver が null）→ 401 / enqueue されない", async () => {
+  it("【異常系】無効署名（receiver が null）→ 401 / enqueue されない", async () => {
     const receiver: ILiveKitWebhookReceiver = {
       receive: jest.fn().mockResolvedValue(null),
     }
@@ -107,7 +107,7 @@ describe("POST /api/matching/livekit-webhook", () => {
     expect(await testQueue.getJob(buildLivekitEventJobId("evt-1"))).toBeUndefined()
   })
 
-  it("Authorization 無し → receiver も null を返す → 401", async () => {
+  it("【異常系】Authorization 無し → receiver も null を返す → 401", async () => {
     const receiver: ILiveKitWebhookReceiver = {
       receive: jest.fn().mockImplementation(async (_body, auth) => (auth ? buildMockEvent() : null)),
     }
@@ -123,7 +123,7 @@ describe("POST /api/matching/livekit-webhook", () => {
     expect(receiver.receive).toHaveBeenCalledWith(expect.any(String), undefined)
   })
 
-  it("有効署名 → 204 / BullMQ に jobId=livekit:{eventId} で enqueue", async () => {
+  it("【正常系】有効署名 → 204 / BullMQ に jobId=livekit:{eventId} で enqueue", async () => {
     const event = buildMockEvent({ id: "evt-success" })
     const receiver: ILiveKitWebhookReceiver = {
       receive: jest.fn().mockResolvedValue(event),
@@ -148,7 +148,7 @@ describe("POST /api/matching/livekit-webhook", () => {
     })
   })
 
-  it("受信 body は raw（Buffer）として receiver に渡される（JSON parse されていない）", async () => {
+  it("【正常系】受信 body は raw（Buffer）として receiver に渡される（JSON parse されていない）", async () => {
     const receiver: ILiveKitWebhookReceiver = {
       receive: jest.fn().mockResolvedValue(buildMockEvent()),
     }
@@ -166,7 +166,7 @@ describe("POST /api/matching/livekit-webhook", () => {
     expect(receiver.receive).toHaveBeenCalledWith(rawJson, "any-jwt-token")
   })
 
-  it("同一 event.id で 2 回 POST → 2 回目は同 jobId で重複追加されず、ジョブ 1 件のまま", async () => {
+  it("【正常系】同一 event.id で 2 回 POST → 2 回目は同 jobId で重複追加されず、ジョブ 1 件のまま", async () => {
     const event = buildMockEvent({ id: "evt-dup" })
     const receiver: ILiveKitWebhookReceiver = {
       receive: jest.fn().mockResolvedValue(event),

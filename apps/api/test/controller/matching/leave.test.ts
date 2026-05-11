@@ -39,12 +39,12 @@ afterAll(async () => {
 })
 
 describe("DELETE /api/matching/leave", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).delete("/api/matching/leave")
     expect(res.status).toBe(401)
   })
 
-  it("待機中のユーザーが leave → Redis と DB の両方から削除される", async () => {
+  it("【正常系】待機中のユーザーが leave → Redis と DB の両方から削除される", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -63,7 +63,7 @@ describe("DELETE /api/matching/leave", () => {
     expect(await testPrisma.matchingQueue.findUnique({ where: { userId: me.id } })).toBeNull()
   })
 
-  it("元々参加していなくても 200（冪等）", async () => {
+  it("【正常系】元々参加していなくても 200（冪等）", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })

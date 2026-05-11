@@ -35,7 +35,7 @@ describe("startMatchingSession", () => {
     jest.clearAllMocks()
   })
 
-  it("session が存在しない → 404 / markActive・enqueue とも呼ばれない", async () => {
+  it("【異常系】session が存在しない → 404 / markActive・enqueue とも呼ばれない", async () => {
     const { repo, enqueuer } = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(null)
 
@@ -50,7 +50,7 @@ describe("startMatchingSession", () => {
     expect(enqueuer.themeProgressEnqueuer.enqueueSessionStart).not.toHaveBeenCalled()
   })
 
-  it("非参加者 → 403 / markActive・enqueue とも呼ばれない", async () => {
+  it("【異常系】非参加者 → 403 / markActive・enqueue とも呼ばれない", async () => {
     const { repo, enqueuer } = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 1, user2Id: 2 }),
@@ -67,7 +67,7 @@ describe("startMatchingSession", () => {
     expect(enqueuer.themeProgressEnqueuer.enqueueSessionStart).not.toHaveBeenCalled()
   })
 
-  it("既に ENDED → 410 / markActive・enqueue とも呼ばれない", async () => {
+  it("【異常系】既に ENDED → 410 / markActive・enqueue とも呼ばれない", async () => {
     const { repo, enqueuer } = buildRepos()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ status: "ENDED" }),
@@ -84,7 +84,7 @@ describe("startMatchingSession", () => {
     expect(enqueuer.themeProgressEnqueuer.enqueueSessionStart).not.toHaveBeenCalled()
   })
 
-  it("既に ACTIVE → ok / markActive・enqueue とも呼ばれず既存 startedAt を返す", async () => {
+  it("【正常系】既に ACTIVE → ok / markActive・enqueue とも呼ばれず既存 startedAt を返す", async () => {
     const { repo, enqueuer } = buildRepos()
     const startedAt = new Date(Date.now() - 60_000)
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
@@ -101,7 +101,7 @@ describe("startMatchingSession", () => {
     expect(enqueuer.themeProgressEnqueuer.enqueueSessionStart).not.toHaveBeenCalled()
   })
 
-  it("正常系（COUNTDOWN → ACTIVE） → markActive 1 回 / enqueue 1 回 / 新しい startedAt を返す", async () => {
+  it("【正常系】正常系（COUNTDOWN → ACTIVE） → markActive 1 回 / enqueue 1 回 / 新しい startedAt を返す", async () => {
     const { repo, enqueuer } = buildRepos()
     const newStartedAt = new Date()
     ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(

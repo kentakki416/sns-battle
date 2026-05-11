@@ -96,7 +96,7 @@ describe("submitReaction", () => {
     jest.clearAllMocks()
   })
 
-  it("自分が先に回答 → matched=null / publishData 未呼び出し", async () => {
+  it("【正常系】自分が先に回答 → matched=null / publishData 未呼び出し", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.talkThemeRepository.findById as jest.Mock).mockResolvedValue(buildChoiceTheme())
@@ -123,7 +123,7 @@ describe("submitReaction", () => {
     expect(d.client.livekitClient.publishData).not.toHaveBeenCalled()
   })
 
-  it("CHOICE で両者一致 → matched=true + publishData 呼び出し", async () => {
+  it("【正常系】CHOICE で両者一致 → matched=true + publishData 呼び出し", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.talkThemeRepository.findById as jest.Mock).mockResolvedValue(buildChoiceTheme())
@@ -164,7 +164,7 @@ describe("submitReaction", () => {
     })
   })
 
-  it("CHOICE で両者不一致 → matched=false + payload にそれぞれの choice_id", async () => {
+  it("【異常系】CHOICE で両者不一致 → matched=false + payload にそれぞれの choice_id", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 2, user2Id: 1 }),
@@ -204,7 +204,7 @@ describe("submitReaction", () => {
     )
   })
 
-  it("FREE_TALK は両者揃っても matched=null / publishData 未呼び出し", async () => {
+  it("【正常系】FREE_TALK は両者揃っても matched=null / publishData 未呼び出し", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.talkThemeRepository.findById as jest.Mock).mockResolvedValue(buildFreeTalkTheme())
@@ -230,7 +230,7 @@ describe("submitReaction", () => {
     expect(d.client.livekitClient.publishData).not.toHaveBeenCalled()
   })
 
-  it("CHOICE で choice_id=null → 400", async () => {
+  it("【異常系】CHOICE で choice_id=null → 400", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.talkThemeRepository.findById as jest.Mock).mockResolvedValue(buildChoiceTheme())
@@ -249,7 +249,7 @@ describe("submitReaction", () => {
     expect(d.repo.matchingReactionRepository.create).not.toHaveBeenCalled()
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 1, user2Id: 2 }),
@@ -268,7 +268,7 @@ describe("submitReaction", () => {
     }
   })
 
-  it("ENDED → 410", async () => {
+  it("【異常系】ENDED → 410", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ status: "ENDED" }),
@@ -287,7 +287,7 @@ describe("submitReaction", () => {
     }
   })
 
-  it("存在しないテーマ → 404", async () => {
+  it("【異常系】存在しないテーマ → 404", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.talkThemeRepository.findById as jest.Mock).mockResolvedValue(null)
@@ -304,7 +304,7 @@ describe("submitReaction", () => {
     }
   })
 
-  it("同 round 2 度目 (P2002) → 409", async () => {
+  it("【異常系】同 round 2 度目 (P2002) → 409", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.talkThemeRepository.findById as jest.Mock).mockResolvedValue(buildChoiceTheme())
@@ -325,7 +325,7 @@ describe("submitReaction", () => {
     }
   })
 
-  it("publishData が失敗してもレスポンスは ok（best-effort）", async () => {
+  it("【正常系】publishData が失敗してもレスポンスは ok（best-effort）", async () => {
     const d = buildDeps()
     ;(d.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(buildSession())
     ;(d.repo.talkThemeRepository.findById as jest.Mock).mockResolvedValue(buildChoiceTheme())

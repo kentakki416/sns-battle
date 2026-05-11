@@ -39,12 +39,12 @@ afterAll(async () => {
 })
 
 describe("GET /api/matching/status", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).get("/api/matching/status")
     expect(res.status).toBe(401)
   })
 
-  it("セッションなし & Redis なし → NONE", async () => {
+  it("【正常系】セッションなし & Redis なし → NONE", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -58,7 +58,7 @@ describe("GET /api/matching/status", () => {
     expect(res.body).toEqual({ position: null, status: "NONE", waited_seconds: null })
   })
 
-  it("Redis Sorted Set に存在 → WAITING + position と waited_seconds を返す", async () => {
+  it("【正常系】Redis Sorted Set に存在 → WAITING + position と waited_seconds を返す", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -79,7 +79,7 @@ describe("GET /api/matching/status", () => {
     expect(res.body.waited_seconds).toBeGreaterThanOrEqual(4)
   })
 
-  it("アクティブセッションあり → MATCHED", async () => {
+  it("【正常系】アクティブセッションあり → MATCHED", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })

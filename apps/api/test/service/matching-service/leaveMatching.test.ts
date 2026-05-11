@@ -24,7 +24,7 @@ describe("leaveMatching", () => {
     jest.clearAllMocks()
   })
 
-  it("Redis と DB の両方から削除を呼ぶ", async () => {
+  it("【正常系】Redis と DB の両方から削除を呼ぶ", async () => {
     const repo = buildRepos()
     ;(repo.matchingQueueRedisRepository.remove as jest.Mock).mockResolvedValue(undefined)
     ;(repo.matchingQueueRepository.deleteByUserId as jest.Mock).mockResolvedValue(undefined)
@@ -36,7 +36,7 @@ describe("leaveMatching", () => {
     expect(repo.matchingQueueRepository.deleteByUserId).toHaveBeenCalledWith(1)
   })
 
-  it("元々参加していなくても 200（冪等）", async () => {
+  it("【正常系】元々参加していなくても 200（冪等）", async () => {
     const repo = buildRepos()
     ;(repo.matchingQueueRedisRepository.remove as jest.Mock).mockResolvedValue(undefined)
     ;(repo.matchingQueueRepository.deleteByUserId as jest.Mock).mockResolvedValue(undefined)

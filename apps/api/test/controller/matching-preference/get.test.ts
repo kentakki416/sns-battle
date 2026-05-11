@@ -30,7 +30,7 @@ afterAll(async () => {
 })
 
 describe("GET /api/matching/preferences", () => {
-  it("レコード未作成のユーザー → 200、デフォルト値（空配列 + null）を返す", async () => {
+  it("【正常系】レコード未作成のユーザー → 200、デフォルト値（空配列 + null）を返す", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -51,7 +51,7 @@ describe("GET /api/matching/preferences", () => {
     })
   })
 
-  it("レコード作成済 → 200、保存値を返す", async () => {
+  it("【正常系】レコード作成済 → 200、保存値を返す", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -83,7 +83,7 @@ describe("GET /api/matching/preferences", () => {
     })
   })
 
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).get("/api/matching/preferences")
 
     expect(res.status).toBe(401)

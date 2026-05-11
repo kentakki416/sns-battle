@@ -66,7 +66,7 @@ describe("completeOnboarding", () => {
     jest.useRealTimers()
   })
 
-  it("必須項目のみで完了 → ok、is_onboarded=true、UserProfile が返る", async () => {
+  it("【正常系】必須項目のみで完了 → ok、is_onboarded=true、UserProfile が返る", async () => {
     mockFindById.mockResolvedValue(baseUser)
     mockCompleteOnboarding.mockResolvedValue()
     mockFindProfileById.mockResolvedValue({
@@ -102,7 +102,7 @@ describe("completeOnboarding", () => {
     expect(mockCompleteOnboarding).toHaveBeenCalledWith(1, requiredOnly)
   })
 
-  it("全項目指定で完了 → hobbies が反映", async () => {
+  it("【正常系】全項目指定で完了 → hobbies が反映", async () => {
     const hobbies: Hobby[] = [
       { id: 1, name: "h1", sortOrder: 1 },
       { id: 2, name: "h2", sortOrder: 2 },
@@ -150,7 +150,7 @@ describe("completeOnboarding", () => {
     }
   })
 
-  it("既に is_onboarded=true → 409 CONFLICT", async () => {
+  it("【異常系】既に is_onboarded=true → 409 CONFLICT", async () => {
     mockFindById.mockResolvedValue({ ...baseUser, isOnboarded: true })
 
     const result = await completeOnboarding(
@@ -165,7 +165,7 @@ describe("completeOnboarding", () => {
     expect(mockCompleteOnboarding).not.toHaveBeenCalled()
   })
 
-  it("他人の id を指定 → 403 FORBIDDEN", async () => {
+  it("【異常系】他人の id を指定 → 403 FORBIDDEN", async () => {
     const result = await completeOnboarding(
       { data: requiredOnly, targetUserId: 1, viewerUserId: 99 },
       { hobbyRepository: mockHobbyRepository, userRepository: mockUserRepository }
@@ -178,7 +178,7 @@ describe("completeOnboarding", () => {
     expect(mockFindById).not.toHaveBeenCalled()
   })
 
-  it("存在しないユーザー → 404 NOT_FOUND", async () => {
+  it("【異常系】存在しないユーザー → 404 NOT_FOUND", async () => {
     mockFindById.mockResolvedValue(null)
 
     const result = await completeOnboarding(
@@ -193,7 +193,7 @@ describe("completeOnboarding", () => {
     expect(mockCompleteOnboarding).not.toHaveBeenCalled()
   })
 
-  it("18 歳未満（境界値）→ 400 BAD_REQUEST", async () => {
+  it("【異常系】18 歳未満（境界値）→ 400 BAD_REQUEST", async () => {
     mockFindById.mockResolvedValue(baseUser)
 
     /** 2026-05-08 時点で 17 歳になる日付 */
@@ -213,7 +213,7 @@ describe("completeOnboarding", () => {
     expect(mockCompleteOnboarding).not.toHaveBeenCalled()
   })
 
-  it("18 歳ちょうど（境界値）→ ok", async () => {
+  it("【正常系】18 歳ちょうど（境界値）→ ok", async () => {
     mockFindById.mockResolvedValue(baseUser)
     mockCompleteOnboarding.mockResolvedValue()
     mockFindProfileById.mockResolvedValue({
@@ -240,7 +240,7 @@ describe("completeOnboarding", () => {
     expect(mockCompleteOnboarding).toHaveBeenCalled()
   })
 
-  it("hobby_ids に存在しない id → 400 BAD_REQUEST", async () => {
+  it("【異常系】hobby_ids に存在しない id → 400 BAD_REQUEST", async () => {
     mockFindById.mockResolvedValue(baseUser)
     mockFindActiveByIds.mockResolvedValue([{ id: 1, name: "h1", sortOrder: 1 }])
 

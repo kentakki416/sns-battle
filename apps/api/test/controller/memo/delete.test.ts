@@ -28,7 +28,7 @@ afterAll(async () => {
 })
 
 describe("DELETE /api/memo/:id", () => {
-  it("200 と削除成功メッセージを返す", async () => {
+  it("【正常系】200 と削除成功メッセージを返す", async () => {
     const memo = await testPrisma.memo.create({
       data: { body: "Test Body", title: "Test Title" },
     })
@@ -43,14 +43,14 @@ describe("DELETE /api/memo/:id", () => {
     expect(deleted).toBeNull()
   })
 
-  it("メモが存在しない場合、404 を返す", async () => {
+  it("【異常系】メモが存在しない場合、404 を返す", async () => {
     const res = await request(app).delete("/api/memo/999999")
 
     expect(res.status).toBe(404)
     expect(res.body).toEqual({ error: expect.any(String), status_code: 404 })
   })
 
-  it("無効なID形式の場合、400 を返す", async () => {
+  it("【異常系】無効なID形式の場合、400 を返す", async () => {
     const res = await request(app).delete("/api/memo/abc")
 
     expect(res.status).toBe(400)

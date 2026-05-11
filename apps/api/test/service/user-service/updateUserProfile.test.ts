@@ -59,7 +59,7 @@ describe("updateUserProfile", () => {
     jest.useRealTimers()
   })
 
-  it("自分の name / bio / mbti / location 更新 → ok: true、fresh プロフィールが返る", async () => {
+  it("【正常系】自分の name / bio / mbti / location 更新 → ok: true、fresh プロフィールが返る", async () => {
     mockFindById.mockResolvedValue(baseUser)
     mockUpdate.mockResolvedValue()
     mockFindProfileById.mockResolvedValue({
@@ -100,7 +100,7 @@ describe("updateUserProfile", () => {
     }))
   })
 
-  it("hobby_ids を渡すと完全置換され、findProfileById で趣味反映が確認できる", async () => {
+  it("【正常系】hobby_ids を渡すと完全置換され、findProfileById で趣味反映が確認できる", async () => {
     const newHobbies: Hobby[] = [
       { id: 3, name: "ヨガ", sortOrder: 3 },
       { id: 4, name: "登山", sortOrder: 4 },
@@ -122,7 +122,7 @@ describe("updateUserProfile", () => {
     expect(mockUpdate).toHaveBeenCalledWith(1, expect.objectContaining({ hobbyIds: [3, 4] }))
   })
 
-  it("hobby_ids に存在しない id が含まれると 400 BAD_REQUEST", async () => {
+  it("【異常系】hobby_ids に存在しない id が含まれると 400 BAD_REQUEST", async () => {
     mockFindById.mockResolvedValue(baseUser)
     mockFindActiveByIds.mockResolvedValue([{ id: 3, name: "ヨガ", sortOrder: 3 }])
 
@@ -138,7 +138,7 @@ describe("updateUserProfile", () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it("他人の更新は 403 FORBIDDEN", async () => {
+  it("【異常系】他人の更新は 403 FORBIDDEN", async () => {
     const result = await updateUserProfile(
       { data: { name: "Hacked" }, targetUserId: 1, viewerUserId: 99 },
       { hobbyRepository: mockHobbyRepository, userRepository: mockUserRepository }
@@ -152,7 +152,7 @@ describe("updateUserProfile", () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it("存在しないユーザーは 404 NOT_FOUND", async () => {
+  it("【異常系】存在しないユーザーは 404 NOT_FOUND", async () => {
     mockFindById.mockResolvedValue(null)
 
     const result = await updateUserProfile(
@@ -167,7 +167,7 @@ describe("updateUserProfile", () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it("18 歳ちょうど（境界値）→ ok", async () => {
+  it("【正常系】18 歳ちょうど（境界値）→ ok", async () => {
     mockFindById.mockResolvedValue(baseUser)
     mockUpdate.mockResolvedValue()
     mockFindProfileById.mockResolvedValue({ hobbies: [], user: baseUser })
@@ -182,7 +182,7 @@ describe("updateUserProfile", () => {
     expect(mockUpdate).toHaveBeenCalled()
   })
 
-  it("18 歳未満（境界値）→ 400 BAD_REQUEST", async () => {
+  it("【異常系】18 歳未満（境界値）→ 400 BAD_REQUEST", async () => {
     mockFindById.mockResolvedValue(baseUser)
 
     /** 2026-05-08 時点で誕生日前 17 歳 */
@@ -198,7 +198,7 @@ describe("updateUserProfile", () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it("121 歳（上限超過）→ 400 BAD_REQUEST", async () => {
+  it("【異常系】121 歳（上限超過）→ 400 BAD_REQUEST", async () => {
     mockFindById.mockResolvedValue(baseUser)
 
     /** 2026-05-08 時点で誕生日後 121 歳 */
@@ -214,7 +214,7 @@ describe("updateUserProfile", () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it("birthDate 未指定 + hobby のみ更新 → 年齢チェックがスキップされ ok", async () => {
+  it("【正常系】birthDate 未指定 + hobby のみ更新 → 年齢チェックがスキップされ ok", async () => {
     mockFindById.mockResolvedValue(baseUser)
     mockFindActiveByIds.mockResolvedValue([{ id: 3, name: "ヨガ", sortOrder: 3 }])
     mockUpdate.mockResolvedValue()

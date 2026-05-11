@@ -25,7 +25,7 @@ afterAll(async () => {
 })
 
 describe("GET /api/hobbies", () => {
-  it("有効な趣味マスター一覧を sort_order 昇順で返し、is_active=false は含まれない", async () => {
+  it("【正常系】有効な趣味マスター一覧を sort_order 昇順で返し、is_active=false は含まれない", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -53,7 +53,7 @@ describe("GET /api/hobbies", () => {
     })
   })
 
-  it("マスター 0 件の場合、空配列を返す", async () => {
+  it("【正常系】マスター 0 件の場合、空配列を返す", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -67,7 +67,7 @@ describe("GET /api/hobbies", () => {
     expect(res.body).toEqual({ hobbies: [] })
   })
 
-  it("認証なしの場合 401 を返す", async () => {
+  it("【異常系】認証なしの場合 401 を返す", async () => {
     const res = await request(app).get("/api/hobbies")
 
     expect(res.status).toBe(401)

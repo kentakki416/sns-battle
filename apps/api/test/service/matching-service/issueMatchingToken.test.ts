@@ -39,7 +39,7 @@ describe("issueMatchingToken", () => {
     jest.clearAllMocks()
   })
 
-  it("参加者本人 → ok と LiveKit に渡した引数が期待どおり", async () => {
+  it("【正常系】参加者本人 → ok と LiveKit に渡した引数が期待どおり", async () => {
     const deps = buildDeps()
     const fixedNow = 1_700_000_000_000
     jest.spyOn(Date, "now").mockReturnValue(fixedNow)
@@ -72,7 +72,7 @@ describe("issueMatchingToken", () => {
     jest.restoreAllMocks()
   })
 
-  it("user2 でも 200 を返す", async () => {
+  it("【正常系】user2 でも 200 を返す", async () => {
     const deps = buildDeps()
     ;(deps.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 1, user2Id: 2 }),
@@ -87,7 +87,7 @@ describe("issueMatchingToken", () => {
     )
   })
 
-  it("参加者でない → 403 FORBIDDEN", async () => {
+  it("【異常系】参加者でない → 403 FORBIDDEN", async () => {
     const deps = buildDeps()
     ;(deps.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ user1Id: 1, user2Id: 2 }),
@@ -103,7 +103,7 @@ describe("issueMatchingToken", () => {
     expect(deps.client.livekitClient.generateRoomToken).not.toHaveBeenCalled()
   })
 
-  it("ENDED セッション → 410 GONE", async () => {
+  it("【異常系】ENDED セッション → 410 GONE", async () => {
     const deps = buildDeps()
     ;(deps.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
       buildSession({ status: "ENDED", user1Id: 1, user2Id: 2 }),
@@ -119,7 +119,7 @@ describe("issueMatchingToken", () => {
     expect(deps.client.livekitClient.generateRoomToken).not.toHaveBeenCalled()
   })
 
-  it("存在しないセッション → 404 NOT_FOUND", async () => {
+  it("【異常系】存在しないセッション → 404 NOT_FOUND", async () => {
     const deps = buildDeps()
     ;(deps.repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(null)
 

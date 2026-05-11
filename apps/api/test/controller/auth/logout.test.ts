@@ -30,7 +30,7 @@ afterAll(async () => {
 })
 
 describe("POST /api/auth/logout", () => {
-  it("正常系: 200 を返し Refresh Token の jti が Redis から削除される", async () => {
+  it("【正常系】200 を返し Refresh Token の jti が Redis から削除される", async () => {
     const userId = 1
     const accessToken = generateAccessToken(userId)
     const { jti, token: refreshToken } = generateRefreshToken(userId)
@@ -46,7 +46,7 @@ describe("POST /api/auth/logout", () => {
     expect(await refreshTokenRepository.findUserId(jti)).toBeNull()
   })
 
-  it("ログアウト後、同じ Refresh Token は使えない（/refresh が 401）", async () => {
+  it("【正常系】ログアウト後、同じ Refresh Token は使えない（/refresh が 401）", async () => {
     const userId = 1
     const accessToken = generateAccessToken(userId)
     const { jti, token: refreshToken } = generateRefreshToken(userId)
@@ -61,7 +61,7 @@ describe("POST /api/auth/logout", () => {
     expect(await refreshTokenRepository.findUserId(jti)).toBeNull()
   })
 
-  it("無効な Refresh Token でも冪等性のため 200 を返し、Redis 状態は変化しない", async () => {
+  it("【正常系】無効な Refresh Token でも冪等性のため 200 を返し、Redis 状態は変化しない", async () => {
     const userId = 1
     const accessToken = generateAccessToken(userId)
 
@@ -79,7 +79,7 @@ describe("POST /api/auth/logout", () => {
     expect(await refreshTokenRepository.findUserId(otherJti)).toBe(2)
   })
 
-  it("Access Token が無い場合、401 を返す", async () => {
+  it("【異常系】Access Token が無い場合、401 を返す", async () => {
     const { token: refreshToken } = generateRefreshToken(1)
 
     const res = await request(app)
@@ -90,7 +90,7 @@ describe("POST /api/auth/logout", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 401 })
   })
 
-  it("refresh_token が無い場合、400 を返す", async () => {
+  it("【異常系】refresh_token が無い場合、400 を返す", async () => {
     const accessToken = generateAccessToken(1)
 
     const res = await request(app)

@@ -46,12 +46,12 @@ afterAll(async () => {
 })
 
 describe("GET /api/matching/sessions/:id", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).get("/api/matching/sessions/1")
     expect(res.status).toBe(401)
   })
 
-  it("非数値 id → 400", async () => {
+  it("【異常系】非数値 id → 400", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -65,7 +65,7 @@ describe("GET /api/matching/sessions/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("存在しないセッション → 404", async () => {
+  it("【異常系】存在しないセッション → 404", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -78,7 +78,7 @@ describe("GET /api/matching/sessions/:id", () => {
     expect(res.status).toBe(404)
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -105,7 +105,7 @@ describe("GET /api/matching/sessions/:id", () => {
     expect(res.status).toBe(403)
   })
 
-  it("user1 として取得 → 200 + is_self_user1=true / can_end_now=true（5 分以上経過）", async () => {
+  it("【正常系】user1 として取得 → 200 + is_self_user1=true / can_end_now=true（5 分以上経過）", async () => {
     const me = await testPrisma.user.create({
       data: {
         avatarUrl: "https://example.com/me.png",
@@ -155,7 +155,7 @@ describe("GET /api/matching/sessions/:id", () => {
     expect(res.body.elapsed_seconds).toBeGreaterThanOrEqual(360)
   })
 
-  it("COUNTDOWN セッション → elapsed_seconds=0 / can_end_now=false", async () => {
+  it("【正常系】COUNTDOWN セッション → elapsed_seconds=0 / can_end_now=false", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -188,12 +188,12 @@ describe("GET /api/matching/sessions/:id", () => {
 })
 
 describe("POST /api/matching/sessions/:id/end", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).post("/api/matching/sessions/1/end")
     expect(res.status).toBe(401)
   })
 
-  it("存在しないセッション → 404", async () => {
+  it("【異常系】存在しないセッション → 404", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -206,7 +206,7 @@ describe("POST /api/matching/sessions/:id/end", () => {
     expect(res.status).toBe(404)
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -234,7 +234,7 @@ describe("POST /api/matching/sessions/:id/end", () => {
     expect(res.status).toBe(403)
   })
 
-  it("既に ENDED → 410", async () => {
+  it("【異常系】既に ENDED → 410", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -260,7 +260,7 @@ describe("POST /api/matching/sessions/:id/end", () => {
     expect(res.status).toBe(410)
   })
 
-  it("5 分未満 → 400 / DB は変化しない", async () => {
+  it("【異常系】5 分未満 → 400 / DB は変化しない", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -287,7 +287,7 @@ describe("POST /api/matching/sessions/:id/end", () => {
     expect(after).toMatchObject({ endedAt: null, endReason: null, status: "ACTIVE" })
   })
 
-  it("5 分以上経過 → 200 / DB が ENDED + endReason=MANUAL に更新される", async () => {
+  it("【正常系】5 分以上経過 → 200 / DB が ENDED + endReason=MANUAL に更新される", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })

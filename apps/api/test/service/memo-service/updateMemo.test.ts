@@ -19,7 +19,7 @@ describe("updateMemo", () => {
     jest.clearAllMocks()
   })
 
-  it("メモが存在する場合、更新して ok: true で返す", async () => {
+  it("【正常系】メモが存在する場合、更新して ok: true で返す", async () => {
     // Arrange
     const existingMemo: Memo = {
       body: "Old Body",
@@ -57,7 +57,7 @@ describe("updateMemo", () => {
     expect(mockUpdate).toHaveBeenCalledWith(1, input)
   })
 
-  it("メモが存在しない場合、ok: false と NOT_FOUND エラーを返す", async () => {
+  it("【異常系】メモが存在しない場合、ok: false と NOT_FOUND エラーを返す", async () => {
     // Arrange
     const input: UpdateMemoInput = {
       body: "Updated Body",
@@ -81,7 +81,7 @@ describe("updateMemo", () => {
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
-  it("データベースエラー時にエラーをスローする", async () => {
+  it("【異常系】データベースエラー時にエラーをスローする", async () => {
     // Arrange
     const input: UpdateMemoInput = {
       body: "Updated Body",

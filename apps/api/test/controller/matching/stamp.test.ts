@@ -97,12 +97,12 @@ afterAll(async () => {
 })
 
 describe("POST /api/matching/sessions/:id/stamp", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     const res = await request(app).post("/api/matching/sessions/1/stamp").send({ item_id: 1 })
     expect(res.status).toBe(401)
   })
 
-  it("body 不正 → 400", async () => {
+  it("【異常系】body 不正 → 400", async () => {
     const me = await testPrisma.user.create({
       data: { email: "x@example.com", isOnboarded: true, name: "X" },
     })
@@ -116,7 +116,7 @@ describe("POST /api/matching/sessions/:id/stamp", () => {
     expect(res.status).toBe(400)
   })
 
-  it("free スタンプ → 200 + Data Channel publish 呼び出し", async () => {
+  it("【正常系】free スタンプ → 200 + Data Channel publish 呼び出し", async () => {
     const itemId = await seedMatchingStamp()
     const { me, sessionId } = await seedActiveSession()
     const token = generateAccessToken(me.id)
@@ -144,7 +144,7 @@ describe("POST /api/matching/sessions/:id/stamp", () => {
     )
   })
 
-  it("scope=BATTLE のみのスタンプ → 400", async () => {
+  it("【異常系】scope=BATTLE のみのスタンプ → 400", async () => {
     const itemId = await seedMatchingStamp({ scope: "BATTLE" })
     const { me, sessionId } = await seedActiveSession()
     const token = generateAccessToken(me.id)
@@ -157,7 +157,7 @@ describe("POST /api/matching/sessions/:id/stamp", () => {
     expect(res.status).toBe(400)
   })
 
-  it("premium 所持なし → 403、所持追加後 → 200", async () => {
+  it("【異常系】premium 所持なし → 403、所持追加後 → 200", async () => {
     const itemId = await seedMatchingStamp({ isPremium: true })
     const { me, sessionId } = await seedActiveSession()
     const token = generateAccessToken(me.id)
@@ -184,7 +184,7 @@ describe("POST /api/matching/sessions/:id/stamp", () => {
     expect(livekitClient.publishData).toHaveBeenCalled()
   })
 
-  it("6 連送で 6 回目に 429（5 req/秒）", async () => {
+  it("【異常系】6 連送で 6 回目に 429（5 req/秒）", async () => {
     const itemId = await seedMatchingStamp()
     const { me, sessionId } = await seedActiveSession()
     const token = generateAccessToken(me.id)
@@ -202,7 +202,7 @@ describe("POST /api/matching/sessions/:id/stamp", () => {
     expect(statuses[5]).toBe(429)
   })
 
-  it("非参加者 → 403", async () => {
+  it("【異常系】非参加者 → 403", async () => {
     const itemId = await seedMatchingStamp()
     const u1 = await testPrisma.user.create({
       data: { email: "u1@example.com", isOnboarded: true, name: "U1" },
@@ -232,7 +232,7 @@ describe("POST /api/matching/sessions/:id/stamp", () => {
     expect(res.status).toBe(403)
   })
 
-  it("ENDED → 410", async () => {
+  it("【異常系】ENDED → 410", async () => {
     const itemId = await seedMatchingStamp()
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },

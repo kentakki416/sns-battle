@@ -25,7 +25,7 @@ afterAll(async () => {
 })
 
 describe("GET /api/users/:id", () => {
-  it("自分の id を取得すると is_self=true で全情報 + 趣味配列が返る", async () => {
+  it("【正常系】自分の id を取得すると is_self=true で全情報 + 趣味配列が返る", async () => {
     const hobby1 = await testPrisma.hobbyMaster.create({
       data: { name: "音楽鑑賞", sortOrder: 1 },
     })
@@ -76,7 +76,7 @@ describe("GET /api/users/:id", () => {
     })
   })
 
-  it("他人の id を取得すると is_self=false で birth_date / coin_balance のみ null マスク。趣味 / mbti / location は公開", async () => {
+  it("【正常系】他人の id を取得すると is_self=false で birth_date / coin_balance のみ null マスク。趣味 / mbti / location は公開", async () => {
     const hobby = await testPrisma.hobbyMaster.create({
       data: { name: "ヨガ", sortOrder: 12 },
     })
@@ -122,7 +122,7 @@ describe("GET /api/users/:id", () => {
     })
   })
 
-  it("存在しない id の場合 404 を返す", async () => {
+  it("【異常系】存在しない id の場合 404 を返す", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -136,7 +136,7 @@ describe("GET /api/users/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 404 })
   })
 
-  it("不正な id（数値変換不可）の場合 400 を返す", async () => {
+  it("【異常系】不正な id（数値変換不可）の場合 400 を返す", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", name: "Me" },
     })
@@ -150,7 +150,7 @@ describe("GET /api/users/:id", () => {
     expect(res.body).toEqual({ error: expect.any(String), status_code: 400 })
   })
 
-  it("認証なしの場合 401 を返す", async () => {
+  it("【異常系】認証なしの場合 401 を返す", async () => {
     const res = await request(app).get("/api/users/1")
 
     expect(res.status).toBe(401)

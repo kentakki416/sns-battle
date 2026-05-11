@@ -13,7 +13,7 @@ describe("getActiveHobbies", () => {
     jest.clearAllMocks()
   })
 
-  it("有効な趣味リストを返す", async () => {
+  it("【正常系】有効な趣味リストを返す", async () => {
     const hobbies: Hobby[] = [
       { id: 1, name: "音楽鑑賞", sortOrder: 1 },
       { id: 5, name: "ゲーム", sortOrder: 5 },
@@ -29,7 +29,7 @@ describe("getActiveHobbies", () => {
     expect(mockFindActiveAll).toHaveBeenCalledTimes(1)
   })
 
-  it("マスターが空の場合、空配列を返す", async () => {
+  it("【正常系】マスターが空の場合、空配列を返す", async () => {
     mockFindActiveAll.mockResolvedValue([])
 
     const result = await getActiveHobbies({ hobbyRepository: mockHobbyRepository })
@@ -40,7 +40,7 @@ describe("getActiveHobbies", () => {
     }
   })
 
-  it("DB エラー時は throw（業務エラーではない）", async () => {
+  it("【異常系】DB エラー時は throw（業務エラーではない）", async () => {
     mockFindActiveAll.mockRejectedValue(new Error("DB error"))
 
     await expect(getActiveHobbies({ hobbyRepository: mockHobbyRepository })).rejects.toThrow()

@@ -106,7 +106,7 @@ const openSseAndCollect = async (
 }
 
 describe("GET /api/matching/events", () => {
-  it("認証なし → 401", async () => {
+  it("【異常系】認証なし → 401", async () => {
     /** 401 ボディは即時に来てストリームは終了する */
     const res = await openSseAndCollect(
       "/api/matching/events",
@@ -117,7 +117,7 @@ describe("GET /api/matching/events", () => {
     expect(res.status).toBe(401)
   })
 
-  it("publish された matched イベントを SSE で受信する", async () => {
+  it("【正常系】publish された matched イベントを SSE で受信する", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })
@@ -166,7 +166,7 @@ describe("GET /api/matching/events", () => {
     expect(buffer).toContain("\"gender\":null")
   })
 
-  it("接続切断後に publish しても再受信しない（subscribe 解除）", async () => {
+  it("【正常系】接続切断後に publish しても再受信しない（subscribe 解除）", async () => {
     const me = await testPrisma.user.create({
       data: { email: "me@example.com", isOnboarded: true, name: "Me" },
     })

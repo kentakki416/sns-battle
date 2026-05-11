@@ -18,7 +18,7 @@ describe("createMemo", () => {
     jest.clearAllMocks()
   })
 
-  it("メモを作成して ok: true で返す", async () => {
+  it("【正常系】メモを作成して ok: true で返す", async () => {
     // Arrange
     const input: CreateMemoInput = {
       body: "New Body",
@@ -47,7 +47,7 @@ describe("createMemo", () => {
     expect(mockCreate).toHaveBeenCalledTimes(1)
   })
 
-  it("データベースエラー時にエラーをスローする", async () => {
+  it("【異常系】データベースエラー時にエラーをスローする", async () => {
     // Arrange
     const input: CreateMemoInput = {
       body: "New Body",
