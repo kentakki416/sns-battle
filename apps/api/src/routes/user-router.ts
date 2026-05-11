@@ -4,6 +4,8 @@ import { BlockCreateController } from "../controller/block/create"
 import { BlockDeleteController } from "../controller/block/delete"
 import { FollowCreateController } from "../controller/follow/create"
 import { FollowDeleteController } from "../controller/follow/delete"
+import { FollowersListController } from "../controller/follow/followers"
+import { FollowingListController } from "../controller/follow/following"
 import { UserGetController } from "../controller/user/get"
 import { UserOnboardingController } from "../controller/user/onboarding"
 import { UserUpdateController } from "../controller/user/update"
@@ -13,6 +15,8 @@ type UserRouterControllers = {
   blockDelete?: BlockDeleteController
   followCreate?: FollowCreateController
   followDelete?: FollowDeleteController
+  followersList?: FollowersListController
+  followingList?: FollowingListController
   get?: UserGetController
   onboarding?: UserOnboardingController
   update?: UserUpdateController
@@ -21,7 +25,8 @@ type UserRouterControllers = {
 /**
  * ユーザー関連のルーター
  * 渡されたコントローラーのルートのみ登録する。
- * 長いパス（/:id/onboarding, /:id/follow, /:id/block）を /:id より先に登録して Express のマッチを安定させる。
+ * 長いパス（/:id/onboarding, /:id/follow, /:id/block, /:id/followers, /:id/following）を
+ * /:id より先に登録して Express のマッチを安定させる。
  */
 export const userRouter = (controllers: UserRouterControllers): Router => {
   const router = Router()
@@ -54,6 +59,18 @@ export const userRouter = (controllers: UserRouterControllers): Router => {
   if (controllers.blockDelete) {
     const controller = controllers.blockDelete
     router.delete("/:id/block", async (req, res) => controller.execute(req, res))
+  }
+
+  // GET /api/users/:id/followers
+  if (controllers.followersList) {
+    const controller = controllers.followersList
+    router.get("/:id/followers", async (req, res) => controller.execute(req, res))
+  }
+
+  // GET /api/users/:id/following
+  if (controllers.followingList) {
+    const controller = controllers.followingList
+    router.get("/:id/following", async (req, res) => controller.execute(req, res))
   }
 
   // GET /api/users/:id

@@ -110,7 +110,7 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 
 - [x] API: `POST/DELETE /api/users/:id/follow`（PR #66）
 - [x] API: `POST/DELETE /api/users/:id/block`（ブロック発行時に既存 follow を双方向削除）
-- [ ] API: `GET /api/users/:id/followers`、`GET /api/users/:id/following`
+- [x] API: `GET /api/users/:id/followers`、`GET /api/users/:id/following`（cursor ページネーション、`limit` 1..100 / 既定 20）
 - [ ] API: `GET /api/streams/search`、`GET /api/users/search`、`GET /api/battles/search`
 - [ ] Frontend: `<StreamCard>`、`<BattleCard>`、`<UserCard>` 共通コンポーネント
 - [ ] Frontend: `/`（ホームフィード、4 セクション）

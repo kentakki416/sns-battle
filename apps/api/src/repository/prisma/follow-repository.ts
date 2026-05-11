@@ -38,7 +38,42 @@ export interface FollowBidirectionalRepository {
     ): Promise<void>
 }
 
-export class PrismaFollowRepository implements FollowRepository, FollowBidirectionalRepository {
+/**
+ * フォロー一覧用エントリ（follow row の id と相手ユーザーの軽量プロフィール）。
+ * cursor ページネーション用に `followId` を付ける。
+ */
+export type FollowListEntry = {
+    avatarUrl: string | null
+    bio: string | null
+    followId: number
+    id: number
+    name: string | null
+}
+
+/**
+ * フォロー一覧取得用 Repository。
+ *
+ * - `findFollowers(userId, opts)`: 指定ユーザーをフォローしている人の一覧
+ * - `findFollowing(userId, opts)`: 指定ユーザーがフォローしている人の一覧
+ *
+ * cursor は follow.id 降順を前提とし、`cursor` 未指定の場合は最新から、指定された場合は
+ * その follow.id 未満を返す。並び順は follow.id DESC（新しくフォローした関係が先頭）。
+ *
+ * 既存利用箇所への影響を抑えるため `FollowRepository` から分離している。
+ */
+export interface FollowListRepository {
+    findFollowers(
+        userId: number,
+        opts: { cursor: number | undefined; limit: number },
+    ): Promise<FollowListEntry[]>
+    findFollowing(
+        userId: number,
+        opts: { cursor: number | undefined; limit: number },
+    ): Promise<FollowListEntry[]>
+}
+
+export class PrismaFollowRepository
+implements FollowRepository, FollowBidirectionalRepository, FollowListRepository {
   private _prisma: PrismaClient
 
   constructor(prisma: PrismaClient) {
@@ -90,5 +125,77 @@ export class PrismaFollowRepository implements FollowRepository, FollowBidirecti
       },
     })
     return found !== null
+  }
+
+  findFollowers = async (
+    userId: number,
+    opts: { cursor: number | undefined; limit: number },
+  ): Promise<FollowListEntry[]> => {
+    /**
+     * followee_id = userId（=「userId をフォローしている人」）。
+     * follower 側のユーザー軽量プロフィールを返却する。
+     */
+    const rows = await this._prisma.follow.findMany({
+      orderBy: { id: "desc" },
+      select: {
+        follower: {
+          select: {
+            avatarUrl: true,
+            bio: true,
+            id: true,
+            name: true,
+          },
+        },
+        id: true,
+      },
+      take: opts.limit,
+      where: {
+        followeeId: userId,
+        ...(opts.cursor !== undefined ? { id: { lt: opts.cursor } } : {}),
+      },
+    })
+    return rows.map((row) => ({
+      avatarUrl: row.follower.avatarUrl,
+      bio: row.follower.bio,
+      followId: row.id,
+      id: row.follower.id,
+      name: row.follower.name,
+    }))
+  }
+
+  findFollowing = async (
+    userId: number,
+    opts: { cursor: number | undefined; limit: number },
+  ): Promise<FollowListEntry[]> => {
+    /**
+     * follower_id = userId（=「userId がフォローしている人」）。
+     * followee 側のユーザー軽量プロフィールを返却する。
+     */
+    const rows = await this._prisma.follow.findMany({
+      orderBy: { id: "desc" },
+      select: {
+        followee: {
+          select: {
+            avatarUrl: true,
+            bio: true,
+            id: true,
+            name: true,
+          },
+        },
+        id: true,
+      },
+      take: opts.limit,
+      where: {
+        followerId: userId,
+        ...(opts.cursor !== undefined ? { id: { lt: opts.cursor } } : {}),
+      },
+    })
+    return rows.map((row) => ({
+      avatarUrl: row.followee.avatarUrl,
+      bio: row.followee.bio,
+      followId: row.id,
+      id: row.followee.id,
+      name: row.followee.name,
+    }))
   }
 }
