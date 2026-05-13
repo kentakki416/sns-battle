@@ -16,6 +16,7 @@ const buildRepos = () => {
   const followListRepository: FollowListRepository = {
     findFollowers: jest.fn().mockResolvedValue([]),
     findFollowing: jest.fn().mockResolvedValue([]),
+    findFollowingUserIds: jest.fn().mockResolvedValue(new Set<number>()),
   }
   const userRepository: Partial<UserRepository> = {
     findById: jest.fn().mockResolvedValue({ id: 1 }),

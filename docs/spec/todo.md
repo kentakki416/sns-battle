@@ -112,12 +112,13 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 - [x] API: `POST/DELETE /api/users/:id/block`（ブロック発行時に既存 follow を双方向削除）
 - [x] API: `GET /api/users/:id/followers`、`GET /api/users/:id/following`（cursor ページネーション、`limit` 1..100 / 既定 20）
 - [x] API: `GET /api/users/search`（双方向ブロック除外、cursor ページネーション、name 部分一致 / case-insensitive）
+- [x] API: `GET /api/users/recommendations`（未フォロー・自分除外・双方向ブロック除外、フォロワー数降順）
 - [ ] API: `GET /api/streams/search`（Phase 8 で `streams` テーブル新設後）
 - [ ] API: `GET /api/battles/search`（Phase 9 で `battle_rooms` テーブル新設後）
-- [ ] Frontend: `<StreamCard>`、`<BattleCard>`、`<UserCard>` 共通コンポーネント
-- [ ] Frontend: `/`（ホームフィード、4 セクション）
-- [ ] Frontend: `/search`（タブ + 検索バー）
-- [ ] Frontend: ナビバー検索 → `/search?q=` 遷移
+- [ ] Frontend: `<StreamCard>`、`<BattleCard>` 共通コンポーネント（UserCard は PR #73 で実装済 / Stream・Battle は Phase 8 / 9 で型確定後）
+- [x] Frontend: `/`（ホームフィード、4 セクション）（おすすめユーザーのみ実データ、streams / battles セクションは Phase 8 / 9 の placeholder）
+- [x] Frontend: `/search`（タブ + 検索バー）（PR #73）
+- [x] Frontend: ナビバー検索 → `/search?q=` 遷移（PR #59 / Navbar 既存実装）
 - [x] サイドバーのフォロー中ユーザー一覧をリアルタイムデータで表示
 
 ---
@@ -126,8 +127,8 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 
 将来フェーズ。
 
-- [ ] DB: `users.mbti` の利用開始
-- [ ] Frontend: プロフィール編集に MBTI セレクタ追加
+- [ ] DB: `users.mbti` の利用開始（マッチング相性ロジック側で参照を開始する）
+- [x] Frontend: プロフィール編集に MBTI セレクタ追加（Phase 3 / `MbtiSelect` で実装済）
 - [ ] API: マッチング時に MBTI 相性スコアを返却
 - [ ] Frontend: マッチング成立画面に相性スコア表示
 - [ ] Server: トークテーマを MBTI 相性に応じて最適化
@@ -152,7 +153,7 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 
 ## Phase 8: ライブ配信（streaming）
 
-Spec3。
+将来フェーズ
 
 - [ ] DB: `streams`、`stream_comments`、`stream_stamps` テーブル作成
 - [ ] API: `GET /api/streams`、`GET /api/streams/:id`、`PUT /api/streams/:id`
@@ -167,7 +168,7 @@ Spec3。
 
 ## Phase 9: バトル（battle）
 
-Spec4。
+将来フェーズ
 
 - [ ] DB: `battle_rooms`、`battle_stamps`、`battle_comments` テーブル作成
 - [ ] API: `GET /api/battles`、`POST /api/battles`、`GET /api/battles/:id`
