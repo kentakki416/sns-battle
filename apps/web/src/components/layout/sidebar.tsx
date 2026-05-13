@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react"
 
+import type { AuthMeResponse } from "@repo/api-schema"
+
 import { SidebarFollowing } from "./_sidebar/SidebarFollowing"
 import { SidebarNav } from "./_sidebar/SidebarNav"
 import { SidebarProfileCard } from "./_sidebar/SidebarProfileCard"
@@ -9,41 +11,11 @@ import { SidebarToggle } from "./_sidebar/SidebarToggle"
 
 const STORAGE_KEY = "sns-battle.sidebar.collapsed"
 
-export type FollowingUser = {
-  avatarEmoji: string
-  id: number
-  isLive: boolean
-  name: string
-  username: string
-  viewerCount?: number
+type Props = {
+  me: AuthMeResponse | null
 }
 
-const MOCK_FOLLOWING: ReadonlyArray<FollowingUser> = [
-  {
-    avatarEmoji: "🎸",
-    id: 1,
-    isLive: true,
-    name: "ギターマスター",
-    username: "guitar_master",
-    viewerCount: 1234,
-  },
-  {
-    avatarEmoji: "🎮",
-    id: 2,
-    isLive: false,
-    name: "ゲーマーX",
-    username: "gamer_x",
-  },
-  {
-    avatarEmoji: "🎨",
-    id: 3,
-    isLive: false,
-    name: "アート太郎",
-    username: "art_taro",
-  },
-]
-
-export function Sidebar() {
+export function Sidebar({ me }: Props) {
   const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
@@ -77,8 +49,8 @@ export function Sidebar() {
     >
       <SidebarToggle collapsed={collapsed} onToggle={toggle} />
       <SidebarNav collapsed={collapsed} />
-      <SidebarFollowing collapsed={collapsed} users={MOCK_FOLLOWING} />
-      <SidebarProfileCard collapsed={collapsed} />
+      <SidebarFollowing collapsed={collapsed} me={me} />
+      <SidebarProfileCard collapsed={collapsed} me={me} />
     </aside>
   )
 }
