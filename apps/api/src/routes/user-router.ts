@@ -8,6 +8,7 @@ import { FollowersListController } from "../controller/follow/followers"
 import { FollowingListController } from "../controller/follow/following"
 import { UserGetController } from "../controller/user/get"
 import { UserOnboardingController } from "../controller/user/onboarding"
+import { UserRecommendationsController } from "../controller/user/recommendations"
 import { UserSearchController } from "../controller/user/search"
 import { UserUpdateController } from "../controller/user/update"
 
@@ -20,6 +21,7 @@ type UserRouterControllers = {
   followingList?: FollowingListController
   get?: UserGetController
   onboarding?: UserOnboardingController
+  recommendations?: UserRecommendationsController
   search?: UserSearchController
   update?: UserUpdateController
 }
@@ -27,7 +29,7 @@ type UserRouterControllers = {
 /**
  * ユーザー関連のルーター
  * 渡されたコントローラーのルートのみ登録する。
- * 静的パス /search および長いパス（/:id/onboarding, /:id/follow, /:id/block,
+ * 静的パス /search, /recommendations および長いパス（/:id/onboarding, /:id/follow, /:id/block,
  * /:id/followers, /:id/following）を /:id より先に登録して Express のマッチを安定させる。
  */
 export const userRouter = (controllers: UserRouterControllers): Router => {
@@ -37,6 +39,12 @@ export const userRouter = (controllers: UserRouterControllers): Router => {
   if (controllers.search) {
     const controller = controllers.search
     router.get("/search", async (req, res) => controller.execute(req, res))
+  }
+
+  // GET /api/users/recommendations (静的パスを :id より先に登録する)
+  if (controllers.recommendations) {
+    const controller = controllers.recommendations
+    router.get("/recommendations", async (req, res) => controller.execute(req, res))
   }
 
   // PUT /api/users/:id/onboarding

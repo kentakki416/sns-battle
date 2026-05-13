@@ -70,6 +70,11 @@ export interface FollowListRepository {
         userId: number,
         opts: { cursor: number | undefined; limit: number },
     ): Promise<FollowListEntry[]>
+    /**
+     * 指定ユーザーがフォローしている全ユーザーの id を返す。
+     * おすすめユーザー算出時に「フォロー済みを除外する」用途で利用する。
+     */
+    findFollowingUserIds(userId: number): Promise<Set<number>>
 }
 
 export class PrismaFollowRepository
@@ -161,6 +166,14 @@ implements FollowRepository, FollowBidirectionalRepository, FollowListRepository
       id: row.follower.id,
       name: row.follower.name,
     }))
+  }
+
+  findFollowingUserIds = async (userId: number): Promise<Set<number>> => {
+    const rows = await this._prisma.follow.findMany({
+      select: { followeeId: true },
+      where: { followerId: userId },
+    })
+    return new Set(rows.map((row) => row.followeeId))
   }
 
   findFollowing = async (

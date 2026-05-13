@@ -2,7 +2,10 @@ import { calculateAge, isValidAdultAge } from "../lib/age"
 import { logger } from "../log"
 import {
   BlockRepository,
+  FollowListRepository,
   HobbyRepository,
+  RecommendedUser,
+  UserRecommendationRepository,
   UserRepository,
   UserSearchRepository,
   UserSearchResult,
@@ -319,4 +322,38 @@ export const searchUsers = async (
   })
   const nextCursor = entries.length === input.limit ? entries[entries.length - 1].id : null
   return ok({ entries, nextCursor })
+}
+
+/**
+ * 認証ユーザーへのおすすめユーザー一覧。
+ *
+ * 除外条件（excludeIds に集約）:
+ * - 自分自身
+ * - 既にフォロー済みのユーザー（follower_id = currentUserId の followee 集合）
+ * - 双方向ブロック関係にあるユーザー
+ *
+ * 並び順は Repository 側で「フォロワー数 降順 → user.id 昇順」固定。
+ * 結果 0 件は空配列を返すのみで、業務エラーは無い。
+ */
+export const getRecommendedUsers = async (
+  input: { currentUserId: number; limit: number },
+  repo: {
+    blockRepository: BlockRepository
+    followListRepository: FollowListRepository
+    userRecommendationRepository: UserRecommendationRepository
+  },
+): Promise<Result<{ entries: RecommendedUser[] }>> => {
+  logger.debug("UserService: getRecommendedUsers", input)
+
+  const [blockedIds, followingIds] = await Promise.all([
+    repo.blockRepository.findBlockedUserIds(input.currentUserId),
+    repo.followListRepository.findFollowingUserIds(input.currentUserId),
+  ])
+
+  const excludeIds = new Set<number>([input.currentUserId, ...blockedIds, ...followingIds])
+  const entries = await repo.userRecommendationRepository.findRecommendations({
+    excludeIds: Array.from(excludeIds),
+    limit: input.limit,
+  })
+  return ok({ entries })
 }

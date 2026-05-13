@@ -99,9 +99,35 @@ export interface UserSearchRepository {
 }
 
 /**
+ * おすすめユーザー結果（フォロワー数込み）。
+ */
+export type RecommendedUser = {
+    avatarUrl: string | null
+    bio: string | null
+    followerCount: number
+    id: number
+    name: string | null
+}
+
+/**
+ * おすすめユーザー取得 Repository。
+ *
+ * 並び順は「フォロワー数 降順 → user.id 昇順」。`excludeIds` には呼び出し側で
+ * 「自分自身 + 既フォロー + 双方向ブロック」をまとめて渡す。
+ * `isOnboarded = true` のユーザーのみを対象とする。
+ */
+export interface UserRecommendationRepository {
+    findRecommendations(opts: {
+        excludeIds: number[]
+        limit: number
+    }): Promise<RecommendedUser[]>
+}
+
+/**
  * Prisma実装のユーザーリポジトリ
  */
-export class PrismaUserRepository implements UserRepository, UserSearchRepository {
+export class PrismaUserRepository
+implements UserRepository, UserRecommendationRepository, UserSearchRepository {
   private _prisma: PrismaClient
 
   constructor(prisma: PrismaClient) {
@@ -215,6 +241,39 @@ export class PrismaUserRepository implements UserRepository, UserSearchRepositor
         }
       }
     })
+  }
+
+  async findRecommendations(opts: {
+    excludeIds: number[]
+    limit: number
+  }): Promise<RecommendedUser[]> {
+    /**
+     * フォロワー数降順 + 同数の場合は user.id 昇順で安定ソート。
+     * Prisma の `orderBy: { <relation>: { _count: ... } }` をフォロワーリレーション（`followers`）に適用する。
+     */
+    const conditions: PrismaTypes.UserWhereInput[] = [{ isOnboarded: true }]
+    if (opts.excludeIds.length > 0) {
+      conditions.push({ id: { notIn: opts.excludeIds } })
+    }
+    const rows = await this._prisma.user.findMany({
+      orderBy: [{ followers: { _count: "desc" } }, { id: "asc" }],
+      select: {
+        _count: { select: { followers: true } },
+        avatarUrl: true,
+        bio: true,
+        id: true,
+        name: true,
+      },
+      take: opts.limit,
+      where: { AND: conditions },
+    })
+    return rows.map((row) => ({
+      avatarUrl: row.avatarUrl,
+      bio: row.bio,
+      followerCount: row._count.followers,
+      id: row.id,
+      name: row.name,
+    }))
   }
 
   async searchByName(opts: {
