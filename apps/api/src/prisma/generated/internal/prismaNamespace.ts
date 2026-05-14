@@ -2132,6 +2132,8 @@ export const TalkThemeScalarFieldEnum = {
   duration: 'duration',
   sortOrder: 'sortOrder',
   isActive: 'isActive',
+  targetScoreMin: 'targetScoreMin',
+  targetScoreMax: 'targetScoreMax',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

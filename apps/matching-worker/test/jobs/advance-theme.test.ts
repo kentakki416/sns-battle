@@ -63,18 +63,30 @@ const seedThemes = async (): Promise<void> => {
 }
 
 const createSessionWithUsers = async (overrides?: {
-  status?: "COUNTDOWN" | "ACTIVE" | "ENDED"
   startedAt?: Date | null
+  status?: "COUNTDOWN" | "ACTIVE" | "ENDED"
+  user1Mbti?: string | null
+  user2Mbti?: string | null
 }) => {
   const u1 = await testPrisma.user.create({
-    data: { email: `u1-${Date.now()}@example.com`, isOnboarded: true, name: "U1" },
+    data: {
+      email: `u1-${Date.now()}-${Math.random()}@example.com`,
+      isOnboarded: true,
+      mbti: overrides?.user1Mbti ?? null,
+      name: "U1",
+    },
   })
   const u2 = await testPrisma.user.create({
-    data: { email: `u2-${Date.now()}@example.com`, isOnboarded: true, name: "U2" },
+    data: {
+      email: `u2-${Date.now()}-${Math.random()}@example.com`,
+      isOnboarded: true,
+      mbti: overrides?.user2Mbti ?? null,
+      name: "U2",
+    },
   })
   return testPrisma.matchingSession.create({
     data: {
-      livekitRoomName: `matching:test-${Date.now()}`,
+      livekitRoomName: `matching:test-${Date.now()}-${Math.random()}`,
       startedAt: overrides?.startedAt ?? new Date(),
       status: overrides?.status ?? "ACTIVE",
       user1Id: u1.id,
@@ -289,5 +301,97 @@ describe("advanceTheme job", () => {
     )
 
     expect(publisher.publishData).not.toHaveBeenCalled()
+  })
+
+  it("【MBTI】両者 MBTI セット時、HIGH 帯テーマが優先される", async () => {
+    /** 既存 seedThemes に加えて HIGH 帯のテーマを各 type で追加 */
+    await testPrisma.talkTheme.create({
+      data: {
+        category: "MATCHING",
+        duration: 1,
+        isActive: true,
+        sortOrder: 100,
+        targetScoreMax: 100,
+        targetScoreMin: 85,
+        title: "HIGH FREE",
+        type: "FREE_TALK",
+      },
+    })
+    const highChoice = await testPrisma.talkTheme.create({
+      data: {
+        category: "MATCHING",
+        duration: 1,
+        isActive: true,
+        sortOrder: 101,
+        targetScoreMax: 100,
+        targetScoreMin: 85,
+        title: "HIGH CHOICE",
+        type: "CHOICE",
+      },
+    })
+    await testPrisma.talkThemeChoice.create({
+      data: { emoji: "🎯", label: "目標", sortOrder: 1, themeId: highChoice.id },
+    })
+
+    /** seedThemes が作る "FREE 1" / "CHOICE 1" は全帯域 OK（targetScoreMin/Max=null） */
+    /** INTJ × ENFP の相性は 87（HIGH 帯: 85..100） */
+    const session = await createSessionWithUsers({
+      user1Mbti: "INTJ",
+      user2Mbti: "ENFP",
+    })
+    const publisher = buildPublisher()
+
+    await advanceTheme(
+      { nextRoundNumber: 1, sessionId: session.id, type: "advance-theme" },
+      {
+        hypeDelayMs: 0,
+        livekitDataPublisher: publisher,
+        matchingSessionRepository,
+        redis: testRedis,
+        talkThemeRepository,
+        themeProgressQueue: testQueue,
+      },
+    )
+
+    const cached = await testRedis.get(`matching:schedule:${session.id}`)
+    expect(cached).not.toBeNull()
+    const schedule = JSON.parse(cached!)
+    /** schedule の全テーマが score=87 を満たすテーマ（HIGH 帯 or 全帯域 OK）のいずれか */
+    const allowedThemes = await testPrisma.talkTheme.findMany({
+      where: {
+        category: "MATCHING",
+        OR: [
+          { targetScoreMax: null, targetScoreMin: null },
+          { targetScoreMax: { gte: 87 }, targetScoreMin: { lte: 87 } },
+        ],
+      },
+    })
+    const allowedIds = new Set(allowedThemes.map((t) => t.id))
+    for (const entry of schedule) {
+      expect(allowedIds.has(entry.themeId)).toBe(true)
+    }
+  })
+
+  it("【MBTI】不正な MBTI のとき null フォールバック（全帯域プール使用）", async () => {
+    const session = await createSessionWithUsers({
+      user1Mbti: "ABCD",
+      user2Mbti: "ENFP",
+    })
+    const publisher = buildPublisher()
+
+    await advanceTheme(
+      { nextRoundNumber: 1, sessionId: session.id, type: "advance-theme" },
+      {
+        hypeDelayMs: 0,
+        livekitDataPublisher: publisher,
+        matchingSessionRepository,
+        redis: testRedis,
+        talkThemeRepository,
+        themeProgressQueue: testQueue,
+      },
+    )
+
+    /** publish 自体は実行される（HIGH 帯テーマが無くても seedThemes の全帯域 OK プールで動く） */
+    expect(publisher.publishData).toHaveBeenCalled()
   })
 })

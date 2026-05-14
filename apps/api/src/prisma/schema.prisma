@@ -368,6 +368,12 @@ model TalkTheme {
     duration  Int               @default(20)
     sortOrder Int               @default(0) @map("sort_order")
     isActive  Boolean           @default(true) @map("is_active")
+
+    /// MBTI 相性スコア（0..100）の推奨帯。両方 null = 全帯域 OK
+    /// 抽選条件: (target_score_min ?? 0) <= score <= (target_score_max ?? 100)
+    targetScoreMin Int? @map("target_score_min")
+    targetScoreMax Int? @map("target_score_max")
+
     createdAt DateTime          @default(now()) @map("created_at")
     updatedAt DateTime          @updatedAt @map("updated_at")
 

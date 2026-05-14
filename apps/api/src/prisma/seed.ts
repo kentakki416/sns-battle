@@ -27,6 +27,10 @@ type TalkThemeSeed = {
   choices: TalkThemeChoiceSeed[]
   duration: number
   sortOrder: number
+  /** 推奨スコア上限（包含）。null = 上限なし */
+  targetScoreMax: number | null
+  /** 推奨スコア下限（包含）。null = 下限なし */
+  targetScoreMin: number | null
   title: string
   type: TalkThemeType
 }
@@ -64,7 +68,7 @@ const stamps: StampSeed[] = [
  * トークテーマのシードデータ（マッチング・バトル両カテゴリ）
  */
 const talkThemes: TalkThemeSeed[] = [
-  /** MATCHING - 選択肢タイプ */
+  /** MATCHING - 選択肢タイプ（全帯域 OK） */
   {
     category: "MATCHING",
     choices: [
@@ -75,6 +79,8 @@ const talkThemes: TalkThemeSeed[] = [
     ],
     duration: 20,
     sortOrder: 1,
+    targetScoreMax: null,
+    targetScoreMin: null,
     title: "好きな食べ物のジャンルは？",
     type: "CHOICE",
   },
@@ -86,6 +92,8 @@ const talkThemes: TalkThemeSeed[] = [
     ],
     duration: 20,
     sortOrder: 2,
+    targetScoreMax: null,
+    targetScoreMin: null,
     title: "休日に行くなら海と山どっち？",
     type: "CHOICE",
   },
@@ -97,17 +105,57 @@ const talkThemes: TalkThemeSeed[] = [
     ],
     duration: 20,
     sortOrder: 3,
+    targetScoreMax: null,
+    targetScoreMin: null,
     title: "朝型と夜型、どっち？",
     type: "CHOICE",
   },
 
-  /** MATCHING - フリートーク */
-  { category: "MATCHING", choices: [], duration: 30, sortOrder: 10, title: "最近ハマっていることを教えて", type: "FREE_TALK" },
-  { category: "MATCHING", choices: [], duration: 30, sortOrder: 11, title: "次の連休にやりたいことは？", type: "FREE_TALK" },
+  /** MATCHING - フリートーク（全帯域 OK） */
+  { category: "MATCHING", choices: [], duration: 30, sortOrder: 10, targetScoreMax: null, targetScoreMin: null, title: "最近ハマっていることを教えて", type: "FREE_TALK" },
+  { category: "MATCHING", choices: [], duration: 30, sortOrder: 11, targetScoreMax: null, targetScoreMin: null, title: "次の連休にやりたいことは？", type: "FREE_TALK" },
 
-  /** BATTLE - フリートーク（語る系） */
-  { category: "BATTLE", choices: [], duration: 60, sortOrder: 1, title: "好きな映画について熱く語ってください", type: "FREE_TALK" },
-  { category: "BATTLE", choices: [], duration: 60, sortOrder: 2, title: "人生で最も衝撃的だった出来事", type: "FREE_TALK" },
+  /** MATCHING - LOW 帯（0..69）: 緊張をほぐす軽めの CHOICE */
+  {
+    category: "MATCHING",
+    choices: [
+      { emoji: "☕", label: "コーヒー", sortOrder: 1 },
+      { emoji: "🍵", label: "お茶", sortOrder: 2 },
+      { emoji: "🥤", label: "ジュース", sortOrder: 3 },
+      { emoji: "🍺", label: "お酒", sortOrder: 4 },
+    ],
+    duration: 20,
+    sortOrder: 50,
+    targetScoreMax: 69,
+    targetScoreMin: 0,
+    title: "今飲みたいのは？",
+    type: "CHOICE",
+  },
+  /** MATCHING - LOW 帯: 軽めの FREE_TALK */
+  { category: "MATCHING", choices: [], duration: 30, sortOrder: 51, targetScoreMax: 69, targetScoreMin: 0, title: "最近食べた美味しいものを教えて", type: "FREE_TALK" },
+
+  /** MATCHING - HIGH 帯（85..100）: 価値観に踏み込む CHOICE */
+  {
+    category: "MATCHING",
+    choices: [
+      { emoji: "💼", label: "仕事", sortOrder: 1 },
+      { emoji: "❤️", label: "恋愛", sortOrder: 2 },
+      { emoji: "🌱", label: "成長", sortOrder: 3 },
+      { emoji: "🎨", label: "趣味", sortOrder: 4 },
+    ],
+    duration: 20,
+    sortOrder: 60,
+    targetScoreMax: 100,
+    targetScoreMin: 85,
+    title: "今、人生で一番大切なものは？",
+    type: "CHOICE",
+  },
+  /** MATCHING - HIGH 帯: 深い FREE_TALK */
+  { category: "MATCHING", choices: [], duration: 30, sortOrder: 61, targetScoreMax: 100, targetScoreMin: 85, title: "心に残っている言葉やフレーズを教えて", type: "FREE_TALK" },
+
+  /** BATTLE - フリートーク（語る系。スコア帯は未使用） */
+  { category: "BATTLE", choices: [], duration: 60, sortOrder: 1, targetScoreMax: null, targetScoreMin: null, title: "好きな映画について熱く語ってください", type: "FREE_TALK" },
+  { category: "BATTLE", choices: [], duration: 60, sortOrder: 2, targetScoreMax: null, targetScoreMin: null, title: "人生で最も衝撃的だった出来事", type: "FREE_TALK" },
 ]
 
 /**
@@ -197,6 +245,8 @@ const upsertTalkTheme = async (theme: TalkThemeSeed): Promise<void> => {
     category: theme.category,
     duration: theme.duration,
     sortOrder: theme.sortOrder,
+    targetScoreMax: theme.targetScoreMax,
+    targetScoreMin: theme.targetScoreMin,
     title: theme.title,
     type: theme.type,
   }

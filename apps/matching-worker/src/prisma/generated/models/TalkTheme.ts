@@ -30,12 +30,16 @@ export type TalkThemeAvgAggregateOutputType = {
   id: number | null
   duration: number | null
   sortOrder: number | null
+  targetScoreMin: number | null
+  targetScoreMax: number | null
 }
 
 export type TalkThemeSumAggregateOutputType = {
   id: number | null
   duration: number | null
   sortOrder: number | null
+  targetScoreMin: number | null
+  targetScoreMax: number | null
 }
 
 export type TalkThemeMinAggregateOutputType = {
@@ -46,6 +50,8 @@ export type TalkThemeMinAggregateOutputType = {
   duration: number | null
   sortOrder: number | null
   isActive: boolean | null
+  targetScoreMin: number | null
+  targetScoreMax: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -58,6 +64,8 @@ export type TalkThemeMaxAggregateOutputType = {
   duration: number | null
   sortOrder: number | null
   isActive: boolean | null
+  targetScoreMin: number | null
+  targetScoreMax: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -70,6 +78,8 @@ export type TalkThemeCountAggregateOutputType = {
   duration: number
   sortOrder: number
   isActive: number
+  targetScoreMin: number
+  targetScoreMax: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -80,12 +90,16 @@ export type TalkThemeAvgAggregateInputType = {
   id?: true
   duration?: true
   sortOrder?: true
+  targetScoreMin?: true
+  targetScoreMax?: true
 }
 
 export type TalkThemeSumAggregateInputType = {
   id?: true
   duration?: true
   sortOrder?: true
+  targetScoreMin?: true
+  targetScoreMax?: true
 }
 
 export type TalkThemeMinAggregateInputType = {
@@ -96,6 +110,8 @@ export type TalkThemeMinAggregateInputType = {
   duration?: true
   sortOrder?: true
   isActive?: true
+  targetScoreMin?: true
+  targetScoreMax?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -108,6 +124,8 @@ export type TalkThemeMaxAggregateInputType = {
   duration?: true
   sortOrder?: true
   isActive?: true
+  targetScoreMin?: true
+  targetScoreMax?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -120,6 +138,8 @@ export type TalkThemeCountAggregateInputType = {
   duration?: true
   sortOrder?: true
   isActive?: true
+  targetScoreMin?: true
+  targetScoreMax?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -219,6 +239,8 @@ export type TalkThemeGroupByOutputType = {
   duration: number
   sortOrder: number
   isActive: boolean
+  targetScoreMin: number | null
+  targetScoreMax: number | null
   createdAt: Date
   updatedAt: Date
   _count: TalkThemeCountAggregateOutputType | null
@@ -254,6 +276,8 @@ export type TalkThemeWhereInput = {
   duration?: Prisma.IntFilter<"TalkTheme"> | number
   sortOrder?: Prisma.IntFilter<"TalkTheme"> | number
   isActive?: Prisma.BoolFilter<"TalkTheme"> | boolean
+  targetScoreMin?: Prisma.IntNullableFilter<"TalkTheme"> | number | null
+  targetScoreMax?: Prisma.IntNullableFilter<"TalkTheme"> | number | null
   createdAt?: Prisma.DateTimeFilter<"TalkTheme"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TalkTheme"> | Date | string
   choices?: Prisma.TalkThemeChoiceListRelationFilter
@@ -268,6 +292,8 @@ export type TalkThemeOrderByWithRelationInput = {
   duration?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  targetScoreMin?: Prisma.SortOrderInput | Prisma.SortOrder
+  targetScoreMax?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   choices?: Prisma.TalkThemeChoiceOrderByRelationAggregateInput
@@ -285,6 +311,8 @@ export type TalkThemeWhereUniqueInput = Prisma.AtLeast<{
   duration?: Prisma.IntFilter<"TalkTheme"> | number
   sortOrder?: Prisma.IntFilter<"TalkTheme"> | number
   isActive?: Prisma.BoolFilter<"TalkTheme"> | boolean
+  targetScoreMin?: Prisma.IntNullableFilter<"TalkTheme"> | number | null
+  targetScoreMax?: Prisma.IntNullableFilter<"TalkTheme"> | number | null
   createdAt?: Prisma.DateTimeFilter<"TalkTheme"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"TalkTheme"> | Date | string
   choices?: Prisma.TalkThemeChoiceListRelationFilter
@@ -299,6 +327,8 @@ export type TalkThemeOrderByWithAggregationInput = {
   duration?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  targetScoreMin?: Prisma.SortOrderInput | Prisma.SortOrder
+  targetScoreMax?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TalkThemeCountOrderByAggregateInput
@@ -319,6 +349,8 @@ export type TalkThemeScalarWhereWithAggregatesInput = {
   duration?: Prisma.IntWithAggregatesFilter<"TalkTheme"> | number
   sortOrder?: Prisma.IntWithAggregatesFilter<"TalkTheme"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"TalkTheme"> | boolean
+  targetScoreMin?: Prisma.IntNullableWithAggregatesFilter<"TalkTheme"> | number | null
+  targetScoreMax?: Prisma.IntNullableWithAggregatesFilter<"TalkTheme"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TalkTheme"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"TalkTheme"> | Date | string
 }
@@ -330,6 +362,8 @@ export type TalkThemeCreateInput = {
   duration?: number
   sortOrder?: number
   isActive?: boolean
+  targetScoreMin?: number | null
+  targetScoreMax?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   choices?: Prisma.TalkThemeChoiceCreateNestedManyWithoutThemeInput
@@ -344,6 +378,8 @@ export type TalkThemeUncheckedCreateInput = {
   duration?: number
   sortOrder?: number
   isActive?: boolean
+  targetScoreMin?: number | null
+  targetScoreMax?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   choices?: Prisma.TalkThemeChoiceUncheckedCreateNestedManyWithoutThemeInput
@@ -357,6 +393,8 @@ export type TalkThemeUpdateInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetScoreMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetScoreMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   choices?: Prisma.TalkThemeChoiceUpdateManyWithoutThemeNestedInput
@@ -371,6 +409,8 @@ export type TalkThemeUncheckedUpdateInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetScoreMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetScoreMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   choices?: Prisma.TalkThemeChoiceUncheckedUpdateManyWithoutThemeNestedInput
@@ -385,6 +425,8 @@ export type TalkThemeCreateManyInput = {
   duration?: number
   sortOrder?: number
   isActive?: boolean
+  targetScoreMin?: number | null
+  targetScoreMax?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -396,6 +438,8 @@ export type TalkThemeUpdateManyMutationInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetScoreMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetScoreMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -408,6 +452,8 @@ export type TalkThemeUncheckedUpdateManyInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetScoreMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetScoreMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -425,6 +471,8 @@ export type TalkThemeCountOrderByAggregateInput = {
   duration?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  targetScoreMin?: Prisma.SortOrder
+  targetScoreMax?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -433,6 +481,8 @@ export type TalkThemeAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  targetScoreMin?: Prisma.SortOrder
+  targetScoreMax?: Prisma.SortOrder
 }
 
 export type TalkThemeMaxOrderByAggregateInput = {
@@ -443,6 +493,8 @@ export type TalkThemeMaxOrderByAggregateInput = {
   duration?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  targetScoreMin?: Prisma.SortOrder
+  targetScoreMax?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -455,6 +507,8 @@ export type TalkThemeMinOrderByAggregateInput = {
   duration?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  targetScoreMin?: Prisma.SortOrder
+  targetScoreMax?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -463,6 +517,8 @@ export type TalkThemeSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   duration?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
+  targetScoreMin?: Prisma.SortOrder
+  targetScoreMax?: Prisma.SortOrder
 }
 
 export type TalkThemeCreateNestedOneWithoutReactionsInput = {
@@ -508,6 +564,8 @@ export type TalkThemeCreateWithoutReactionsInput = {
   duration?: number
   sortOrder?: number
   isActive?: boolean
+  targetScoreMin?: number | null
+  targetScoreMax?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   choices?: Prisma.TalkThemeChoiceCreateNestedManyWithoutThemeInput
@@ -521,6 +579,8 @@ export type TalkThemeUncheckedCreateWithoutReactionsInput = {
   duration?: number
   sortOrder?: number
   isActive?: boolean
+  targetScoreMin?: number | null
+  targetScoreMax?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   choices?: Prisma.TalkThemeChoiceUncheckedCreateNestedManyWithoutThemeInput
@@ -549,6 +609,8 @@ export type TalkThemeUpdateWithoutReactionsInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetScoreMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetScoreMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   choices?: Prisma.TalkThemeChoiceUpdateManyWithoutThemeNestedInput
@@ -562,6 +624,8 @@ export type TalkThemeUncheckedUpdateWithoutReactionsInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetScoreMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetScoreMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   choices?: Prisma.TalkThemeChoiceUncheckedUpdateManyWithoutThemeNestedInput
@@ -574,6 +638,8 @@ export type TalkThemeCreateWithoutChoicesInput = {
   duration?: number
   sortOrder?: number
   isActive?: boolean
+  targetScoreMin?: number | null
+  targetScoreMax?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   reactions?: Prisma.MatchingReactionCreateNestedManyWithoutThemeInput
@@ -587,6 +653,8 @@ export type TalkThemeUncheckedCreateWithoutChoicesInput = {
   duration?: number
   sortOrder?: number
   isActive?: boolean
+  targetScoreMin?: number | null
+  targetScoreMax?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   reactions?: Prisma.MatchingReactionUncheckedCreateNestedManyWithoutThemeInput
@@ -615,6 +683,8 @@ export type TalkThemeUpdateWithoutChoicesInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetScoreMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetScoreMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reactions?: Prisma.MatchingReactionUpdateManyWithoutThemeNestedInput
@@ -628,6 +698,8 @@ export type TalkThemeUncheckedUpdateWithoutChoicesInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  targetScoreMin?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  targetScoreMax?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   reactions?: Prisma.MatchingReactionUncheckedUpdateManyWithoutThemeNestedInput
@@ -681,6 +753,8 @@ export type TalkThemeSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   duration?: boolean
   sortOrder?: boolean
   isActive?: boolean
+  targetScoreMin?: boolean
+  targetScoreMax?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   choices?: boolean | Prisma.TalkTheme$choicesArgs<ExtArgs>
@@ -696,6 +770,8 @@ export type TalkThemeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   duration?: boolean
   sortOrder?: boolean
   isActive?: boolean
+  targetScoreMin?: boolean
+  targetScoreMax?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["talkTheme"]>
@@ -708,6 +784,8 @@ export type TalkThemeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   duration?: boolean
   sortOrder?: boolean
   isActive?: boolean
+  targetScoreMin?: boolean
+  targetScoreMax?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["talkTheme"]>
@@ -720,11 +798,13 @@ export type TalkThemeSelectScalar = {
   duration?: boolean
   sortOrder?: boolean
   isActive?: boolean
+  targetScoreMin?: boolean
+  targetScoreMax?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TalkThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "category" | "duration" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["talkTheme"]>
+export type TalkThemeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "category" | "duration" | "sortOrder" | "isActive" | "targetScoreMin" | "targetScoreMax" | "createdAt" | "updatedAt", ExtArgs["result"]["talkTheme"]>
 export type TalkThemeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   choices?: boolean | Prisma.TalkTheme$choicesArgs<ExtArgs>
   reactions?: boolean | Prisma.TalkTheme$reactionsArgs<ExtArgs>
@@ -747,6 +827,12 @@ export type $TalkThemePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     duration: number
     sortOrder: number
     isActive: boolean
+    /**
+     * MBTI 相性スコア（0..100）の推奨帯。両方 null = 全帯域 OK
+     * 抽選条件: (target_score_min ?? 0) <= score <= (target_score_max ?? 100)
+     */
+    targetScoreMin: number | null
+    targetScoreMax: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["talkTheme"]>
@@ -1181,6 +1267,8 @@ export interface TalkThemeFieldRefs {
   readonly duration: Prisma.FieldRef<"TalkTheme", 'Int'>
   readonly sortOrder: Prisma.FieldRef<"TalkTheme", 'Int'>
   readonly isActive: Prisma.FieldRef<"TalkTheme", 'Boolean'>
+  readonly targetScoreMin: Prisma.FieldRef<"TalkTheme", 'Int'>
+  readonly targetScoreMax: Prisma.FieldRef<"TalkTheme", 'Int'>
   readonly createdAt: Prisma.FieldRef<"TalkTheme", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"TalkTheme", 'DateTime'>
 }

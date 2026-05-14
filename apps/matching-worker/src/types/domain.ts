@@ -28,6 +28,10 @@ export type TalkTheme = {
     duration: number
     isActive: boolean
     sortOrder: number
+    /** 推奨スコア上限（包含）。null = 上限なし */
+    targetScoreMax: number | null
+    /** 推奨スコア下限（包含）。null = 下限なし */
+    targetScoreMin: number | null
     title: string
     type: TalkThemeType
 }
