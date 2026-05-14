@@ -2,6 +2,16 @@ import { Prisma as PrismaTypes, PrismaClient } from "../../client/prisma"
 import { MatchingEndReason, MatchingSession } from "../../types/domain"
 
 /**
+ * セッションと両参加者の MBTI を同時に取得した結果。
+ * advance-theme ジョブが schedule 新規生成時に相性スコアを算出するために使う。
+ */
+export type MatchingSessionWithUserMbtis = {
+    session: MatchingSession
+    user1Mbti: string | null
+    user2Mbti: string | null
+}
+
+/**
  * worker 用 MatchingSessionRepository。
  *
  * worker からは「現在の status / startedAt を読んで進行可否を判定し、必要なら ENDED に倒す」
@@ -12,6 +22,11 @@ import { MatchingEndReason, MatchingSession } from "../../types/domain"
  */
 export interface MatchingSessionRepository {
     findById(id: number): Promise<MatchingSession | null>
+    /**
+     * セッションと両参加者の MBTI 値をまとめて取得する。
+     * advance-theme ジョブで schedule 新規生成時に相性スコアを算出するために使う。
+     */
+    findByIdWithUserMbtis(id: number): Promise<MatchingSessionWithUserMbtis | null>
     /**
      * セッションを ENDED に遷移させる。`endedAt = now()` をセットする。
      * 冪等性は呼び出し側（ジョブ）で確認する前提（既に ENDED は呼ぶ前に弾く）。
@@ -30,6 +45,22 @@ export class PrismaMatchingSessionRepository implements MatchingSessionRepositor
     const row = await this._prisma.matchingSession.findUnique({ where: { id } })
     if (!row) return null
     return this._toDomain(row)
+  }
+
+  async findByIdWithUserMbtis(id: number): Promise<MatchingSessionWithUserMbtis | null> {
+    const row = await this._prisma.matchingSession.findUnique({
+      include: {
+        user1: { select: { mbti: true } },
+        user2: { select: { mbti: true } },
+      },
+      where: { id },
+    })
+    if (!row) return null
+    return {
+      session: this._toDomain(row),
+      user1Mbti: row.user1.mbti,
+      user2Mbti: row.user2.mbti,
+    }
   }
 
   async markEnded(id: number, endReason: MatchingEndReason): Promise<MatchingSession> {

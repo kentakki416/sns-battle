@@ -62,6 +62,8 @@ export class PrismaTalkThemeRepository implements TalkThemeRepository {
       id: row.id,
       isActive: row.isActive,
       sortOrder: row.sortOrder,
+      targetScoreMax: row.targetScoreMax,
+      targetScoreMin: row.targetScoreMin,
       title: row.title,
       type: row.type,
     }

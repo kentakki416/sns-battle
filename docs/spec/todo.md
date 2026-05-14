@@ -131,7 +131,7 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 - [x] Frontend: プロフィール編集に MBTI セレクタ追加（Phase 3 / `MbtiSelect` で実装済）
 - [x] API: マッチング時に MBTI 相性スコアを返却（`mbti_compatibility` を session detail に追加）
 - [x] Frontend: マッチング成立画面に相性スコア表示（MatchedState）
-- [ ] Server: トークテーマを MBTI 相性に応じて最適化
+- [x] Server: トークテーマを MBTI 相性に応じて最適化（`talk_themes` に `target_score_min/max` 追加 + worker `buildThemeSchedule` でスコア帯フィルタ + フォールバック）
 
 ---
 

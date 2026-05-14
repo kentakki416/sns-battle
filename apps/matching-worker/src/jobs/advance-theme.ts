@@ -8,6 +8,7 @@ import {
 } from "@repo/queue"
 
 import type { ILiveKitDataPublisher } from "../client/livekit"
+import { calculateMbtiCompatibility } from "../lib/mbti"
 import { logger } from "../log"
 import type { MatchingSessionRepository, TalkThemeRepository } from "../repository/prisma"
 
@@ -86,8 +87,26 @@ export const advanceTheme = async (
   if (cached) {
     schedule = JSON.parse(cached) as ScheduleEntry[]
   } else {
-    schedule = await buildThemeSchedule({ talkThemeRepository: deps.talkThemeRepository })
+    /**
+     * schedule 新規生成時のみ、両参加者の MBTI を引いて相性スコアを算出し
+     * テーマ選択に反映する。schedule は Redis に保存され以降のラウンドでは再利用するため、
+     * この DB 追加クエリは 1 セッションあたり 1 度だけ走る。
+     */
+    const sessionWithMbtis = await deps.matchingSessionRepository.findByIdWithUserMbtis(
+      data.sessionId,
+    )
+    const mbtiCompatibility = sessionWithMbtis
+      ? calculateMbtiCompatibility(sessionWithMbtis.user1Mbti, sessionWithMbtis.user2Mbti)
+      : null
+    schedule = await buildThemeSchedule(
+      { talkThemeRepository: deps.talkThemeRepository },
+      { mbtiCompatibility },
+    )
     await deps.redis.set(key, JSON.stringify(schedule), "EX", SCHEDULE_TTL_SECONDS)
+    logger.info(
+      { mbtiCompatibility, sessionId: data.sessionId },
+      "[advance-theme] schedule built",
+    )
   }
 
   const round = schedule[data.nextRoundNumber - 1]
