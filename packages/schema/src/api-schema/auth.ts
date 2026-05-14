@@ -42,6 +42,9 @@ export type AuthGoogleResponse = z.infer<typeof authGoogleResponseSchema>
 
 /**
  * ユーザー情報取得のレスポンススキーマ
+ *
+ * mbti を返す理由: マッチング成立画面（/matching/session）で相性スコアを即時表示するため、
+ * 認証ユーザー自身の MBTI もクライアントへ提供する。他人のプロフィールには既に mbti が含まれる。
  */
 export const authMeResponseSchema = z.object({
   avatar_url: z.string().nullable(),
@@ -49,6 +52,7 @@ export const authMeResponseSchema = z.object({
   email: z.string().nullable(),
   id: z.number(),
   is_onboarded: z.boolean(),
+  mbti: z.string().nullable(),
   name: z.string().nullable(),
   created_at: z.string(),
 })

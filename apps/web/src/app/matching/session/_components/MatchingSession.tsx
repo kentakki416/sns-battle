@@ -27,6 +27,7 @@ export type MatchedSession = {
 }
 
 type Props = {
+  meMbti: string | null
   userId: number
 }
 
@@ -53,7 +54,7 @@ const toMatchedSession = (res: JoinMatchingResponse): MatchedSession | null => {
  *
  * unmount で waiting 中なら `leaveMatchingAction()` を呼んで Redis / DB のキューを掃除する。
  */
-export function MatchingSession({ userId }: Props) {
+export function MatchingSession({ meMbti, userId }: Props) {
   const router = useRouter()
   const [state, setState] = useState<MatchingState>("waiting")
   const [session, setSession] = useState<MatchedSession | null>(null)
@@ -146,7 +147,7 @@ export function MatchingSession({ userId }: Props) {
           <WaitingState key="waiting" onCancel={handleCancel} />
         )}
         {state === "matched" && session && (
-          <MatchedState key="matched" peer={session.peer} />
+          <MatchedState key="matched" meMbti={meMbti} peer={session.peer} />
         )}
         {state === "countdown" && (
           <CountdownState key="countdown" onComplete={() => setState("active")} />

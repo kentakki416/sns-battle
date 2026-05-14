@@ -147,10 +147,11 @@ describe("GET /api/matching/sessions/:id", () => {
       id: session.id,
       is_self_user1: true,
       livekit_room_name: "matching:42",
+      mbti_compatibility: null,
       started_at: expect.any(String),
       status: "ACTIVE",
-      user1: { id: me.id, avatar_url: "https://example.com/me.png", name: "Me" },
-      user2: { id: peer.id, avatar_url: "https://example.com/peer.png", name: "Peer" },
+      user1: { id: me.id, avatar_url: "https://example.com/me.png", mbti: null, name: "Me" },
+      user2: { id: peer.id, avatar_url: "https://example.com/peer.png", mbti: null, name: "Peer" },
     })
     expect(res.body.elapsed_seconds).toBeGreaterThanOrEqual(360)
   })
@@ -183,6 +184,64 @@ describe("GET /api/matching/sessions/:id", () => {
       is_self_user1: false,
       started_at: null,
       status: "COUNTDOWN",
+    })
+  })
+
+  it("【正常系】両者の MBTI が揃う → mbti_compatibility が返り、user1 / user2 の mbti も含まれる", async () => {
+    const me = await testPrisma.user.create({
+      data: { email: "me@example.com", isOnboarded: true, mbti: "INFJ", name: "Me" },
+    })
+    const peer = await testPrisma.user.create({
+      data: { email: "peer@example.com", isOnboarded: true, mbti: "ENTP", name: "Peer" },
+    })
+    const session = await testPrisma.matchingSession.create({
+      data: {
+        livekitRoomName: "matching:mbti",
+        status: "COUNTDOWN",
+        user1Id: me.id,
+        user2Id: peer.id,
+      },
+    })
+    const token = generateAccessToken(me.id)
+
+    const res = await request(app)
+      .get(`/api/matching/sessions/${session.id}`)
+      .set("Authorization", `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({
+      mbti_compatibility: 87,
+      user1: { id: me.id, mbti: "INFJ" },
+      user2: { id: peer.id, mbti: "ENTP" },
+    })
+  })
+
+  it("【正常系】片方の MBTI が未設定 → mbti_compatibility は null", async () => {
+    const me = await testPrisma.user.create({
+      data: { email: "me@example.com", isOnboarded: true, mbti: "INFJ", name: "Me" },
+    })
+    const peer = await testPrisma.user.create({
+      data: { email: "peer@example.com", isOnboarded: true, name: "Peer" },
+    })
+    const session = await testPrisma.matchingSession.create({
+      data: {
+        livekitRoomName: "matching:mbti-null",
+        status: "COUNTDOWN",
+        user1Id: me.id,
+        user2Id: peer.id,
+      },
+    })
+    const token = generateAccessToken(me.id)
+
+    const res = await request(app)
+      .get(`/api/matching/sessions/${session.id}`)
+      .set("Authorization", `Bearer ${token}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body).toMatchObject({
+      mbti_compatibility: null,
+      user1: { mbti: "INFJ" },
+      user2: { mbti: null },
     })
   })
 })

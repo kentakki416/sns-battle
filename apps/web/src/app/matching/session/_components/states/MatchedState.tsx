@@ -4,15 +4,22 @@ import { motion } from "framer-motion"
 
 import type { MatchingPeer } from "@repo/api-schema"
 
+import { calculateMbtiCompatibility } from "@/libs/mbti"
+
 type Props = {
+  meMbti: string | null
   peer: MatchingPeer
 }
 
 /**
  * マッチング成立直後に 2 秒だけ表示される画面。
  * MatchingSession 側で 2 秒タイマー後に countdown 状態へ遷移する。
+ *
+ * 両者の MBTI が揃っていれば相性スコア（0..100）も併せて表示する。
  */
-export function MatchedState({ peer }: Props) {
+export function MatchedState({ meMbti, peer }: Props) {
+  const compatibility = calculateMbtiCompatibility(meMbti, peer.mbti)
+
   return (
     <motion.div
       animate={{ opacity: 1, scale: 1 }}
@@ -35,7 +42,26 @@ export function MatchedState({ peer }: Props) {
           )}
         </div>
         <p className="text-lg font-medium text-white">{peer.name ?? "Unknown"}</p>
+        {peer.mbti ? (
+          <p className="text-xs tracking-widest text-text-muted">{peer.mbti}</p>
+        ) : null}
       </div>
+
+      {compatibility !== null ? (
+        <div
+          aria-label={`MBTI 相性スコア ${compatibility} / 100`}
+          className="mt-8 flex flex-col items-center gap-1 rounded-2xl border border-primary/30 bg-primary/10 px-8 py-4"
+        >
+          <p className="text-xs tracking-widest text-text-muted">MBTI 相性</p>
+          <p className="text-3xl font-bold text-primary">
+            {compatibility}
+            <span className="ml-1 text-base text-text-muted">/ 100</span>
+          </p>
+          <p className="text-xs text-text-muted">
+            {meMbti ?? "??"} × {peer.mbti ?? "??"}
+          </p>
+        </div>
+      ) : null}
     </motion.div>
   )
 }

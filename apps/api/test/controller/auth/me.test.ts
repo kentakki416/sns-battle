@@ -50,6 +50,7 @@ describe("GET /api/auth/me", () => {
       email: "test@example.com",
       id: user.id,
       is_onboarded: false,
+      mbti: null,
       name: "Test User",
     })
   })

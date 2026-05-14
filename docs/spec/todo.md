@@ -127,10 +127,10 @@ Spec1 のメイン機能。実装手順は `docs/spec/matching/README.md` の「
 
 将来フェーズ。
 
-- [ ] DB: `users.mbti` の利用開始（マッチング相性ロジック側で参照を開始する）
+- [x] DB: `users.mbti` の利用開始（`GET /api/matching/sessions/:id` で参照を開始）
 - [x] Frontend: プロフィール編集に MBTI セレクタ追加（Phase 3 / `MbtiSelect` で実装済）
-- [ ] API: マッチング時に MBTI 相性スコアを返却
-- [ ] Frontend: マッチング成立画面に相性スコア表示
+- [x] API: マッチング時に MBTI 相性スコアを返却（`mbti_compatibility` を session detail に追加）
+- [x] Frontend: マッチング成立画面に相性スコア表示（MatchedState）
 - [ ] Server: トークテーマを MBTI 相性に応じて最適化
 
 ---

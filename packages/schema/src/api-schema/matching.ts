@@ -143,11 +143,13 @@ export const issueMatchingTokenResponseSchema = z.object({
 
 /**
  * セッション参加者の最小公開プロフィール。
- * 一覧 / 詳細表示用に id / name / avatar のみ。
+ * 一覧 / 詳細表示用に id / name / avatar / mbti を返す。
+ * mbti は他人にも公開（Phase 6: マッチング画面で相性スコアと並べて表示するため）。
  */
 export const matchingSessionParticipantSchema = z.object({
   id: z.number().int().positive(),
   avatar_url: z.string().nullable(),
+  mbti: z.string().nullable(),
   name: z.string().nullable(),
 })
 
@@ -178,6 +180,7 @@ export const getMatchingSessionPathParamSchema = z.object({
  * - `elapsed_seconds`: started_at からの経過秒。COUNTDOWN（startedAt が null）なら 0
  * - `can_end_now`: ACTIVE かつ 5 分経過済のとき true。手動終了 UI の活性制御に使う
  * - `is_self_user1`: 自分が user1 か。VS レイアウトの左右割り当てに使う
+ * - `mbti_compatibility`: 0..100 の相性スコア。いずれかの参加者の MBTI が未設定の場合は null
  */
 export const getMatchingSessionResponseSchema = z.object({
   can_end_now: z.boolean(),
@@ -187,6 +190,7 @@ export const getMatchingSessionResponseSchema = z.object({
   id: z.number().int().positive(),
   is_self_user1: z.boolean(),
   livekit_room_name: z.string(),
+  mbti_compatibility: z.number().int().min(0).max(100).nullable(),
   started_at: z.string().nullable(),
   status: matchingSessionStatusSchema,
   user1: matchingSessionParticipantSchema,
