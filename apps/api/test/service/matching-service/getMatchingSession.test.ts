@@ -74,9 +74,10 @@ describe("getMatchingSession", () => {
         canEndNow: false,
         elapsedSeconds: 0,
         isSelfUser1: true,
+        mbtiCompatibility: null,
         session: expect.objectContaining({ id: 100, status: "COUNTDOWN" }),
-        user1: { id: 1, avatarUrl: "a1", name: "U1" },
-        user2: { id: 2, avatarUrl: "a2", name: "U2" },
+        user1: { id: 1, avatarUrl: "a1", mbti: null, name: "U1" },
+        user2: { id: 2, avatarUrl: "a2", mbti: null, name: "U2" },
       })
     }
   })
@@ -95,6 +96,42 @@ describe("getMatchingSession", () => {
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value.isSelfUser1).toBe(false)
+    }
+  })
+
+  it("【正常系】両者の MBTI が揃う → mbtiCompatibility が 0..100 で算出される（INFJ × ENTP = 87）", async () => {
+    const repo = buildRepos()
+    ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
+      buildSession({ status: "COUNTDOWN", user1Id: 1, user2Id: 2 }),
+    )
+    ;(repo.userRepository.findById as jest.Mock)
+      .mockResolvedValueOnce(buildUser({ id: 1, mbti: "INFJ" }))
+      .mockResolvedValueOnce(buildUser({ id: 2, mbti: "ENTP" }))
+
+    const result = await getMatchingSession({ sessionId: 100, userId: 1 }, repo)
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.value.mbtiCompatibility).toBe(87)
+      expect(result.value.user1.mbti).toBe("INFJ")
+      expect(result.value.user2.mbti).toBe("ENTP")
+    }
+  })
+
+  it("【正常系】片方の MBTI が未設定 → mbtiCompatibility は null", async () => {
+    const repo = buildRepos()
+    ;(repo.matchingSessionRepository.findById as jest.Mock).mockResolvedValue(
+      buildSession({ user1Id: 1, user2Id: 2 }),
+    )
+    ;(repo.userRepository.findById as jest.Mock)
+      .mockResolvedValueOnce(buildUser({ id: 1, mbti: "INFJ" }))
+      .mockResolvedValueOnce(buildUser({ id: 2, mbti: null }))
+
+    const result = await getMatchingSession({ sessionId: 100, userId: 1 }, repo)
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.value.mbtiCompatibility).toBeNull()
+      expect(result.value.user1.mbti).toBe("INFJ")
+      expect(result.value.user2.mbti).toBeNull()
     }
   })
 

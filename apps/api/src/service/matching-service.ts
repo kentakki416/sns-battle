@@ -1,4 +1,5 @@
 import type { ILiveKitClient } from "../client/livekit"
+import { calculateMbtiCompatibility } from "../lib/mbti"
 import { logger } from "../log"
 import type {
   BlockRepository,
@@ -494,11 +495,13 @@ export const issueMatchingToken = async (
 }
 
 /**
- * セッション参加者の最小公開プロフィール。VS レイアウト等で id/name/avatar のみ必要なケース用。
+ * セッション参加者の最小公開プロフィール。
+ * id / name / avatar に加えて MBTI（Phase 6 相性スコア用）を返す。
  */
 export type MatchingSessionParticipant = {
     id: number
     avatarUrl: string | null
+    mbti: string | null
     name: string | null
 }
 
@@ -508,11 +511,13 @@ export type MatchingSessionParticipant = {
  * - `elapsedSeconds`: started_at からの経過秒（COUNTDOWN なら 0）
  * - `canEndNow`: ACTIVE かつ 5 分経過済のときのみ true
  * - `isSelfUser1`: リクエスト主体が user1 か（VS レイアウトの左右割り当てに使う）
+ * - `mbtiCompatibility`: 0..100 の相性スコア。いずれかの MBTI が未設定なら null
  */
 export type MatchingSessionView = {
     canEndNow: boolean
     elapsedSeconds: number
     isSelfUser1: boolean
+    mbtiCompatibility: number | null
     session: MatchingSession
     user1: MatchingSessionParticipant
     user2: MatchingSessionParticipant
@@ -578,9 +583,10 @@ export const getMatchingSession = async (
     canEndNow,
     elapsedSeconds,
     isSelfUser1: session.user1Id === input.userId,
+    mbtiCompatibility: calculateMbtiCompatibility(user1.mbti, user2.mbti),
     session,
-    user1: { id: user1.id, avatarUrl: user1.avatarUrl, name: user1.name },
-    user2: { id: user2.id, avatarUrl: user2.avatarUrl, name: user2.name },
+    user1: { id: user1.id, avatarUrl: user1.avatarUrl, mbti: user1.mbti, name: user1.name },
+    user2: { id: user2.id, avatarUrl: user2.avatarUrl, mbti: user2.mbti, name: user2.name },
   })
 }
 

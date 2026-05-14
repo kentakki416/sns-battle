@@ -51,16 +51,19 @@ export class MatchingSessionDetailController {
       id: view.session.id,
       is_self_user1: view.isSelfUser1,
       livekit_room_name: view.session.livekitRoomName,
+      mbti_compatibility: view.mbtiCompatibility,
       started_at: view.session.startedAt ? view.session.startedAt.toISOString() : null,
       status: view.session.status,
       user1: {
         id: view.user1.id,
         avatar_url: view.user1.avatarUrl,
+        mbti: view.user1.mbti,
         name: view.user1.name,
       },
       user2: {
         id: view.user2.id,
         avatar_url: view.user2.avatarUrl,
+        mbti: view.user2.mbti,
         name: view.user2.name,
       },
     })

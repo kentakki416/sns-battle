@@ -40,6 +40,7 @@ export class AuthMeController {
       email: result.value.email,
       id: result.value.id,
       is_onboarded: result.value.isOnboarded,
+      mbti: result.value.mbti,
       name: result.value.name,
     })
 

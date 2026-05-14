@@ -14,5 +14,5 @@ export default async function MatchingSessionPage() {
   if (!me) redirect("/sign-in")
   if (!me.is_onboarded) redirect("/onboarding")
 
-  return <MatchingSession userId={me.id} />
+  return <MatchingSession meMbti={me.mbti} userId={me.id} />
 }
