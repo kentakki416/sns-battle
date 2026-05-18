@@ -56,6 +56,7 @@ module "vpc" {
   enable_dns_hostnames    = true
   create_internet_gateway = true
   create_nat_gateway      = true
+  nat_gateway_subnet_key  = local.public_subnet_keys[0]
 
   # === サブネット設定 ===
   subnets = merge(

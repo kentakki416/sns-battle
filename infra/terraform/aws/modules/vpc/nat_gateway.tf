@@ -2,33 +2,37 @@
 # NAT Gateway
 # =============================================================================
 
-locals {
-  /**
-   * NAT Gateway を配置する public subnet のキー。
-   * - 呼び出し側から渡された nat_gateway_subnet_key を優先
-   * - 未指定なら public subnet の中でキー名がアルファベット順で最初のものを自動選択
-   *   (モジュール自己参照を避け、呼び出し側が subnet ID を解決できなくても動作させるため)
-   */
-  public_subnet_keys_sorted = sort([
-    for key, subnet in var.subnets : key
-    if subnet.subnet_type == "public"
-  ])
-  nat_gateway_subnet_key_resolved = var.nat_gateway_subnet_key != null ? var.nat_gateway_subnet_key : (
-    length(local.public_subnet_keys_sorted) > 0 ? local.public_subnet_keys_sorted[0] : null
-  )
-}
-
 resource "aws_nat_gateway" "nat" {
   count = var.create_nat_gateway ? 1 : 0
 
   allocation_id = aws_eip.nat[0].id
-  subnet_id     = aws_subnet.subnets[local.nat_gateway_subnet_key_resolved].id
+  subnet_id     = aws_subnet.subnets[var.nat_gateway_subnet_key].id
 
   tags = {
     Name = "${var.name}-nat"
   }
 
   depends_on = [aws_internet_gateway.igw]
+
+  /**
+   * 設定ミスを plan 時に検出するためのガード。
+   * 暗黙のフォールバックを許すと subnets の並び順や追加で NAT 位置が動いてしまうため、
+   * 呼び出し側に明示的なキー指定を強制する。
+   */
+  lifecycle {
+    precondition {
+      condition     = var.nat_gateway_subnet_key != null
+      error_message = "create_nat_gateway = true のとき、nat_gateway_subnet_key の指定が必須です。"
+    }
+    precondition {
+      condition     = var.nat_gateway_subnet_key == null ? true : contains(keys(var.subnets), var.nat_gateway_subnet_key)
+      error_message = "nat_gateway_subnet_key で指定したキーが subnets map に存在しません。"
+    }
+    precondition {
+      condition     = var.nat_gateway_subnet_key == null || !contains(keys(var.subnets), coalesce(var.nat_gateway_subnet_key, "_")) ? true : var.subnets[var.nat_gateway_subnet_key].subnet_type == "public"
+      error_message = "nat_gateway_subnet_key には subnet_type = \"public\" のサブネットを指定する必要があります。"
+    }
+  }
 }
 
 # =============================================================================
