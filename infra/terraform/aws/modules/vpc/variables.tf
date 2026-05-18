@@ -73,7 +73,7 @@ variable "create_nat_gateway" {
 }
 
 variable "nat_gateway_subnet_key" {
-  description = "NAT Gateway を配置する public subnet のキー（subnets map のキーを指定）。未指定なら public subnet のキー名アルファベット順で最初のものを自動選択する。"
+  description = "NAT Gateway を配置する public subnet のキー"
   type        = string
   default     = null
 }
