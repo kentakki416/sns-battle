@@ -88,3 +88,21 @@ variable "additional_tags" {
   type        = map(string)
   default     = {}
 }
+
+# =============================================================================
+# Route 53 / ACM
+# =============================================================================
+# 空のままだと route53 モジュールは起動しない (count = 0)。
+# ドメインを Route 53 で取得後、TF_VAR_domain_name で渡すと cert 発行が始まる。
+
+variable "domain_name" {
+  description = "Route 53 で取得済みのルートドメイン（例: sns-battle-dev.com）。空のとき route53 モジュールはスキップされる"
+  type        = string
+  default     = ""
+}
+
+variable "subdomain" {
+  description = "環境サブドメイン（例: dev）。証明書は *.<subdomain>.<domain> のワイルドカードを発行"
+  type        = string
+  default     = "dev"
+}
