@@ -216,6 +216,64 @@ module "route53" {
 }
 
 # =============================================================================
+# アプリケーション機密 (Secrets Manager)
+# =============================================================================
+
+# JWT 署名鍵 (Access / Refresh) は Terraform 内で自動生成して Secrets Manager に投入する。
+# 外部から提供される値ではないので random_password で十分。
+# tfstate に値が残るが、S3 KMS 暗号化で保護される前提。
+#
+# 鍵が変わると既存トークンが全部 invalid になりユーザーが一斉ログアウトするため、
+# 引数 (length / special 等) の意図しない変更で再生成されないよう ignore_changes でガード。
+# 意図的に rotate したいときは `terraform taint random_password.jwt_xxx_secret` を使う。
+resource "random_password" "jwt_access_secret" {
+  length  = 64
+  special = false
+
+  lifecycle {
+    ignore_changes = [length, special, override_special, min_lower, min_upper, min_numeric, min_special]
+  }
+}
+
+resource "random_password" "jwt_refresh_secret" {
+  length  = 64
+  special = false
+
+  lifecycle {
+    ignore_changes = [length, special, override_special, min_lower, min_upper, min_numeric, min_special]
+  }
+}
+
+# Application secrets
+# 「箱だけ Terraform で管理 + JWT のみ初回投入」方針:
+# - 初回 apply で JWT (random_password) と基本定数のみ Secrets Manager に書く
+# - 以降は modules/secrets 側の ignore_changes で Terraform は secret_string に触らない
+# - DATABASE_URL / REDIS_HOST / GOOGLE_* / LIVEKIT_* / FRONTEND_URL は Console / CLI で手動追加
+# - JWT を rotate するときは `terraform taint random_password.jwt_xxx` 後、
+#   Secrets Manager Console で JWT_ACCESS_SECRET / JWT_REFRESH_SECRET を新値で上書き
+module "app_secrets" {
+  source = "../../modules/secrets"
+
+  name = "/${local.name_prefix}/app"
+
+  initial_values = {
+    JWT_ACCESS_SECRET      = random_password.jwt_access_secret.result
+    JWT_REFRESH_SECRET     = random_password.jwt_refresh_secret.result
+    JWT_ACCESS_EXPIRATION  = "15m"
+    JWT_REFRESH_EXPIRATION = "30d"
+
+    REDIS_PORT = "6379"
+    REDIS_DB   = "0"
+
+    NODE_ENV  = "production"
+    PORT      = "8080"
+    LOG_LEVEL = "info"
+  }
+
+  tags = local.common_tags
+}
+
+# =============================================================================
 # コンテナレジストリ (ECR)
 # =============================================================================
 

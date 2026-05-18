@@ -77,3 +77,14 @@ output "api_fqdn" {
   description = "API の FQDN（api.<subdomain>.<domain>）"
   value       = length(module.route53) > 0 ? module.route53[0].fqdn_api : null
 }
+
+# Secrets Manager
+output "app_secret_arn" {
+  description = "Application secret の ARN (ECS task definition から参照)"
+  value       = module.app_secrets.secret_arn
+}
+
+output "app_secret_name" {
+  description = "Application secret の名前"
+  value       = module.app_secrets.secret_name
+}
