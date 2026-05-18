@@ -10,11 +10,34 @@ output "vpc_id" {
 
 # Subnets
 output "public_subnet_ids" {
-  description = "パブリックサブネットIDのリスト"
-  value = [
-    for i, az in var.availability_zones :
-    module.vpc.subnets["public${substr(az, length(az) - 2, 1)}-${substr(az, length(az) - 1, 1)}"].id
-  ]
+  description = "パブリックサブネットIDのリスト (ALB / NAT Gateway 配置)"
+  value       = [for k in local.public_subnet_keys : module.vpc.subnets[k].id]
+}
+
+output "private_subnet_ids" {
+  description = "プライベートサブネットIDのリスト (ECS task 配置)"
+  value       = [for k in local.private_subnet_keys : module.vpc.subnets[k].id]
+}
+
+output "isolated_subnet_ids" {
+  description = "アイソレートサブネットIDのリスト (RDS / ElastiCache 配置)"
+  value       = [for k in local.isolated_subnet_keys : module.vpc.subnets[k].id]
+}
+
+# Security Groups
+output "ecs_security_group_id" {
+  description = "ECS task に付与する SG の ID"
+  value       = module.vpc.security_groups["ecs"].id
+}
+
+output "rds_security_group_id" {
+  description = "RDS に付与する SG の ID (step4 で参照)"
+  value       = module.vpc.security_groups["rds"].id
+}
+
+output "redis_security_group_id" {
+  description = "ElastiCache に付与する SG の ID (step5 で参照)"
+  value       = module.vpc.security_groups["redis"].id
 }
 
 # ALB

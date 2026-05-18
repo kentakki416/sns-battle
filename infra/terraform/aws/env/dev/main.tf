@@ -7,8 +7,26 @@ locals {
   # 基本設定
   name_prefix = "${var.project_name}-${var.environment}"
 
-  # サブネットCIDRの計算
-  public_subnet_cidrs = [for i in range(2) : cidrsubnet(var.vpc_cidr, 8, i + 1)]
+  /**
+   * サブネット CIDR の計算
+   * - public:   10.0.1.0/24, 10.0.2.0/24  (ALB / NAT Gateway 配置)
+   * - private:  10.0.11.0/24, 10.0.12.0/24 (ECS task 配置、NAT 経由で outbound)
+   * - isolated: 10.0.21.0/24, 10.0.22.0/24 (RDS / ElastiCache 配置)
+   *
+   * modules/vpc は public/private しか subnet_type を持たないため isolated も "private" 扱いとし、
+   * 結果的に NAT route table に紐付くが RDS/Redis は outbound を開始しないため問題なし。
+   */
+  public_subnet_cidrs   = [for i in range(2) : cidrsubnet(var.vpc_cidr, 8, i + 1)]
+  private_subnet_cidrs  = [for i in range(2) : cidrsubnet(var.vpc_cidr, 8, i + 11)]
+  isolated_subnet_cidrs = [for i in range(2) : cidrsubnet(var.vpc_cidr, 8, i + 21)]
+
+  /**
+   * subnet キーは「<role><az-suffix>」の規約。既存の public 命名と整合させる。
+   * 例: public1-a / public1-c / private1-a / private1-c / isolated1-a / isolated1-c
+   */
+  public_subnet_keys   = [for az in var.availability_zones : "public${substr(az, length(az) - 2, 1)}-${substr(az, length(az) - 1, 1)}"]
+  private_subnet_keys  = [for az in var.availability_zones : "private${substr(az, length(az) - 2, 1)}-${substr(az, length(az) - 1, 1)}"]
+  isolated_subnet_keys = [for az in var.availability_zones : "isolated${substr(az, length(az) - 2, 1)}-${substr(az, length(az) - 1, 1)}"]
 
   # 共通タグ
   common_tags = merge(
@@ -26,8 +44,8 @@ locals {
 # =============================================================================
 
 # VPCモジュール呼び出し
-# - 開発環境用のシンプルなネットワークを構築
-# - パブリックサブネットのみ使用
+# - public (ALB / NAT) / private (ECS) / isolated (RDS / Redis) の 3 階層
+# - NAT Gateway 1 個（dev コスト優先）
 module "vpc" {
   source = "../../modules/vpc"
 
@@ -37,16 +55,38 @@ module "vpc" {
   enable_dns_support      = true
   enable_dns_hostnames    = true
   create_internet_gateway = true
-  create_nat_gateway      = false
+  create_nat_gateway      = true
 
   # === サブネット設定 ===
-  subnets = {
-    for i, az in var.availability_zones : "public${substr(az, length(az) - 2, 1)}-${substr(az, length(az) - 1, 1)}" => {
-      cidr_block        = local.public_subnet_cidrs[i]
-      availability_zone = az
-      subnet_type       = "public"
-    }
-  }
+  subnets = merge(
+    /** public subnet: ALB + NAT Gateway 配置 */
+    {
+      for i, az in var.availability_zones :
+      local.public_subnet_keys[i] => {
+        cidr_block        = local.public_subnet_cidrs[i]
+        availability_zone = az
+        subnet_type       = "public"
+      }
+    },
+    /** private subnet: ECS task 配置 */
+    {
+      for i, az in var.availability_zones :
+      local.private_subnet_keys[i] => {
+        cidr_block        = local.private_subnet_cidrs[i]
+        availability_zone = az
+        subnet_type       = "private"
+      }
+    },
+    /** isolated subnet: RDS / ElastiCache 配置 (module 制約で subnet_type=private) */
+    {
+      for i, az in var.availability_zones :
+      local.isolated_subnet_keys[i] => {
+        cidr_block        = local.isolated_subnet_cidrs[i]
+        availability_zone = az
+        subnet_type       = "private"
+      }
+    },
+  )
 
   # === セキュリティグループ定義 ===
   security_groups = {
@@ -58,11 +98,29 @@ module "vpc" {
       name        = "${local.name_prefix}-ecs"
       description = "Security group for ECS tasks"
     }
+    rds = {
+      name        = "${local.name_prefix}-rds"
+      description = "Security group for RDS Postgres"
+    }
+    redis = {
+      name        = "${local.name_prefix}-redis"
+      description = "Security group for ElastiCache Redis"
+    }
   }
 
   # === セキュリティグループルール ===
   security_group_rules = [
-    # ALB Ingress - インターネットからHTTPを受け付ける
+    # ALB Ingress - インターネットからHTTPSを受け付ける（step6 で HTTPS listener を追加するため事前開放）
+    {
+      security_group_name = "alb"
+      type                = "ingress"
+      from_port           = 443
+      to_port             = 443
+      protocol            = "tcp"
+      cidr_blocks         = ["0.0.0.0/0"]
+      description         = "HTTPS from internet"
+    },
+    # ALB Ingress - インターネットからHTTPを受け付ける（HTTPS リダイレクト用）
     {
       security_group_name = "alb"
       type                = "ingress"
@@ -70,7 +128,7 @@ module "vpc" {
       to_port             = 80
       protocol            = "tcp"
       cidr_blocks         = ["0.0.0.0/0"]
-      description         = "HTTP from internet"
+      description         = "HTTP from internet (redirect to HTTPS in step6)"
     },
     # ALB Ingress - Blue/Greenテスト用リスナー（ポート9000）
     {
@@ -102,7 +160,7 @@ module "vpc" {
       source_security_group_name = "alb"
       description                = "From ALB only"
     },
-    # ECS Egress
+    # ECS Egress - NAT 経由で外部 (ECR / Secrets Manager / LiveKit Cloud) へ
     {
       security_group_name = "ecs"
       type                = "egress"
@@ -110,8 +168,28 @@ module "vpc" {
       to_port             = 0
       protocol            = "-1"
       cidr_blocks         = ["0.0.0.0/0"]
-      description         = "All outbound traffic"
-    }
+      description         = "All outbound traffic via NAT"
+    },
+    # RDS Ingress - ECS から 5432 のみ許可
+    {
+      security_group_name        = "rds"
+      type                       = "ingress"
+      from_port                  = 5432
+      to_port                    = 5432
+      protocol                   = "tcp"
+      source_security_group_name = "ecs"
+      description                = "Postgres from ECS"
+    },
+    # Redis Ingress - ECS から 6379 のみ許可
+    {
+      security_group_name        = "redis"
+      type                       = "ingress"
+      from_port                  = 6379
+      to_port                    = 6379
+      protocol                   = "tcp"
+      source_security_group_name = "ecs"
+      description                = "Redis from ECS"
+    },
   ]
 
 }
@@ -138,10 +216,7 @@ module "alb" {
   name            = "${local.name_prefix}-alb"
   vpc_id          = module.vpc.vpc_id
   security_groups = [module.vpc.security_groups["alb"].id]
-  subnets = [
-    for i, az in var.availability_zones :
-    module.vpc.subnets["public${substr(az, length(az) - 2, 1)}-${substr(az, length(az) - 1, 1)}"].id
-  ]
+  subnets         = [for k in local.public_subnet_keys : module.vpc.subnets[k].id]
 
   # === ターゲットグループ設定 ===
   target_group_port = var.app_port
@@ -184,13 +259,12 @@ module "ecs" {
   container_port  = var.app_port
 
   # === ネットワーク設定 ===
+  # ECS task を private subnet に配置し、NAT 経由で外部接続する。
+  # assign_public_ip = false にしてもイメージ pull / Secrets Manager 取得は NAT 経由で成立する。
   network_configuration = {
-    subnets = [
-      for i, az in var.availability_zones :
-      module.vpc.subnets["public${substr(az, length(az) - 2, 1)}-${substr(az, length(az) - 1, 1)}"].id
-    ]
+    subnets          = [for k in local.private_subnet_keys : module.vpc.subnets[k].id]
     security_groups  = [module.vpc.security_groups["ecs"].id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   # === ロードバランサー連携 ===

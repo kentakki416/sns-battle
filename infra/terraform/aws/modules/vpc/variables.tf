@@ -72,8 +72,8 @@ variable "create_nat_gateway" {
   default     = false
 }
 
-variable "nat_gateway_subnet_id" {
-  description = "Subnet ID where NAT Gateway will be created"
+variable "nat_gateway_subnet_key" {
+  description = "NAT Gateway を配置する public subnet のキー（subnets map のキーを指定）。未指定なら public subnet のキー名アルファベット順で最初のものを自動選択する。"
   type        = string
   default     = null
 }
