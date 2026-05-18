@@ -132,7 +132,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [fmt, validate, tflint, trivy]
-    if: github.event_name == 'pull_request'
+    # PR: 自動 plan + PR コメント投稿。workflow_dispatch: 手動 plan-only（apply 前の事前確認用）。
+    # main / develop への push では plan を走らせない（コメント先が無く、apply は terraform-apply.yml で別管理）
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     # TODO: prd環境が増えたら、matrix strategy に従い、${{ matrix.environment }} に変更すること
     environment: dev # GitHub Environments で AWS_ROLE_ARN を環境ごとに分離
     permissions:
@@ -194,20 +196,22 @@ jobs:
         if: steps.plan.outputs.exitcode != '1'
         uses: actions/upload-artifact@v4
         with:
-          name: tfplan-pr${{ github.event.pull_request.number }}-${{ github.run_id }}
+          name: tfplan-${{ github.event.pull_request.number || github.ref_name }}-${{ github.run_id }}
           path: |
             ${{ env.WORKING_DIR }}/tfplan
             ${{ env.WORKING_DIR }}/tfplan.txt
           retention-days: 14
 
-      # PR に plan 結果をコメント投稿（既存コメントがあれば更新）
+      # PR に plan 結果をコメント投稿（既存コメントがあれば更新）。
+      # workflow_dispatch では PR コンテキストが無いため skip。結果は Actions ログ + artifact で確認する。
       - name: Post plan to PR
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         env:
           EXITCODE: ${{ steps.plan.outputs.exitcode }}
           SUMMARY: ${{ steps.summary.outputs.summary }}
           PLAN_PATH: ${{ env.WORKING_DIR }}/tfplan.txt
-          ARTIFACT_NAME: tfplan-pr${{ github.event.pull_request.number }}-${{ github.run_id }}
+          ARTIFACT_NAME: tfplan-${{ github.event.pull_request.number || github.ref_name }}-${{ github.run_id }}
           ENVIRONMENT_NAME: dev
         with:
           script: |
