@@ -88,3 +88,19 @@ variable "additional_tags" {
   type        = map(string)
   default     = {}
 }
+
+# =============================================================================
+# Route 53 / ACM
+# =============================================================================
+
+variable "domain_name" {
+  description = "Route 53 で取得済みのルートドメイン。"
+  type        = string
+  default     = "sns-battle.com"
+}
+
+variable "subdomain" {
+  description = "環境サブドメイン（例: dev）。証明書は *.<subdomain>.<domain> のワイルドカードを発行"
+  type        = string
+  default     = "dev"
+}
