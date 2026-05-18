@@ -222,14 +222,26 @@ module "route53" {
 # JWT 署名鍵 (Access / Refresh) は Terraform 内で自動生成して Secrets Manager に投入する。
 # 外部から提供される値ではないので random_password で十分。
 # tfstate に値が残るが、S3 KMS 暗号化で保護される前提。
+#
+# 鍵が変わると既存トークンが全部 invalid になりユーザーが一斉ログアウトするため、
+# 引数 (length / special 等) の意図しない変更で再生成されないよう ignore_changes でガード。
+# 意図的に rotate したいときは `terraform taint random_password.jwt_xxx_secret` を使う。
 resource "random_password" "jwt_access_secret" {
   length  = 64
   special = false
+
+  lifecycle {
+    ignore_changes = [length, special, override_special, min_lower, min_upper, min_numeric, min_special]
+  }
 }
 
 resource "random_password" "jwt_refresh_secret" {
   length  = 64
   special = false
+
+  lifecycle {
+    ignore_changes = [length, special, override_special, min_lower, min_upper, min_numeric, min_special]
+  }
 }
 
 # Application secrets
