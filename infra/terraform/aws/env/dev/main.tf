@@ -110,7 +110,7 @@ module "vpc" {
 
   # === セキュリティグループルール ===
   security_group_rules = [
-    # ALB Ingress - インターネットからHTTPSを受け付ける（step6 で HTTPS listener を追加するため事前開放）
+    # ALB Ingress - インターネットからHTTPSを受け付ける
     {
       security_group_name = "alb"
       type                = "ingress"
@@ -120,7 +120,7 @@ module "vpc" {
       cidr_blocks         = ["0.0.0.0/0"]
       description         = "HTTPS from internet"
     },
-    # ALB Ingress - インターネットからHTTPを受け付ける（HTTPS リダイレクト用）
+    # ALB Ingress - インターネットからHTTPを受け付ける
     {
       security_group_name = "alb"
       type                = "ingress"
@@ -128,7 +128,7 @@ module "vpc" {
       to_port             = 80
       protocol            = "tcp"
       cidr_blocks         = ["0.0.0.0/0"]
-      description         = "HTTP from internet (redirect to HTTPS in step6)"
+      description         = "HTTP from internet"
     },
     # ALB Ingress - Blue/Greenテスト用リスナー（ポート9000）
     {

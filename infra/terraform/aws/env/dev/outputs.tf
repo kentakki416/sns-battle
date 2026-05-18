@@ -31,12 +31,12 @@ output "ecs_security_group_id" {
 }
 
 output "rds_security_group_id" {
-  description = "RDS に付与する SG の ID (step4 で参照)"
+  description = "RDS に付与する SG の ID"
   value       = module.vpc.security_groups["rds"].id
 }
 
 output "redis_security_group_id" {
-  description = "ElastiCache に付与する SG の ID (step5 で参照)"
+  description = "ElastiCache に付与する SG の ID"
   value       = module.vpc.security_groups["redis"].id
 }
 
