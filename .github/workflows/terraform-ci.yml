@@ -132,7 +132,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [fmt, validate, tflint, trivy]
-    if: github.event_name == 'pull_request'
+    # PR: 自動 plan + PR コメント投稿。workflow_dispatch: 手動 plan-only（apply 前の事前確認用）。
+    # main / develop への push では plan を走らせない（コメント先が無く、apply は terraform-apply.yml で別管理）
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     # TODO: prd環境が増えたら、matrix strategy に従い、${{ matrix.environment }} に変更すること
     environment: dev # GitHub Environments で AWS_ROLE_ARN を環境ごとに分離
     permissions:
@@ -159,21 +161,17 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
 
       # -detailed-exitcode: 0=変更なし / 1=エラー / 2=変更あり
-      # continue-on-error で後続のコメント投稿まで必ず到達させ、最後のステップで失敗を再現する
+      # continue-on-error で後続のコメント投稿まで必ず到達させ、最後のステップで失敗を再現する。
+      # Pattern A 採用のため tfplan バイナリは保存せず、出力テキストのみ tee で tfplan.txt に保管する。
+      # apply は terraform-apply.yml 側で plan を再生成してから適用するため、ここでは plan を保持しない。
       - name: Terraform Plan
         id: plan
         continue-on-error: true
         run: |
           set +e
-          terraform plan -no-color -input=false -lock-timeout=60s -detailed-exitcode -out=tfplan
-          echo "exitcode=$?" >> "$GITHUB_OUTPUT"
-        working-directory: ${{ env.WORKING_DIR }}
-
-      # tfplan (バイナリ) → tfplan.txt (テキスト) へ変換。plan エラー時は tfplan が存在しないので skip
-      - name: Render plan as text
-        id: show
-        if: steps.plan.outputs.exitcode != '1'
-        run: terraform show -no-color tfplan > tfplan.txt
+          set -o pipefail
+          terraform plan -no-color -input=false -lock-timeout=60s -detailed-exitcode 2>&1 | tee tfplan.txt
+          echo "exitcode=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
         working-directory: ${{ env.WORKING_DIR }}
 
       # 「Plan: X to add, Y to change, Z to destroy.」の行だけ抽出してサマリ化
@@ -189,25 +187,15 @@ jobs:
           } >> "$GITHUB_OUTPUT"
         working-directory: ${{ env.WORKING_DIR }}
 
-      # tfplan を artifact として保存。後から「あの PR で何を変更したか」を遡れるようにする
-      - name: Upload tfplan artifact
-        if: steps.plan.outputs.exitcode != '1'
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan-pr${{ github.event.pull_request.number }}-${{ github.run_id }}
-          path: |
-            ${{ env.WORKING_DIR }}/tfplan
-            ${{ env.WORKING_DIR }}/tfplan.txt
-          retention-days: 14
-
-      # PR に plan 結果をコメント投稿（既存コメントがあれば更新）
+      # PR に plan 結果をコメント投稿（既存コメントがあれば更新）。
+      # workflow_dispatch では PR コンテキストが無いため skip。結果は Actions ログで確認する。
       - name: Post plan to PR
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         env:
           EXITCODE: ${{ steps.plan.outputs.exitcode }}
           SUMMARY: ${{ steps.summary.outputs.summary }}
           PLAN_PATH: ${{ env.WORKING_DIR }}/tfplan.txt
-          ARTIFACT_NAME: tfplan-pr${{ github.event.pull_request.number }}-${{ github.run_id }}
           ENVIRONMENT_NAME: dev
         with:
           script: |
@@ -217,7 +205,6 @@ jobs:
             const exitcode = process.env.EXITCODE
             const summary = process.env.SUMMARY || '(summary unavailable)'
             const planPath = process.env.PLAN_PATH
-            const artifactName = process.env.ARTIFACT_NAME
             const envName = process.env.ENVIRONMENT_NAME
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
 
@@ -240,7 +227,7 @@ jobs:
               /** GitHub comment size limit is 65,536 chars. Keep some headroom for wrapping. */
               const MAX = 60000
               const truncated = plan.length > MAX
-                ? plan.substring(0, MAX) + `\n\n_...truncated. Download the \`${artifactName}\` artifact for the full plan._`
+                ? plan.substring(0, MAX) + `\n\n_...truncated. See the [Actions log](${runUrl}) for the full plan._`
                 : plan
 
               const icon = exitcode === '0' ? '✅' : '⚠️'
@@ -260,7 +247,7 @@ jobs:
                 '',
                 '</details>',
                 '',
-                `_Artifact: [\`${artifactName}\`](${runUrl}) (retained 14 days)_`,
+                `_Full log: [Actions run](${runUrl})_`,
               ].join('\n')
             }
 
