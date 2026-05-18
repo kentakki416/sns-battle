@@ -35,8 +35,13 @@ export const middleware = (req: NextRequest) => {
 }
 
 export const config = {
-  /** _next, _next/static, _next/image, favicon, public 配下を除外 */
+  /**
+   * _next/static, _next/image, favicon、および public 配下に置かれた静的ファイル
+   * （拡張子付きパス：.lottie, .svg, .png など）を除外する。
+   * Next.js は public/ を URL 上のプレフィックスなしで配信するため、
+   * "public/" ではなく拡張子で判定する必要がある。
+   */
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.).*)",
   ],
 }

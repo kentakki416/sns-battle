@@ -3,7 +3,12 @@ import { NextRequest, NextResponse } from "next/server"
 
 import { authGoogleResponseSchema } from "@repo/api-schema"
 
-import { OAUTH_STATE_COOKIE, setAuthCookies } from "@/libs/auth"
+import {
+  OAUTH_REDIRECT_COOKIE,
+  OAUTH_STATE_COOKIE,
+  sanitizeRedirectPath,
+  setAuthCookies,
+} from "@/libs/auth"
 
 const API_BASE_URL = process.env.API_URL || "http://localhost:8080"
 
@@ -27,7 +32,9 @@ export const GET = async (req: NextRequest) => {
 
   const store = await cookies()
   const expected = store.get(OAUTH_STATE_COOKIE)?.value
+  const redirectTo = sanitizeRedirectPath(store.get(OAUTH_REDIRECT_COOKIE)?.value)
   store.delete(OAUTH_STATE_COOKIE)
+  store.delete(OAUTH_REDIRECT_COOKIE)
 
   if (!expected || expected !== state) {
     return NextResponse.redirect(new URL("/sign-in?error=state_mismatch", req.url))
@@ -49,6 +56,10 @@ export const GET = async (req: NextRequest) => {
   const json = authGoogleResponseSchema.parse(await apiRes.json())
   await setAuthCookies(json.access_token, json.refresh_token)
 
-  const next = json.user.is_onboarded ? "/" : "/onboarding"
+  /**
+   * オンボーディング未完了ユーザーは強制的に /onboarding へ。
+   * 完了済みなら認証前に見ようとしていた redirectTo を優先し、無ければ "/" にフォールバック
+   */
+  const next = json.user.is_onboarded ? (redirectTo ?? "/") : "/onboarding"
   return NextResponse.redirect(new URL(next, req.url))
 }

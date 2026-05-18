@@ -9,6 +9,7 @@ import { PROVIDERS } from "./providers"
 
 type Props = {
   error?: string
+  redirect?: string
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -18,7 +19,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   state_mismatch: "セッションが切れました。もう一度お試しください。",
 }
 
-export function SignInCard({ error }: Props) {
+export function SignInCard({ error, redirect }: Props) {
   const errorMessage = error ? ERROR_MESSAGES[error] ?? "エラーが発生しました。" : null
 
   return (
@@ -59,6 +60,7 @@ export function SignInCard({ error }: Props) {
             >
               {p.id === "google" ? (
                 <form action={startGoogleOAuth}>
+                  {redirect && <input name="redirect" type="hidden" value={redirect} />}
                   <ProviderButton provider={p} type="submit" />
                 </form>
               ) : (

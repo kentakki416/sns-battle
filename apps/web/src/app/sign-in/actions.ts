@@ -5,7 +5,7 @@ import { randomBytes } from "node:crypto"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
-import { OAUTH_STATE_COOKIE } from "@/libs/auth"
+import { OAUTH_REDIRECT_COOKIE, OAUTH_STATE_COOKIE, sanitizeRedirectPath } from "@/libs/auth"
 
 const isProduction = process.env.NODE_ENV === "production"
 
@@ -15,7 +15,7 @@ const STATE_COOKIE_MAX_AGE = 60 * 5
  * Google OAuth 認可フローの開始
  * state を Cookie に保存して CSRF 対策しつつ、Google 認可エンドポイントにリダイレクト
  */
-export const startGoogleOAuth = async () => {
+export const startGoogleOAuth = async (formData: FormData) => {
   const state = randomBytes(16).toString("hex")
   const store = await cookies()
   store.set(OAUTH_STATE_COOKIE, state, {
@@ -29,6 +29,23 @@ export const startGoogleOAuth = async () => {
     sameSite: "lax",
     secure: isProduction,
   })
+
+  /**
+   * 認証前にユーザーが見ようとしていたパスを Cookie に退避し、
+   * コールバック側で戻り先として利用する（同一オリジン相対パスのみ許可）
+   */
+  const redirectTo = sanitizeRedirectPath(formData.get("redirect")?.toString())
+  if (redirectTo) {
+    store.set(OAUTH_REDIRECT_COOKIE, redirectTo, {
+      httpOnly: true,
+      maxAge: STATE_COOKIE_MAX_AGE,
+      path: "/",
+      sameSite: "lax",
+      secure: isProduction,
+    })
+  } else {
+    store.delete(OAUTH_REDIRECT_COOKIE)
+  }
 
   const params = new URLSearchParams({
     access_type: "offline",
