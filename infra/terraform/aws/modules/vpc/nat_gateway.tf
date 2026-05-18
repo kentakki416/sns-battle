@@ -6,7 +6,7 @@ resource "aws_nat_gateway" "nat" {
   count = var.create_nat_gateway ? 1 : 0
 
   allocation_id = aws_eip.nat[0].id
-  subnet_id     = var.nat_gateway_subnet_id
+  subnet_id     = aws_subnet.subnets[var.nat_gateway_subnet_key].id
 
   tags = {
     Name = "${var.name}-nat"
