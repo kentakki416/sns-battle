@@ -245,40 +245,29 @@ resource "random_password" "jwt_refresh_secret" {
 }
 
 # Application secrets
-# - JWT は random_password で自動生成
-# - DATABASE_URL / REDIS_HOST はプレースホルダ。step4 / step5 で実値を流し込む
-# - GOOGLE_* / LIVEKIT_* / FRONTEND_URL は TF_VAR で渡す。未指定なら空文字のまま登録される
+# 「箱だけ Terraform で管理 + JWT のみ初回投入」方針:
+# - 初回 apply で JWT (random_password) と基本定数のみ Secrets Manager に書く
+# - 以降は modules/secrets 側の ignore_changes で Terraform は secret_string に触らない
+# - DATABASE_URL / REDIS_HOST / GOOGLE_* / LIVEKIT_* / FRONTEND_URL は Console / CLI で手動追加
+# - JWT を rotate するときは `terraform taint random_password.jwt_xxx` 後、
+#   Secrets Manager Console で JWT_ACCESS_SECRET / JWT_REFRESH_SECRET を新値で上書き
 module "app_secrets" {
   source = "../../modules/secrets"
 
   name = "/${local.name_prefix}/app"
 
   initial_values = {
-    # JWT
     JWT_ACCESS_SECRET      = random_password.jwt_access_secret.result
     JWT_REFRESH_SECRET     = random_password.jwt_refresh_secret.result
     JWT_ACCESS_EXPIRATION  = "15m"
     JWT_REFRESH_EXPIRATION = "30d"
 
-    # Datastore (step4 / step5 で実値に置き換え)
-    DATABASE_URL = "REPLACED_BY_STEP4"
-    REDIS_HOST   = "REPLACED_BY_STEP5"
-    REDIS_PORT   = "6379"
-    REDIS_DB     = "0"
+    REDIS_PORT = "6379"
+    REDIS_DB   = "0"
 
-    # Server
-    NODE_ENV     = "production"
-    PORT         = "8080"
-    LOG_LEVEL    = "info"
-    FRONTEND_URL = var.frontend_url
-
-    # OAuth / LiveKit (TF_VAR で渡す)
-    GOOGLE_CLIENT_ID       = var.google_client_id
-    GOOGLE_CLIENT_SECRET   = var.google_client_secret
-    LIVEKIT_HOST           = var.livekit_host
-    LIVEKIT_API_KEY        = var.livekit_api_key
-    LIVEKIT_API_SECRET     = var.livekit_api_secret
-    LIVEKIT_WEBHOOK_SECRET = var.livekit_webhook_secret
+    NODE_ENV  = "production"
+    PORT      = "8080"
+    LOG_LEVEL = "info"
   }
 
   tags = local.common_tags
