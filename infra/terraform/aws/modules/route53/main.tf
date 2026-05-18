@@ -24,7 +24,11 @@ resource "aws_acm_certificate" "wildcard" {
   tags = var.tags
 }
 
-# DNS 検証用レコードを Route 53 に自動作成
+# ACM が「ドメイン所有者である」ことを確認するための検証用 CNAME を Route 53 に自動投入する。
+# - ACM が aws_acm_certificate.domain_validation_options で「このレコードを書いてくれ」と要求する値が入っている
+# - そのレコードを実際に DNS に書くのが本リソースの役割
+# - ACM が DNS を引いて期待値が返れば証明書が ISSUED になる
+# - 複数ドメイン (SAN) に対応するため for_each でループ
 resource "aws_route53_record" "cert_validation" {
   for_each = {
     for dvo in aws_acm_certificate.wildcard.domain_validation_options : dvo.domain_name => {
@@ -42,7 +46,8 @@ resource "aws_route53_record" "cert_validation" {
   zone_id         = data.aws_route53_zone.this.zone_id
 }
 
-# 検証完了を待機
+# 検証用レコードを書き込んだあと、ACM が ISSUED 状態に遷移するまで plan/apply を待機させる。
+# これを挟まないと、続く ALB の HTTPS listener が「未発行の証明書」を参照してエラーになる。
 resource "aws_acm_certificate_validation" "wildcard" {
   certificate_arn         = aws_acm_certificate.wildcard.arn
   validation_record_fqdns = [for r in aws_route53_record.cert_validation : r.fqdn]
