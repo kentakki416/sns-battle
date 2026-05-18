@@ -65,7 +65,7 @@ next-env.d.ts
 *.tfstate
 *.tfstate.backup
 .terraform/
-.terraform.lock.hcl
+# .terraform.lock.hcl はコミット推奨（プロバイダの再現性確保 / CI の -lockfile=readonly が前提とする）
 *.tfvars
 
 # IDE

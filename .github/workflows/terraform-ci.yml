@@ -83,18 +83,10 @@ jobs:
     name: TFLint
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # TODO: prd環境が増えたら、matrix strategy に従い、${{ matrix.environment }} に変更すること
-    environment: dev # GitHub Environments で AWS_ROLE_ARN を環境ごとに分離
+    # deep_check を有効化するときは environment: dev と OIDC credentials 設定を戻すこと
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # deep_check=true（.tflint.hcl）によるAWS APIへの問い合わせにクレデンシャルが必要
-      - name: Configure AWS credentials with OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ap-northeast-1
 
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
