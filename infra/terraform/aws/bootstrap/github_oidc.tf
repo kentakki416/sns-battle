@@ -108,3 +108,24 @@ resource "aws_iam_role_policy_attachment" "ecs_deploy" {
   role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.ecs_deploy.arn
 }
+
+# =============================================================================
+# Terraform Apply 用の管理者権限
+# =============================================================================
+# GitHub Actions から terraform plan / apply を実行するために必要。
+# plan は管理対象リソースの read、apply は read/write がそれぞれ必要で、
+# 追加するたびに policy を細かく更新していくのは dev では運用負荷が大きいため
+# AdministratorAccess を attach する方針。
+#
+# 含まれる権限:
+# - tfstate アクセス (S3 + DynamoDB)
+# - VPC / EC2 / ALB / ECS / ECR / RDS / ElastiCache / Route53 / ACM /
+#   Secrets Manager / CloudWatch Logs / IAM など、step1〜10 で必要になる全リソース
+#
+# TODO: prd 環境を作るタイミングで、CloudTrail で実使用 action を抽出し、
+#       scoped policy を作成して prd ロールには attach、dev もそちらに切り替えて
+#       本 attachment は剥がす。
+resource "aws_iam_role_policy_attachment" "github_actions_admin" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
