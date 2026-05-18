@@ -104,3 +104,55 @@ variable "subdomain" {
   type        = string
   default     = "dev"
 }
+
+# =============================================================================
+# Secrets (アプリケーション機密)
+# =============================================================================
+# JWT secret は random_password で Terraform 内自動生成するため変数なし。
+# 外部サービス由来の値 (Google OAuth, LiveKit) は未取得段階では空文字でよく、
+# 値を取得したら TF_VAR_xxx で渡して再 apply すると Secrets Manager に反映される。
+
+variable "google_client_id" {
+  description = "Google OAuth client ID。公開識別子だが API 側と一致が必要"
+  type        = string
+  default     = ""
+}
+
+variable "google_client_secret" {
+  description = "Google OAuth client secret"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "livekit_host" {
+  description = "LiveKit Cloud の wss:// エンドポイント"
+  type        = string
+  default     = ""
+}
+
+variable "livekit_api_key" {
+  description = "LiveKit API key"
+  type        = string
+  default     = ""
+}
+
+variable "livekit_api_secret" {
+  description = "LiveKit API secret"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "livekit_webhook_secret" {
+  description = "LiveKit Webhook 署名検証用 secret"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "frontend_url" {
+  description = "Vercel の公開 URL (CORS / OAuth callback に使用)"
+  type        = string
+  default     = ""
+}

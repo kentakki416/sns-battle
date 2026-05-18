@@ -216,6 +216,63 @@ module "route53" {
 }
 
 # =============================================================================
+# アプリケーション機密 (Secrets Manager)
+# =============================================================================
+
+# JWT 署名鍵 (Access / Refresh) は Terraform 内で自動生成して Secrets Manager に投入する。
+# 外部から提供される値ではないので random_password で十分。
+# tfstate に値が残るが、S3 KMS 暗号化で保護される前提。
+resource "random_password" "jwt_access_secret" {
+  length  = 64
+  special = false
+}
+
+resource "random_password" "jwt_refresh_secret" {
+  length  = 64
+  special = false
+}
+
+# Application secrets
+# - JWT は random_password で自動生成
+# - DATABASE_URL / REDIS_HOST はプレースホルダ。step4 / step5 で実値を流し込む
+# - GOOGLE_* / LIVEKIT_* / FRONTEND_URL は TF_VAR で渡す。未指定なら空文字のまま登録される
+module "app_secrets" {
+  source = "../../modules/secrets"
+
+  name = "/${local.name_prefix}/app"
+
+  initial_values = {
+    # JWT
+    JWT_ACCESS_SECRET      = random_password.jwt_access_secret.result
+    JWT_REFRESH_SECRET     = random_password.jwt_refresh_secret.result
+    JWT_ACCESS_EXPIRATION  = "15m"
+    JWT_REFRESH_EXPIRATION = "30d"
+
+    # Datastore (step4 / step5 で実値に置き換え)
+    DATABASE_URL = "REPLACED_BY_STEP4"
+    REDIS_HOST   = "REPLACED_BY_STEP5"
+    REDIS_PORT   = "6379"
+    REDIS_DB     = "0"
+
+    # Server
+    NODE_ENV     = "production"
+    PORT         = "8080"
+    LOG_LEVEL    = "info"
+    FRONTEND_URL = var.frontend_url
+
+    # OAuth / LiveKit (TF_VAR で渡す)
+    GOOGLE_CLIENT_ID       = var.google_client_id
+    GOOGLE_CLIENT_SECRET   = var.google_client_secret
+    LIVEKIT_HOST           = var.livekit_host
+    LIVEKIT_API_KEY        = var.livekit_api_key
+    LIVEKIT_API_SECRET     = var.livekit_api_secret
+    LIVEKIT_WEBHOOK_SECRET = var.livekit_webhook_secret
+  }
+
+  tags = local.common_tags
+}
+
+# =============================================================================
 # コンテナレジストリ (ECR)
 # =============================================================================
 
