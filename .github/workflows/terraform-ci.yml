@@ -88,6 +88,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # deep_check=true（.tflint.hcl）によるAWS APIへの問い合わせにクレデンシャルが必要
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
         with:
