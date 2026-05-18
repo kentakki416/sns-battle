@@ -202,7 +202,6 @@ module "vpc" {
 # Route 53 + ACM
 # - domain_name が指定されたときのみ起動 (count = 0/1)
 # - 事前に AWS Console で Route 53 にドメインを取得し、hosted zone が自動作成済みであること
-# - alb_dns_name は ALB HTTPS 化と同時に流し込む (今は A レコード未作成)
 module "route53" {
   source = "../../modules/route53"
   count  = var.domain_name != "" ? 1 : 0

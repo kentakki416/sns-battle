@@ -56,7 +56,6 @@ resource "aws_acm_certificate_validation" "wildcard" {
 # =============================================================================
 # A レコード (Alias) - api.<subdomain>.<domain> → ALB
 # =============================================================================
-# alb_dns_name が渡されたときだけ作成（ALB 作成後の post-init で有効化）
 
 resource "aws_route53_record" "api" {
   count   = var.alb_dns_name != null ? 1 : 0
