@@ -1,5 +1,6 @@
 "use client"
 
+import { DotLottieReact } from "@lottiefiles/dotlottie-react"
 import { motion } from "framer-motion"
 
 const FEATURES = [
@@ -12,19 +13,17 @@ export function BrandPanel() {
   return (
     <div className="hidden flex-1 flex-col gap-8 lg:flex">
       <motion.div
-        animate={{ rotate: [0, 5, -5, 0], scale: 1 }}
-        className="flex h-20 w-20 items-center justify-center rounded-3xl text-3xl"
+        animate={{ scale: 1 }}
+        className="flex h-24 w-24 items-center justify-center"
         initial={{ scale: 0 }}
-        style={{
-          background: "linear-gradient(135deg, rgba(203,172,249,0.3), rgba(14,165,233,0.3))",
-          boxShadow: "0 0 40px rgba(203,172,249,0.15), 0 0 80px rgba(14,165,233,0.1)",
-        }}
-        transition={{
-          rotate: { duration: 4, ease: "easeInOut", repeat: Infinity },
-          scale: { stiffness: 200, type: "spring" },
-        }}
+        transition={{ scale: { stiffness: 200, type: "spring" } }}
       >
-        ⚡
+        <DotLottieReact
+          autoplay
+          loop
+          src="/kenttaki-bot.lottie"
+          style={{ height: "100%", width: "100%" }}
+        />
       </motion.div>
 
       <h1 className="text-5xl font-bold leading-tight">
