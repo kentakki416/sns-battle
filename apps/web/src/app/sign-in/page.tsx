@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 }
 
 type Props = {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string, redirect?: string }>
 }
 
 export default async function SignInPage({ searchParams }: Props) {
-  const { error } = await searchParams
+  const { error, redirect } = await searchParams
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-dark-base">
@@ -21,7 +21,7 @@ export default async function SignInPage({ searchParams }: Props) {
 
       <div className="relative z-10 flex w-full max-w-5xl items-center justify-between gap-16 px-8">
         <BrandPanel />
-        <SignInCard error={error} />
+        <SignInCard error={error} redirect={redirect} />
       </div>
     </main>
   )
