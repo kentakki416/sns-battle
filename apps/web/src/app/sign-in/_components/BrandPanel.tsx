@@ -12,11 +12,16 @@ const FEATURES = [
 export function BrandPanel() {
   return (
     <div className="hidden flex-1 flex-col gap-8 lg:flex">
+      {/**
+       * transform: scale を使うと getBoundingClientRect が 0 を返し、
+       * dotlottie-web の canvas buffer が 0×0 で初期化されて
+       * "Failed to construct 'ImageData'" になるため、opacity + y で代替する
+       */}
       <motion.div
-        animate={{ scale: 1 }}
-        className="flex h-24 w-24 items-center justify-center"
-        initial={{ scale: 0 }}
-        transition={{ scale: { stiffness: 200, type: "spring" } }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex h-48 w-48 items-center justify-center"
+        initial={{ opacity: 0, y: 12 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
         <DotLottieReact
           autoplay
